@@ -16,6 +16,7 @@
         "jsonwebtoken": "^9.0.3",
       },
       "devDependencies": {
+        "@repo/shared": "workspace:*",
         "@repo/typescript-config": "workspace:*",
         "@types/bun": "latest",
       },
@@ -87,8 +88,8 @@
         "typescript-eslint": "^8.48.1",
       },
     },
-    "packages/shared-types": {
-      "name": "@repo/shared-types",
+    "packages/shared": {
+      "name": "@repo/shared",
       "dependencies": {
         "zod": "^4.1.13",
       },
@@ -275,7 +276,7 @@
 
     "@repo/eslint-config": ["@repo/eslint-config@workspace:packages/eslint-config"],
 
-    "@repo/shared-types": ["@repo/shared-types@workspace:packages/shared-types"],
+    "@repo/shared": ["@repo/shared@workspace:packages/shared"],
 
     "@repo/typescript-config": ["@repo/typescript-config@workspace:packages/typescript-config"],
 

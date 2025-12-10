@@ -9,6 +9,7 @@
   },
   "private": true,
   "devDependencies": {
+    "@repo/shared": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "@types/bun": "latest"
   },

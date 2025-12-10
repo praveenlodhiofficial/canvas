@@ -1,0 +1,32 @@
+{
+  "name": "@repo/shared",
+  "types": "dist/index.d.ts",
+  "module": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -b",
+    "start": "bun run dist/index.js"
+  },
+  "exports": {
+    ".": {
+      "import": "./src/index.ts"
+    },
+    "./schema": {
+      "import": "./src/schema/index.ts"
+    },
+    "./types": {
+      "import": "./src/types/index.ts"
+    }
+  },
+  "private": true,
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "zod": "^4.1.13"
+  }
+}
