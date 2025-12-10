@@ -1,20 +1,17 @@
-import { handleAuthRoutes } from "./routes/auth.route";
+import { App } from "./core/app";
+import { Router } from "./core/router";
+import { registerAuthRoutes } from "./routes/auth.route";
+import { registerRoomRoutes } from "./routes/room.route";
+
+const router = new Router();
+registerAuthRoutes(router);
+registerRoomRoutes(router);
+
+const app = new App(router);
 
 const server = Bun.serve({
   port: 3001,
-
-  fetch(req) {
-    const url = new URL(req.url);
-    console.log(`Endpoint Hit: ${url.pathname}`);
-
-    // AUTH ROUTES
-    if (url.pathname.startsWith("/api/v1")) {
-      return handleAuthRoutes(req, url);
-    }
-
-    // DEFAULT RESPONSE
-    return new Response("Welcome to Bun HTTP server");
-  }
+  fetch: (req) => app.fetch(req)
 });
 
 console.log(`HTTP server running on ${server.url}`);

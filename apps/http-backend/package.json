@@ -9,7 +9,6 @@
   },
   "private": true,
   "devDependencies": {
-    "@repo/shared": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "@types/bun": "latest"
   },
@@ -17,7 +16,9 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@repo/shared": "workspace:*",
     "@types/jsonwebtoken": "^9.0.10",
-    "jsonwebtoken": "^9.0.3"
+    "jsonwebtoken": "^9.0.3",
+    "zod": "^4.1.13"
   }
 }

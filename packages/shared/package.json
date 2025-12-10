@@ -3,6 +3,7 @@
   "types": "dist/index.d.ts",
   "module": "dist/index.js",
   "type": "module",
+  "main": "src/index.ts",
   "scripts": {
     "build": "tsc -b",
     "start": "bun run dist/index.js"
@@ -16,6 +17,9 @@
     },
     "./types": {
       "import": "./src/types/index.ts"
+    },
+    "./utils": {
+      "import": "./src/utils/index.ts"
     }
   },
   "private": true,
