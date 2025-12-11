@@ -1,14 +1,13 @@
 import jwt from "jsonwebtoken";
-
-const SECRET = process.env.JWT_SECRET || "supersecret";
+import { config } from "../config";
 
 export function signJWT(payload: object) {
-  return jwt.sign(payload, SECRET, { expiresIn: "7d" });
+  return jwt.sign(payload, config.env.jwtSecret, { expiresIn: "7d" });
 }
 
 export function verifyJWT(token: string) {
   try {
-    return jwt.verify(token, SECRET);
+    return jwt.verify(token, config.env.jwtSecret);
   } catch {
     return null;
   }
