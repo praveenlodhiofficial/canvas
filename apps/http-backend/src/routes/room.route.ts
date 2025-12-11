@@ -14,7 +14,7 @@ export function registerRoomRoutes(router: Router) {
     return Response.json({
       message: "Room created successfully",
       name,
-      createdBy: user?.id
+      createdBy: user?.id,
     });
-  }); 
+  });
 }

@@ -6,7 +6,6 @@ const server = Bun.serve<AuthPayload>({
 
   fetch(req, server) {
     if (req.headers.get("upgrade")?.toLowerCase() === "websocket") {
-      
       const authResult = authMiddleware(req);
       if (authResult instanceof Response) {
         return authResult;
@@ -33,7 +32,9 @@ const server = Bun.serve<AuthPayload>({
       }
 
       console.log("Client connected", { user });
-      ws.send(JSON.stringify({ type: "welcome", message: "Connected to WS server" }));
+      ws.send(
+        JSON.stringify({ type: "welcome", message: "Connected to WS server" }),
+      );
     },
 
     message(ws, message) {
@@ -45,8 +46,8 @@ const server = Bun.serve<AuthPayload>({
 
     close(ws) {
       console.log("Client disconnected");
-    }
-  }
+    },
+  },
 });
 
 console.log(`WebSocket server running on ${server.url}`);

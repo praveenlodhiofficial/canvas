@@ -11,7 +11,7 @@ const app = new App(router);
 
 const server = Bun.serve({
   port: 3001,
-  fetch: (req) => app.fetch(req)
+  fetch: (req) => app.fetch(req),
 });
 
 console.log(`HTTP server running on ${server.url}`);

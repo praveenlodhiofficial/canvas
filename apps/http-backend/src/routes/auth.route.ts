@@ -11,12 +11,12 @@ export function registerAuthRoutes(router: Router) {
       const errors = z.treeifyError(parsed.error);
       return Response.json(
         { message: "validation failed", errors },
-        { status: 400 }
-      )
+        { status: 400 },
+      );
     }
 
     return Response.json({ message: "User signed up successfully" });
-  })
+  });
 
   router.post("/api/v1/signin", async (req) => {
     const body = await req.json();
@@ -26,11 +26,10 @@ export function registerAuthRoutes(router: Router) {
       const errors = z.treeifyError(parsed.error);
       return Response.json(
         { message: "validation failed", errors },
-        { status: 400 }
-      )
+        { status: 400 },
+      );
     }
 
     return Response.json({ message: "User signed in successfully" });
-
   });
 }

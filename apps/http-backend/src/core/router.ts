@@ -1,4 +1,7 @@
-type Handler = (req: Request, params: Record<string, string>) => Promise<Response> | Response;
+type Handler = (
+  req: Request,
+  params: Record<string, string>,
+) => Promise<Response> | Response;
 
 export class Router {
   private routes: Record<string, Record<string, Handler>> = {};

@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const RoomSchema = z.object({
   id: z.uuid(),
-  name: z.string().min(3)
-})
+  name: z.string().min(3),
+});
 
-export type RoomType = z.infer<typeof RoomSchema>
+export type RoomType = z.infer<typeof RoomSchema>;
