@@ -64,6 +64,7 @@
       "dependencies": {
         "@prisma/adapter-pg": "^7.1.0",
         "@prisma/client": "^7.1.0",
+        "@repo/shared": "workspace:*",
         "@types/pg": "^8.15.6",
         "dotenv": "^17.2.3",
         "pg": "^8.16.3",

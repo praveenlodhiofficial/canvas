@@ -21,6 +21,7 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@repo/shared": "workspace:*",
     "@prisma/adapter-pg": "^7.1.0",
     "@prisma/client": "^7.1.0",
     "@types/pg": "^8.15.6",
