@@ -1,4 +1,4 @@
-import type { AuthenticatedRequest } from "@repo/shared/types";
+import { AuthenticatedRequest } from "@repo/shared/types";
 import { authenticateRequest } from "@repo/shared/utils";
 
 export async function authMiddleware(req: Request) {

@@ -1,4 +1,5 @@
-import { Router } from "./router";
+import { withCors } from "@/middleware/cors.middleware";
+import { Router } from "@/core/router";
 
 type Middleware = (req: Request) => Promise<Response | null>;
 
@@ -20,6 +21,7 @@ export class App {
       if (result) return result; // middleware blocked request
     }
 
-    return this.router.handle(req);
+    const response = await this.router.handle(req);
+    return withCors(response);
   }
 }

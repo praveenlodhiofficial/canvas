@@ -3,8 +3,8 @@ import { RoomSchema } from "@repo/shared/schema";
 import type { AuthenticatedRequest } from "@repo/shared/types";
 import { uniqueSlugify } from "@repo/shared/utils";
 import { z } from "zod";
-import { Router } from "../core/router";
-import { authMiddleware } from "../middleware/auth.middleware";
+import { Router } from "@/core/router";
+import { authMiddleware } from "@/middleware/auth.middleware";
 
 export function registerRoomRoutes(router: Router) {
   // --------------------------------------------> CREATE ROOM ROUTE <--------------------------------------------

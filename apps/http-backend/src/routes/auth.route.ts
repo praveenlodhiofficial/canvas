@@ -3,7 +3,7 @@ import { config } from "@repo/shared";
 import { SignInSchema, SignUpSchema } from "@repo/shared/schema";
 import { signJWT } from "@repo/shared/utils";
 import { z } from "zod";
-import { Router } from "../core/router";
+import { Router } from "@/core/router";
 
 export function registerAuthRoutes(router: Router) {
   // --------------------------------------------> SIGN UP ROUTE <--------------------------------------------
