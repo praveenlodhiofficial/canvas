@@ -2,10 +2,8 @@ import type { WebSocketData } from "@repo/shared/types";
 import { authMiddleware } from "./middleware/auth.middleware";
 import type { ServerWebSocket } from "bun";
 
-
 // "praveen-room" → [ socket1, socket2, socket3 ]
 const rooms = new Map<string, Set<ServerWebSocket<WebSocketData>>>();
-
 
 const server = Bun.serve<WebSocketData>({
   port: 3002,
@@ -63,7 +61,7 @@ const server = Bun.serve<WebSocketData>({
             id: user.id,
             email: user.email,
           },
-        })
+        }),
       );
     },
 
@@ -88,7 +86,7 @@ const server = Bun.serve<WebSocketData>({
                 id: user.id,
                 email: user.email,
               },
-            })
+            }),
           );
         }
       }
