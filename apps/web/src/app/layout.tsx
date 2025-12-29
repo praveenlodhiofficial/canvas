@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "@/styles/globals.css";
 import { Exo_2, Inter } from "next/font/google";
+import { Toaster } from "@/components/ui/sonner"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -29,6 +30,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} ${exo2.variable}`}>
         {children}
+        <Toaster richColors position="top-right" duration={2000} />
       </body>
     </html>
   );
