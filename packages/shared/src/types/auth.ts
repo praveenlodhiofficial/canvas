@@ -6,3 +6,8 @@ export type AuthPayload = {
 export type AuthenticatedRequest = Request & {
   user: AuthPayload;
 };
+
+export type WebSocketData = {
+  user: AuthPayload;
+  room: string;
+};

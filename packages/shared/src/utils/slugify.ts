@@ -1,12 +1,19 @@
-
-export function slugify(input: string, opts = { lower: true, maxLength: undefined, fallback: "item" } as {
-  lower?: boolean; maxLength?: number; fallback?: string;
-}) {
+export function slugify(
+  input: string,
+  opts = { lower: true, maxLength: undefined, fallback: "item" } as {
+    lower?: boolean;
+    maxLength?: number;
+    fallback?: string;
+  },
+) {
   const { lower = true, maxLength, fallback = "item" } = opts;
   if (!input) return fallback;
   let s = input.normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
   if (lower) s = s.toLowerCase();
-  s = s.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").replace(/-{2,}/g, "-");
+  s = s
+    .replace(/[^a-z0-9]+/gi, "-")
+    .replace(/^-+|-+$/g, "")
+    .replace(/-{2,}/g, "-");
   if (typeof maxLength === "number" && maxLength > 0) {
     s = s.slice(0, maxLength).replace(/-+$/g, "");
   }
@@ -16,9 +23,19 @@ export function slugify(input: string, opts = { lower: true, maxLength: undefine
 export async function uniqueSlugify(
   input: string,
   exists: (slug: string) => Promise<boolean>,
-  opts?: { lower?: boolean; maxLength?: number; fallback?: string; maxAttempts?: number }
+  opts?: {
+    lower?: boolean;
+    maxLength?: number;
+    fallback?: string;
+    maxAttempts?: number;
+  },
 ): Promise<string> {
-  const { lower = true, maxLength, fallback = "item", maxAttempts = 1000 } = opts || {};
+  const {
+    lower = true,
+    maxLength,
+    fallback = "item",
+    maxAttempts = 1000,
+  } = opts || {};
   const base = slugify(input, { lower, maxLength, fallback });
   if (!(await exists(base))) return base;
   for (let i = 1; i <= maxAttempts; i++) {

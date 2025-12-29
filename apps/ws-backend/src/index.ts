@@ -1,7 +1,13 @@
-import type { AuthPayload } from "@repo/shared/types";
+import type { WebSocketData } from "@repo/shared/types";
 import { authMiddleware } from "./middleware/auth.middleware";
+import type { ServerWebSocket } from "bun";
 
-const server = Bun.serve<AuthPayload>({
+
+// "praveen-room" → [ socket1, socket2, socket3 ]
+const rooms = new Map<string, Set<ServerWebSocket<WebSocketData>>>();
+
+
+const server = Bun.serve<WebSocketData>({
   port: 3002,
 
   fetch(req, server) {
@@ -12,7 +18,21 @@ const server = Bun.serve<AuthPayload>({
       }
       const { payload } = authResult;
 
-      if (server.upgrade(req, { data: payload })) {
+      const url = new URL(req.url);
+      const room = url.searchParams.get("room");
+
+      if (!room) {
+        return new Response("Room is required", { status: 400 });
+      }
+
+      if (
+        server.upgrade(req, {
+          data: {
+            user: payload,
+            room: room,
+          },
+        })
+      ) {
         return;
       }
 
@@ -23,29 +43,71 @@ const server = Bun.serve<AuthPayload>({
   },
 
   websocket: {
+    // 🔗 Client connected
     open(ws) {
-      const user = ws.data as AuthPayload | undefined;
+      const { user, room } = ws.data;
 
-      if (!user) {
-        ws.close(1008, "Unauthorized");
-        return;
+      if (!rooms.has(room)) {
+        rooms.set(room, new Set());
       }
 
-      console.log("Client connected", { user });
+      rooms.get(room)!.add(ws);
+
+      console.log(`${user.id} joined room ${room}`);
+
       ws.send(
-        JSON.stringify({ type: "welcome", message: "Connected to WS server" }),
+        JSON.stringify({
+          type: "joined-room",
+          room,
+          user: {
+            id: user.id,
+            email: user.email,
+          },
+        })
       );
     },
 
-    message(ws, message) {
-      console.log("Client says:", message);
+    // 📩 Client sent message
+    message(ws, rawMessage) {
+      const { user, room } = ws.data;
+      const message = rawMessage.toString();
 
-      // Echo message back
-      ws.send(JSON.stringify({ type: "echo", message }));
+      console.log(`${user.id} says "${message}" in ${room}`);
+
+      const clients = rooms.get(room);
+      if (!clients) return;
+
+      // Broadcast to everyone except sender
+      for (const client of clients) {
+        if (client !== ws) {
+          client.send(
+            JSON.stringify({
+              type: "room-message",
+              message,
+              user: {
+                id: user.id,
+                email: user.email,
+              },
+            })
+          );
+        }
+      }
     },
 
+    // ❌ Client disconnected
     close(ws) {
-      console.log("Client disconnected");
+      const { user, room } = ws.data;
+
+      const clients = rooms.get(room);
+      if (clients) {
+        clients.delete(ws);
+
+        if (clients.size === 0) {
+          rooms.delete(room);
+        }
+      }
+
+      console.log(`${user.id} left room ${room}`);
     },
   },
 });

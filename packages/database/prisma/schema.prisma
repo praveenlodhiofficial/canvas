@@ -32,9 +32,9 @@ model Room {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  /* foreign key + relation to User model */
-  createdById  String
-  createdBy    User     @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  /* foreign key + relation to User model (admin of the room) */
+  adminId  String
+  admin    User     @relation(fields: [adminId], references: [id], onDelete: Cascade)
 
-  @@index([createdById])
+  @@index([adminId])
 }

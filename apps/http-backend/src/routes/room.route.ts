@@ -1,21 +1,20 @@
-  import type { AuthenticatedRequest } from "@repo/shared/types";
-  import { z } from "zod";
-  import { Router } from "../core/router";
-  import { authMiddleware } from "../middleware/auth.middleware";
-  import { prisma } from "@repo/database";
-  import { RoomSchema } from "@repo/shared/schema";
+import { prisma } from "@repo/database";
+import { RoomSchema } from "@repo/shared/schema";
+import type { AuthenticatedRequest } from "@repo/shared/types";
 import { uniqueSlugify } from "@repo/shared/utils";
+import { z } from "zod";
+import { Router } from "../core/router";
+import { authMiddleware } from "../middleware/auth.middleware";
 
-  export function registerRoomRoutes(router: Router) {
+export function registerRoomRoutes(router: Router) {
+  // --------------------------------------------> CREATE ROOM ROUTE <--------------------------------------------
 
-    // --------------------------------------------> CREATE ROOM ROUTE <--------------------------------------------
-
-    router.post("/api/v1/create-room", async (req) => {
-
+  router.post("/api/v1/create-room", async (req) => {
+    try {
       // Protect route with auth middleware
       const authResult = await authMiddleware(req);
       if (authResult) return authResult;
-      const user = (req as AuthenticatedRequest).user;
+      const admin = (req as AuthenticatedRequest).user;
 
       const body = await req.json();
       const parsed = RoomSchema.safeParse(body);
@@ -29,46 +28,62 @@ import { uniqueSlugify } from "@repo/shared/utils";
       }
 
       // fetch user name from database
-      const userDetails = await prisma.user.findUnique({
+      const adminDetails = await prisma.user.findUnique({
         where: {
-          id: user.id,
+          id: admin.id,
         },
         select: {
           name: true,
         },
       });
 
-      if (!userDetails) {
+      if (!adminDetails) {
         return Response.json({ message: "User not found" }, { status: 404 });
       }
 
-      const slug = await uniqueSlugify(parsed.data.name, async (slug) => {
-        return (await prisma.room.findFirst({
-          where: { slug },
-        })) !== null;
-      }, {
-        maxAttempts: 10,
-        fallback: `room-by-${userDetails.name}`,
-        maxLength: 20,
-        lower: true,
-      });
+      const slug = await uniqueSlugify(
+        parsed.data.name,
+        async (slug) => {
+          return (
+            (await prisma.room.findFirst({
+              where: { slug },
+            })) !== null
+          );
+        },
+        {
+          maxAttempts: 10,
+          fallback: `room-by-${adminDetails.name}`,
+          maxLength: 20,
+          lower: true,
+        },
+      );
 
       const room = await prisma.room.create({
         data: {
           name: parsed.data.name,
           slug: slug,
-          createdById: user.id,
+          adminId: admin.id,
         },
         include: {
-          createdBy: true,
+          admin: true,
         },
       });
 
-      return Response.json({
-        message: "Room created successfully",
-        name: room.name,
-        slug: room.slug,
-        createdBy: userDetails.name,
-      }, { status: 201 });
-    });
-  }
+      return Response.json(
+        {
+          message: "Room created successfully",
+          name: room.name,
+          slug: room.slug,
+          admin: room.admin.name,
+        },
+        { status: 201 },
+      );
+    } catch (error) {
+      console.error("Error creating room:", error);
+      return Response.json(
+        { message: "Internal server error" },
+        { status: 500 },
+      );
+    }
+  });
+}
