@@ -4,6 +4,7 @@ import { SignInSchema, SignUpSchema } from "@repo/shared/schema";
 import { signJWT } from "@repo/shared/utils";
 import { z } from "zod";
 import { Router } from "@/core/router";
+import { createCookies } from "@/utils/cookies";
 
 export function registerAuthRoutes(router: Router) {
   // --------------------------------------------> SIGN UP ROUTE <--------------------------------------------
@@ -19,7 +20,7 @@ export function registerAuthRoutes(router: Router) {
         const errors = z.treeifyError(parsed.error);
         return Response.json(
           { message: "validation failed", errors },
-          { status: 400 },
+          { status: 400 }
         );
       }
 
@@ -32,7 +33,7 @@ export function registerAuthRoutes(router: Router) {
       if (doesUserExist) {
         return Response.json(
           { message: "User already exists" },
-          { status: 400 },
+          { status: 400 }
         );
       }
 
@@ -52,13 +53,13 @@ export function registerAuthRoutes(router: Router) {
           name: user.name,
           email: user.email,
         },
-        { status: 201 },
+        { status: 201 }
       );
     } catch (error) {
       console.error("Error during signup:", error);
       return Response.json(
         { message: "Internal server error" },
-        { status: 500 },
+        { status: 500 }
       );
     }
   });
@@ -74,55 +75,63 @@ export function registerAuthRoutes(router: Router) {
         const errors = z.treeifyError(parsed.error);
         return Response.json(
           { message: "validation failed", errors },
-          { status: 400 },
+          { status: 400 }
         );
       }
 
-      const doesUserExist = await prisma.user.findUnique({
+      const user = await prisma.user.findUnique({
         where: {
           email: parsed.data.email,
         },
       });
 
-      if (!doesUserExist) {
+      if (!user) {
         return Response.json(
           { message: "User not found or credentials are incorrect" },
-          { status: 404 },
+          { status: 404 }
         );
       }
 
       const isPasswordValid = await Bun.password.verify(
         parsed.data.password,
-        doesUserExist.password,
+        user.password
       );
 
       if (!isPasswordValid) {
         return Response.json(
           { message: "User not found or credentials are incorrect" },
-          { status: 404 },
+          { status: 404 }
         );
       }
 
       const token = await signJWT({
-        id: doesUserExist.id,
-        email: doesUserExist.email,
-      });
-
-      const user = {
-        email: doesUserExist.email,
-        password: doesUserExist.password,
-      };
-
-      return Response.json({
-        message: "User signed in successfully",
+        id: user.id,
         email: user.email,
-        token,
       });
+
+      const headers = new Headers();
+      const cookies = createCookies(headers, req);
+
+      cookies.set("session", token, {
+        httpOnly: true,
+        // secure: config.isProduction === "production",
+        maxAge: 60 * 60 * 24 * 7, // 7 days - TODO: Use the environment variable for the max age
+        path: "/",
+        sameSite: "lax",
+      });
+
+      return Response.json(
+        {
+          message: "User signed in successfully",
+          email: user.email,
+        },
+        { status: 200, headers }
+      );
     } catch (error) {
       console.error("Error during signin:", error);
       return Response.json(
         { message: "Internal server error" },
-        { status: 500 },
+        { status: 500 }
       );
     }
   });

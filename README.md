@@ -1,3 +1,42 @@
+Work Completed So Far:
+
+- [x] Sign Up - both frontend and backend
+- [x] Sign In - both frontend and backend
+- [x] Create Room - only backend - frontend remains to be done
+- [x] Join Room - only backend - frontend remains to be done
+- [x] Leave Room - not implemented yet
+- [x] Delete Room - not implemented yet
+- [x] Get Room - not implemented yet
+- [x] Get All Rooms - not implemented yet
+
+Work to be Done:
+ - [ ] Check if Bearer Authorization Header is sending the token to the backend when signing in, so it can be used to create a room later on.
+
+
+- [ ] Add a way to share the room link
+- [ ] Add a way to invite users to the room
+- [ ] Add a way to remove users from the room
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Turborepo starter
 
 This Turborepo starter is maintained by the Turborepo core team.

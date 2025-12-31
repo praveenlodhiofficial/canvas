@@ -1,5 +1,5 @@
 import { AuthenticatedRequest } from "@repo/shared/types";
-import { authenticateRequest } from "@repo/shared/utils";
+import { authenticateRequest } from "@/utils/authenticateRequest";
 
 export async function authMiddleware(req: Request) {
   const payload = authenticateRequest(req);
