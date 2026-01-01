@@ -1,6 +1,6 @@
 import { Cookies } from "@repo/shared/types";
 
-export function createCookies(resHeaders: Headers, req: Request): Cookies {
+export function getCookies(resHeaders: Headers, req: Request): Cookies {
     return {
       get(key) {
         const cookie = req.headers.get("cookie");

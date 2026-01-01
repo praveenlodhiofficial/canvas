@@ -1,9 +1,9 @@
 import { AuthPayload } from "@repo/shared/types";
-import { extractToken } from "./extractToken";
+import { getSessionToken } from "./token";
 import { verifyJWT } from "@repo/shared/utils";
 
 export function authenticateRequest(req: Request): AuthPayload | null {
-  const token = extractToken(req);
+  const token = getSessionToken(req);
   if (!token) return null;
 
   try {
