@@ -10,14 +10,11 @@ Work Completed So Far:
 - [x] Get All Rooms - not implemented yet
 
 Work to be Done:
- - [ ] Check if Bearer Authorization Header is sending the token to the backend when signing in, so it can be used to create a room later on.
 
 
 - [ ] Add a way to share the room link
 - [ ] Add a way to invite users to the room
 - [ ] Add a way to remove users from the room
-
-
 
 
 
@@ -172,3 +169,4 @@ Learn more about the power of Turborepo:
 - [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
 - [Configuration Options](https://turborepo.com/docs/reference/configuration)
 - [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+

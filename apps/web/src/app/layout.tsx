@@ -29,7 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} ${exo2.variable}`}>
-        <div className="max-w-7xl mx-auto p-4">
+        <div className="mx-auto">
           {children}
         </div>
         <Toaster richColors position="top-right" duration={2000} />
