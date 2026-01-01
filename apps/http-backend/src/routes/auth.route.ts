@@ -4,7 +4,8 @@ import { SignInSchema, SignUpSchema } from "@repo/shared/schema";
 import { signJWT } from "@repo/shared/utils";
 import { z } from "zod";
 import { Router } from "@/core/router";
-import { createCookies } from "@/utils/cookies";
+import { getCookies } from "@/utils/cookies";
+import { authMiddleware } from "@/middleware/auth.middleware";
 
 export function registerAuthRoutes(router: Router) {
   // --------------------------------------------> SIGN UP ROUTE <--------------------------------------------
@@ -110,7 +111,7 @@ export function registerAuthRoutes(router: Router) {
       });
 
       const headers = new Headers();
-      const cookies = createCookies(headers, req);
+      const cookies = getCookies(headers, req);
 
       cookies.set("session", token, {
         httpOnly: true,
@@ -129,6 +130,34 @@ export function registerAuthRoutes(router: Router) {
       );
     } catch (error) {
       console.error("Error during signin:", error);
+      return Response.json(
+        { message: "Internal server error" },
+        { status: 500 }
+      );
+    }
+  });
+
+  // --------------------------------------------> LOGOUT ROUTE <--------------------------------------------
+    router.post("/api/v1/logout", async (req) => {
+    try {
+      const authResult = await authMiddleware(req);
+      if (authResult) return authResult;
+
+      // headers to be sent back to the client & cookies to be deleted
+      const headers = new Headers();
+      const cookies = getCookies(headers, req);
+
+      cookies.delete("session");
+
+      return Response.json(
+        { message: "User logged out successfully" },
+        { 
+          status: 200,
+          headers
+         }
+      );
+    } catch (error) {
+      console.error("Error during logout:", error);
       return Response.json(
         { message: "Internal server error" },
         { status: 500 }
