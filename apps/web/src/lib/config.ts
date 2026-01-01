@@ -1,3 +1,12 @@
-export const config = {
-  backendUrl: process.env.HTTP_BACKEND_URL,
+function requireEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(`Missing environment variable: ${name}`);
+  }
+  return value;
 }
+
+export const config = {
+  backendUrl: requireEnv("HTTP_BACKEND_URL"),
+  websocketUrl: requireEnv("WEBSOCKET_BACKEND_URL"),
+};

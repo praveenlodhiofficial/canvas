@@ -56,7 +56,7 @@ export default function SignInPage() {
       const responseData = await response.json();
       console.log("responseData:", responseData);
       toast.success("User signed in successfully");
-      router.push("/");
+      router.replace("/dashboard");
     }
   }
 
