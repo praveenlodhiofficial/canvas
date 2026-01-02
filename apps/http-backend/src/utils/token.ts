@@ -5,15 +5,12 @@ export function getSessionToken(req: Request): string | null {
   return cookies.get("session") ?? null;
 }
 
-
 // export function getSessionToken(req: Request): string | null {
 //   const cookie = req.headers.get("cookie");
 //   if (!cookie) return null;
 
 //   return cookie.match(/session=([^;]+)/)?.[1] ?? null;
 // }
-
-
 
 // export function extractToken(req: Request): string | null {
 //   const header = req.headers.get("authorization");

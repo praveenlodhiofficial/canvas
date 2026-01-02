@@ -15,22 +15,21 @@ export class Router {
   // -------------------- REGISTER --------------------
   register(method: string, path: string, handler: Handler) {
     method = method.toUpperCase();
-  
+
     let routes = this.routes[method];
     if (!routes) {
       routes = [];
       this.routes[method] = routes;
     }
-  
+
     const segments = path.split("/").filter(Boolean);
-  
+
     routes.push({
       path,
       segments,
       handler,
     });
   }
-  
 
   // -------------------- METHODS --------------------
   get(path: string, handler: Handler) {
@@ -71,12 +70,12 @@ export class Router {
       for (let i = 0; i < route.segments.length; i++) {
         const routeSeg = route.segments[i];
         const reqSeg = reqSegments[i];
-      
+
         if (!routeSeg || !reqSeg) {
           matched = false;
           break;
         }
-      
+
         if (routeSeg.startsWith(":")) {
           params[routeSeg.slice(1)] = reqSeg;
         } else if (routeSeg !== reqSeg) {

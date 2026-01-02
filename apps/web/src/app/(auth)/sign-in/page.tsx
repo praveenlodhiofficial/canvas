@@ -81,9 +81,7 @@ export default function SignInPage() {
 
         <div className="bg-white/80 backdrop-blur-xl sketch-border p-8 md:p-12 shadow-2xl border-border/50">
           <div className="text-center mb-10">
-            <div
-              className="w-12 h-12 flex items-center justify-center sketch-border mx-auto mb-6 bg-brand border-brand text-white"
-            >
+            <div className="w-12 h-12 flex items-center justify-center sketch-border mx-auto mb-6 bg-brand border-brand text-white">
               <Pencil className="w-6 h-6 transform -rotate-12" />
             </div>
             <h1 className="text-3xl font-black tracking-tighter mb-2">
@@ -200,10 +198,7 @@ export default function SignInPage() {
           <p className="mt-10 text-center text-sm font-semibold text-muted-foreground">
             Don&apos;t have an account?{" "}
             <Link href="/sign-up">
-              <Button
-                variant="link"
-                className="px-0 font-bold text-brand"
-              >
+              <Button variant="link" className="px-0 font-bold text-brand">
                 Sign up now
               </Button>
             </Link>

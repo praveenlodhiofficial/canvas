@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Link from "next/link"
-import { CircleCheckIcon, CircleHelpIcon, CircleIcon } from "lucide-react"
+import * as React from "react";
+import Link from "next/link";
+import { CircleCheckIcon, CircleHelpIcon, CircleIcon } from "lucide-react";
 
 import {
   NavigationMenu,
@@ -12,8 +12,8 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu"
-import { useIsMobile } from "@/hooks/use-mobile"
+} from "@/components/ui/navigation-menu";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const components: { title: string; href: string; description: string }[] = [
   {
@@ -51,10 +51,10 @@ const components: { title: string; href: string; description: string }[] = [
     description:
       "A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.",
   },
-]
+];
 
 export function Navbar() {
-  const isMobile = useIsMobile()
+  const isMobile = useIsMobile();
 
   return (
     <NavigationMenu viewport={isMobile}>
@@ -191,7 +191,7 @@ export function Navbar() {
         </NavigationMenuItem>
       </NavigationMenuList>
     </NavigationMenu>
-  )
+  );
 }
 
 function ListItem({
@@ -211,5 +211,5 @@ function ListItem({
         </Link>
       </NavigationMenuLink>
     </li>
-  )
+  );
 }

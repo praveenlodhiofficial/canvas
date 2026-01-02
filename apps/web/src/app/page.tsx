@@ -31,9 +31,7 @@ export default function LandingPage() {
       <header className="fixed top-0 w-full z-50 bg-background/60 backdrop-blur-xl border-b border-border/50">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 group cursor-pointer">
-            <div
-              className="w-9 h-9 flex items-center justify-center sketch-border transition-transform group-hover:rotate-6 bg-brand border-brand text-white"
-            >
+            <div className="w-9 h-9 flex items-center justify-center sketch-border transition-transform group-hover:rotate-6 bg-brand border-brand text-white">
               <Pencil className="w-5 h-5 transform -rotate-12" />
             </div>
             <span className="text-xl font-bold tracking-tighter">
@@ -104,10 +102,7 @@ export default function LandingPage() {
 
           <h1 className="text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter mb-8 max-w-6xl mx-auto leading-[0.8] text-balance">
             Sketch your{" "}
-            <span className="italic font-serif text-brand">
-              wildest
-            </span>{" "}
-            ideas.
+            <span className="italic font-serif text-brand">wildest</span> ideas.
           </h1>
 
           <p className="text-lg md:text-xl text-muted-foreground/80 max-w-2xl mx-auto mb-12 leading-relaxed font-semibold">
@@ -156,29 +151,19 @@ export default function LandingPage() {
               {/* Central Sketch Simulation */}
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-80">
                 <div className="relative w-full h-full p-20 flex items-center justify-center">
-                  <div
-                    className="w-80 h-56 sketch-border border-4 flex flex-col items-center justify-center rotate-2 bg-white shadow-xl border-brand"
-                  >
-                    <span
-                      className="font-mono text-3xl font-bold text-brand"
-                    >
+                  <div className="w-80 h-56 sketch-border border-4 flex flex-col items-center justify-center rotate-2 bg-white shadow-xl border-brand">
+                    <span className="font-mono text-3xl font-bold text-brand">
                       MVP FLOW
                     </span>
-                    <div
-                      className="w-48 h-1 mt-6 rounded-full bg-brand/40"
-                    />
-                    <div
-                      className="w-32 h-1 mt-2 rounded-full opacity-50 bg-brand/20"
-                    />
+                    <div className="w-48 h-1 mt-6 rounded-full bg-brand/40" />
+                    <div className="w-32 h-1 mt-2 rounded-full opacity-50 bg-brand/20" />
                   </div>
-                  <div
-                    className="absolute top-1/4 right-1/4 w-32 h-32 sketch-border border-4 rounded-full -rotate-12 opacity-30 border-brand"
-                  />
+                  <div className="absolute top-1/4 right-1/4 w-32 h-32 sketch-border border-4 rounded-full -rotate-12 opacity-30 border-brand" />
                 </div>
               </div>
 
               <div className="absolute bottom-6 right-6 bg-white/90 backdrop-blur px-5 py-3 rounded-xl border-2 border-border sketch-border flex items-center gap-4 shadow-xl">
-              <div className="flex -space-x-3">
+                <div className="flex -space-x-3">
                   {[1, 2, 3].map((i) => (
                     <div
                       key={i}
@@ -304,9 +289,7 @@ export default function LandingPage() {
       <footer className="border-t py-16 bg-white/50 backdrop-blur-sm">
         <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-10">
           <div className="flex items-center gap-2">
-            <div
-              className="w-8 h-8 rounded flex items-center justify-center sketch-border bg-brand border-brand text-white"
-            >
+            <div className="w-8 h-8 rounded flex items-center justify-center sketch-border bg-brand border-brand text-white">
               <Pencil className="w-4 h-4 transform -rotate-12" />
             </div>
             <span className="font-black text-xl">sketch.io</span>
@@ -342,10 +325,10 @@ function FeatureCard({
   description,
   color,
 }: {
-  icon: React.ReactNode
-  title: string
-  description: string
-  color?: string
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  color?: string;
 }) {
   return (
     <div className="p-10 rounded-[2.5rem] border border-border/50 bg-white/50 backdrop-blur-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group">
@@ -360,8 +343,9 @@ function FeatureCard({
         {icon}
       </div>
       <h3 className="text-2xl font-black mb-4 tracking-tight">{title}</h3>
-      <p className="text-muted-foreground/80 leading-relaxed font-medium">{description}</p>
+      <p className="text-muted-foreground/80 leading-relaxed font-medium">
+        {description}
+      </p>
     </div>
-  )
+  );
 }
-

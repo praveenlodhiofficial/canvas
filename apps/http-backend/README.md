@@ -1,11 +1,11 @@
 getToken.ts
- └─ getSessionToken
+└─ getSessionToken
 
 authenticateRequest.ts
- └─ verify identity
+└─ verify identity
 
 authMiddleware.ts
- └─ attach user to request
+└─ attach user to request
 
 routes
- └─ trust req.user
+└─ trust req.user

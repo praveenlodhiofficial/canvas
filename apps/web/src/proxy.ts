@@ -50,10 +50,10 @@ export async function proxy(req: NextRequest) {
 /* -------- Matcher: Tell Next.js when to run proxy -------- */
 export const config = {
   matcher: [
-    "/api/:path*",          
-    "/dashboard/:path*",    
-    "/rooms/:path*",        
-    "/sign-in",             
-    "/sign-up",             
+    "/api/:path*",
+    "/dashboard/:path*",
+    "/rooms/:path*",
+    "/sign-in",
+    "/sign-up",
   ],
 };

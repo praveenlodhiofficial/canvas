@@ -22,7 +22,7 @@ export function registerAuthRoutes(router: Router) {
         const errors = z.treeifyError(parsed.error);
         return Response.json(
           { message: "validation failed", errors },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -35,7 +35,7 @@ export function registerAuthRoutes(router: Router) {
       if (doesUserExist) {
         return Response.json(
           { message: "User already exists" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -55,13 +55,13 @@ export function registerAuthRoutes(router: Router) {
           name: user.name,
           email: user.email,
         },
-        { status: 201 }
+        { status: 201 },
       );
     } catch (error) {
       console.error("Error during signup:", error);
       return Response.json(
         { message: "Internal server error" },
-        { status: 500 }
+        { status: 500 },
       );
     }
   });
@@ -77,7 +77,7 @@ export function registerAuthRoutes(router: Router) {
         const errors = z.treeifyError(parsed.error);
         return Response.json(
           { message: "validation failed", errors },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -90,19 +90,19 @@ export function registerAuthRoutes(router: Router) {
       if (!user) {
         return Response.json(
           { message: "User not found or credentials are incorrect" },
-          { status: 404 }
+          { status: 404 },
         );
       }
 
       const isPasswordValid = await Bun.password.verify(
         parsed.data.password,
-        user.password
+        user.password,
       );
 
       if (!isPasswordValid) {
         return Response.json(
           { message: "User not found or credentials are incorrect" },
-          { status: 404 }
+          { status: 404 },
         );
       }
 
@@ -127,13 +127,13 @@ export function registerAuthRoutes(router: Router) {
           message: "User signed in successfully",
           email: user.email,
         },
-        { status: 200, headers }
+        { status: 200, headers },
       );
     } catch (error) {
       console.error("Error during signin:", error);
       return Response.json(
         { message: "Internal server error" },
-        { status: 500 }
+        { status: 500 },
       );
     }
   });
@@ -155,13 +155,13 @@ export function registerAuthRoutes(router: Router) {
         {
           status: 200,
           headers,
-        }
+        },
       );
     } catch (error) {
       console.error("Error during logout:", error);
       return Response.json(
         { message: "Internal server error" },
-        { status: 500 }
+        { status: 500 },
       );
     }
   });
@@ -195,13 +195,13 @@ export function registerAuthRoutes(router: Router) {
           user: currentUser,
           cookies: cookies.get("session"),
         },
-        { status: 200 }
+        { status: 200 },
       );
     } catch (error) {
       console.error("Error fetching user details:", error);
       return Response.json(
         { message: "Internal server error" },
-        { status: 500 }
+        { status: 500 },
       );
     }
   });

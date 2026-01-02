@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "@/styles/globals.css";
 import { Exo_2, Inter } from "next/font/google";
-import { Toaster } from "@/components/ui/sonner"
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -29,9 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} ${exo2.variable}`}>
-        <div className="mx-auto">
-          {children}
-        </div>
+        <div className="mx-auto">{children}</div>
         <Toaster richColors position="top-right" duration={2000} />
       </body>
     </html>

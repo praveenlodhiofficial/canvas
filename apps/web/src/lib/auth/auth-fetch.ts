@@ -2,7 +2,7 @@ import { getAuthCookieHeader } from "./cookies";
 
 export async function authFetch<T>(
   url: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
 ): Promise<T> {
   const res = await fetch(url, {
     ...options,

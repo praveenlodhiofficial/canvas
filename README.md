@@ -11,28 +11,9 @@ Work Completed So Far:
 
 Work to be Done:
 
-
 - [ ] Add a way to share the room link
 - [ ] Add a way to invite users to the room
 - [ ] Add a way to remove users from the room
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 # Turborepo starter
 
@@ -169,4 +150,3 @@ Learn more about the power of Turborepo:
 - [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
 - [Configuration Options](https://turborepo.com/docs/reference/configuration)
 - [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
-

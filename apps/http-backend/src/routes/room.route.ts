@@ -23,7 +23,7 @@ export function registerRoomRoutes(router: Router) {
         const errors = z.treeifyError(parsed.error);
         return Response.json(
           { message: "validation failed", errors },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -57,13 +57,13 @@ export function registerRoomRoutes(router: Router) {
           name: room.name,
           admin: room.admin.name,
         },
-        { status: 201 }
+        { status: 201 },
       );
     } catch (error) {
       console.error("Error creating room:", error);
       return Response.json(
         { message: "Internal server error" },
-        { status: 500 }
+        { status: 500 },
       );
     }
   });
@@ -80,7 +80,7 @@ export function registerRoomRoutes(router: Router) {
       if (!roomId)
         return Response.json(
           { message: "Room ID is required" },
-          { status: 400 }
+          { status: 400 },
         );
 
       const room = await prisma.room.findUnique({
@@ -102,13 +102,13 @@ export function registerRoomRoutes(router: Router) {
 
       return Response.json(
         { message: "Room deleted successfully" },
-        { status: 200 }
+        { status: 200 },
       );
     } catch (error) {
       console.error("Error deleting room:", error);
       return Response.json(
         { message: "Internal server error" },
-        { status: 500 }
+        { status: 500 },
       );
     }
   });
@@ -128,13 +128,13 @@ export function registerRoomRoutes(router: Router) {
 
       return Response.json(
         { message: "All rooms deleted successfully" },
-        { status: 200 }
+        { status: 200 },
       );
     } catch (error) {
       console.error("Error deleting all rooms:", error);
       return Response.json(
         { message: "Internal server error" },
-        { status: 500 }
+        { status: 500 },
       );
     }
   });
@@ -176,13 +176,13 @@ export function registerRoomRoutes(router: Router) {
           message: "Rooms fetched successfully",
           rooms: rooms.map((room) => room.name),
         },
-        { status: 200 }
+        { status: 200 },
       );
     } catch (error) {
       console.error("Error fetching rooms:", error);
       return Response.json(
         { message: "Internal server error" },
-        { status: 500 }
+        { status: 500 },
       );
     }
   });

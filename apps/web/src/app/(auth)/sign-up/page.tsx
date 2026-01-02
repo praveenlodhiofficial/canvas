@@ -14,9 +14,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { toast } from "sonner"
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { Pencil, ArrowLeft, Eye, EyeOff, Github, Mail } from "lucide-react"
+import { Pencil, ArrowLeft, Eye, EyeOff, Github, Mail } from "lucide-react";
 import { useState } from "react";
 
 export default function SignUpPage() {
@@ -33,7 +33,6 @@ export default function SignUpPage() {
   });
 
   async function onSubmit(data: SignUpInput) {
-    
     // TODO: Use the backend URL from the environment variables
     const response = await fetch(`http://localhost:3001/api/v1/signup`, {
       method: "POST",
@@ -80,13 +79,15 @@ export default function SignUpPage() {
 
         <div className="bg-white/80 backdrop-blur-xl sketch-border p-8 md:p-12 shadow-2xl border-border/50">
           <div className="text-center mb-10">
-            <div
-              className="w-12 h-12 flex items-center justify-center sketch-border mx-auto mb-6 bg-brand border-brand text-white"
-            >
+            <div className="w-12 h-12 flex items-center justify-center sketch-border mx-auto mb-6 bg-brand border-brand text-white">
               <Pencil className="w-6 h-6 transform -rotate-12" />
             </div>
-            <h1 className="text-3xl font-black tracking-tighter mb-2">Create an account</h1>
-            <p className="text-muted-foreground font-medium">Start sketching your best ideas today.</p>
+            <h1 className="text-3xl font-black tracking-tighter mb-2">
+              Create an account
+            </h1>
+            <p className="text-muted-foreground font-medium">
+              Start sketching your best ideas today.
+            </p>
           </div>
 
           <Form {...form}>
@@ -96,7 +97,9 @@ export default function SignUpPage() {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="font-bold text-sm">Full Name</FormLabel>
+                    <FormLabel className="font-bold text-sm">
+                      Full Name
+                    </FormLabel>
                     <FormControl>
                       <Input
                         placeholder="John Doe"
@@ -113,7 +116,9 @@ export default function SignUpPage() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="font-bold text-sm">Email Address</FormLabel>
+                    <FormLabel className="font-bold text-sm">
+                      Email Address
+                    </FormLabel>
                     <FormControl>
                       <Input
                         placeholder="name@example.com"
@@ -130,7 +135,9 @@ export default function SignUpPage() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="font-bold text-sm">Password</FormLabel>
+                    <FormLabel className="font-bold text-sm">
+                      Password
+                    </FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Input
@@ -146,7 +153,11 @@ export default function SignUpPage() {
                           className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 px-0 text-muted-foreground"
                           onClick={() => setShowPassword(!showPassword)}
                         >
-                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          {showPassword ? (
+                            <EyeOff className="w-4 h-4" />
+                          ) : (
+                            <Eye className="w-4 h-4" />
+                          )}
                         </Button>
                       </div>
                     </FormControl>
@@ -176,11 +187,17 @@ export default function SignUpPage() {
 
           {/* TODO: Add OAuth Functionality to sign up with GitHub and Google */}
           <div className="grid grid-cols-2 gap-4">
-            <Button variant="outline" className="h-12 sketch-border border-border font-bold flex gap-2 bg-transparent">
+            <Button
+              variant="outline"
+              className="h-12 sketch-border border-border font-bold flex gap-2 bg-transparent"
+            >
               <Github className="w-4 h-4" />
               GitHub
             </Button>
-            <Button variant="outline" className="h-12 sketch-border border-border font-bold flex gap-2 bg-transparent">
+            <Button
+              variant="outline"
+              className="h-12 sketch-border border-border font-bold flex gap-2 bg-transparent"
+            >
               <Mail className="w-4 h-4" />
               Google
             </Button>
@@ -197,5 +214,5 @@ export default function SignUpPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
