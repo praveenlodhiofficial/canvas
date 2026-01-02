@@ -1,11 +1,12 @@
 import { prisma } from "@repo/database";
 import { config } from "@repo/shared";
-import { SignInSchema, SignUpSchema } from "@repo/shared/schema";
+import { SignInSchema, SignUpSchema, UserSchema } from "@repo/shared/schema";
 import { signJWT } from "@repo/shared/utils";
 import { z } from "zod";
 import { Router } from "@/core/router";
 import { getCookies } from "@/utils/cookies";
 import { authMiddleware } from "@/middleware/auth.middleware";
+import { AuthenticatedRequest } from "@repo/shared/types";
 
 export function registerAuthRoutes(router: Router) {
   // --------------------------------------------> SIGN UP ROUTE <--------------------------------------------
@@ -115,10 +116,10 @@ export function registerAuthRoutes(router: Router) {
 
       cookies.set("session", token, {
         httpOnly: true,
-        // secure: config.isProduction === "production",
+        secure: true,
         maxAge: 60 * 60 * 24 * 7, // 7 days - TODO: Use the environment variable for the max age
         path: "/",
-        sameSite: "lax",
+        sameSite: "none",
       });
 
       return Response.json(
@@ -138,7 +139,7 @@ export function registerAuthRoutes(router: Router) {
   });
 
   // --------------------------------------------> LOGOUT ROUTE <--------------------------------------------
-    router.post("/api/v1/logout", async (req) => {
+  router.post("/api/v1/logout", async (req) => {
     try {
       const authResult = await authMiddleware(req);
       if (authResult) return authResult;
@@ -151,13 +152,53 @@ export function registerAuthRoutes(router: Router) {
 
       return Response.json(
         { message: "User logged out successfully" },
-        { 
+        {
           status: 200,
-          headers
-         }
+          headers,
+        }
       );
     } catch (error) {
       console.error("Error during logout:", error);
+      return Response.json(
+        { message: "Internal server error" },
+        { status: 500 }
+      );
+    }
+  });
+
+  // ---------------------------------------> GET USER DETAILS ROUTE <---------------------------------------
+  router.get("/api/v1/me", async (req) => {
+    try {
+      const cookies = getCookies(new Headers(), req);
+
+      const authResult = await authMiddleware(req);
+      if (authResult) return authResult;
+      const user = (req as AuthenticatedRequest).user;
+
+      const currentUser = await prisma.user.findUnique({
+        where: {
+          id: user.id,
+        },
+        select: {
+          name: true,
+          email: true,
+        },
+      });
+
+      if (!currentUser) {
+        return Response.json({ message: "User not found" }, { status: 404 });
+      }
+
+      return Response.json(
+        {
+          message: "User details fetched successfully",
+          user: currentUser,
+          cookies: cookies.get("session"),
+        },
+        { status: 200 }
+      );
+    } catch (error) {
+      console.error("Error fetching user details:", error);
       return Response.json(
         { message: "Internal server error" },
         { status: 500 }
