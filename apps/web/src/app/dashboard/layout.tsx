@@ -1,4 +1,5 @@
 import { Navbar } from "@/components/Navbar";
+import { UserMenu } from "@/components/UserMenu";
 import { getCurrentUser } from "@/dal/user.dal";
 
 export default async function DashboardLayout({
@@ -10,9 +11,10 @@ export default async function DashboardLayout({
   await getCurrentUser();
 
   return (
-    <div className="flex flex-col gap-4 p-4">
-      <div className="sticky top-5 z-10 gap-4 border p-4 rounded-full w-fit mx-auto">
+    <div className="flex flex-col gap-10 py-5 px-12">
+      <div className="sticky top-5 z-10 flex justify-between items-center">
         <Navbar />
+        <UserMenu />
       </div>
       {children}
     </div>

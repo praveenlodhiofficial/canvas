@@ -41,6 +41,20 @@ export function registerRoomRoutes(router: Router) {
         return Response.json({ message: "User not found" }, { status: 404 });
       }
 
+      const exist = await prisma.room.findFirst({
+        where: {
+          name: parsed.data.name,
+          adminId: admin.id,
+        },
+      });
+
+      if (exist) {
+        return Response.json(
+          { message: "Room already exists, please use a different name" },
+          { status: 400 },
+        );
+      }
+
       const room = await prisma.room.create({
         data: {
           name: parsed.data.name,
@@ -54,8 +68,11 @@ export function registerRoomRoutes(router: Router) {
       return Response.json(
         {
           message: "Room created successfully",
-          name: room.name,
-          admin: room.admin.name,
+          room: {
+            id: room.id,
+            name: room.name,
+            admin: room.admin.name,
+          },
         },
         { status: 201 },
       );
@@ -174,7 +191,10 @@ export function registerRoomRoutes(router: Router) {
       return Response.json(
         {
           message: "Rooms fetched successfully",
-          rooms: rooms.map((room) => room.name),
+          rooms: rooms.map((room) => ({
+            id: room.id,
+            name: room.name,
+          })),
         },
         { status: 200 },
       );

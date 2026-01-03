@@ -10,3 +10,10 @@ export const getCurrentUser = cache(async () => {
 
   return data.user;
 });
+
+export const logoutUser = async () => {
+  const data = await authFetch<{ message: string }>(
+    `${config.backendUrl}/api/v1/logout`,
+  );
+  return data.message;
+};
