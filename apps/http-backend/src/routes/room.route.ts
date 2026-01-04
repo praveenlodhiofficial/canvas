@@ -184,8 +184,12 @@ export function registerRoomRoutes(router: Router) {
         select: {
           id: true,
           name: true,
+          updatedAt: true,
         },
-        take: 10,
+        orderBy: {
+          updatedAt: "desc",
+        },
+        take: 20,
       });
 
       return Response.json(
@@ -194,12 +198,52 @@ export function registerRoomRoutes(router: Router) {
           rooms: rooms.map((room) => ({
             id: room.id,
             name: room.name,
+            updatedAt: room.updatedAt.toISOString(),
           })),
         },
         { status: 200 },
       );
     } catch (error) {
       console.error("Error fetching rooms:", error);
+      return Response.json(
+        { message: "Internal server error" },
+        { status: 500 },
+      );
+    }
+  });
+
+  // ----------------------------------------> FETCH ONE ROOM <------------------------------------------
+  router.get("/api/v1/rooms/:id", async (req, params) => {
+    try {
+      const authResult = await authMiddleware(req);
+      if (authResult) return authResult;
+      const admin = (req as AuthenticatedRequest).user;
+
+      const roomId = params.id;
+
+      if (!roomId)
+        return Response.json(
+          { message: "Room ID is required" },
+          { status: 400 },
+        );
+
+      const room = await prisma.room.findUnique({
+        where: {
+          id: roomId,
+          adminId: admin.id,
+        },
+      });
+
+      if (!room) {
+        return Response.json({ message: "Room not found" }, { status: 404 });
+      }
+
+      return Response.json(
+        { message: "Room fetched successfully", room },
+        { status: 200 },
+      );
+    } catch (error) {
+      console.error("Error fetching room:", error);
       return Response.json(
         { message: "Internal server error" },
         { status: 500 },

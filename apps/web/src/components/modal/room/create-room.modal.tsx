@@ -26,9 +26,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { config } from "@/lib/config";
+import { useState } from "react";
 
 export function CreateRoomModal() {
-  const router = useRouter();
+  const [isOpen, setIsOpen] = useState(false);
   const form = useForm<RoomType>({
     resolver: zodResolver(RoomSchema),
     defaultValues: {
@@ -39,9 +40,7 @@ export function CreateRoomModal() {
   async function onSubmit(data: RoomType) {
     const response = await fetch(`${config.backendUrl}/api/v1/create-room`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       credentials: "include",
       body: JSON.stringify(data),
     });
@@ -54,12 +53,13 @@ export function CreateRoomModal() {
 
     const responseData = await response.json();
     toast.success("Room created successfully");
+    setIsOpen(false);
     form.reset();
-    router.push(`/dashboard/room/${responseData.room.id}`);
+    window.open(`/dashboard/rooms/${responseData.room.id}`, "_blank");
   }
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <button className="group flex flex-col items-center justify-center gap-4 h-70 w-54 sketch-border bg-brand/5 border-dashed transition-all hover:bg-brand/10 hover:-translate-y-1">
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-brand/20 text-brand transition-transform group-hover:scale-110">
@@ -76,7 +76,7 @@ export function CreateRoomModal() {
         </button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[425px] sketch-border bg-background p-0 overflow-hidden border-none shadow-2xl">
+      <DialogContent className="max-w-md sketch-border bg-background p-0 overflow-hidden border-none shadow-2xl">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <div className="p-6 bg-brand/5 border-b border-brand/10">
@@ -121,9 +121,9 @@ export function CreateRoomModal() {
               <DialogClose asChild>
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant="outline"
+                  className="sketch-border bg-transparent"
                   onClick={() => form.reset()}
-                  className="hover:bg-background"
                 >
                   Cancel
                 </Button>
