@@ -59,7 +59,7 @@ export default async function RoomPage() {
 
                 {/* updated at */}
                 <p className="text-xs text-muted-foreground">
-                  {timeAgo(room.updatedAt as Date)}
+                  About {timeAgo(room.updatedAt as Date)}
                 </p>
               </div>
 

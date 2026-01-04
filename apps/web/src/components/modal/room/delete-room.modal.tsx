@@ -1,9 +1,14 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { MoreVertical, Pencil, TrashIcon } from "lucide-react"
-import { DropdownMenu, DropdownMenuItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { MoreVertical, Pencil, TrashIcon } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
@@ -11,39 +16,39 @@ import {
   DialogHeader,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog"
-import { toast } from "sonner"
-import { config } from "@/lib/config"
-import { useRouter } from "next/navigation"
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
+import { config } from "@/lib/config";
+import { useRouter } from "next/navigation";
 
 export default function RoomActions({ roomId }: { roomId: string }) {
-  const [open, setOpen] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const router = useRouter()
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   async function handleDelete() {
-    setLoading(true)
+    setLoading(true);
     try {
       const res = await fetch(`${config.backendUrl}/api/v1/rooms/${roomId}`, {
         method: "DELETE",
         credentials: "include",
-      })
+      });
 
-      const data = await res.json()
+      const data = await res.json();
 
       if (!res.ok) {
-        toast.error(data.message || "Failed to delete room")
-        return
+        toast.error(data.message || "Failed to delete room");
+        return;
       }
 
-      toast.success(data.message)
-      setOpen(false)
-      router.refresh()
+      toast.success(data.message);
+      setOpen(false);
+      router.refresh();
     } catch (err) {
-      console.error(err)
-      toast.error("Failed to delete room")
+      console.error(err);
+      toast.error("Failed to delete room");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
@@ -52,7 +57,12 @@ export default function RoomActions({ roomId }: { roomId: string }) {
       {/* -------- 3 DOT MENU -------- */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="sketch-border" size="icon" onClick={(e) => e.stopPropagation()}>
+          <Button
+            variant="ghost"
+            className="sketch-border"
+            size="icon"
+            onClick={(e) => e.stopPropagation()}
+          >
             <MoreVertical className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
@@ -85,10 +95,13 @@ export default function RoomActions({ roomId }: { roomId: string }) {
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 text-destructive sketch-border border-destructive/20 mb-2">
               <TrashIcon className="h-6 w-6" />
             </div>
-            <DialogTitle className="text-xl font-bold tracking-tight">Delete Room</DialogTitle>
+            <DialogTitle className="text-xl font-bold tracking-tight">
+              Delete Room
+            </DialogTitle>
             <DialogDescription className="text-sm text-muted-foreground leading-relaxed">
-              Are you sure you want to delete this room? This action cannot be undone. All drawings and history within
-              this room will be permanently removed.
+              Are you sure you want to delete this room? This action cannot be
+              undone. All drawings and history within this room will be
+              permanently removed.
             </DialogDescription>
           </DialogHeader>
 
@@ -114,5 +127,5 @@ export default function RoomActions({ roomId }: { roomId: string }) {
         </DialogContent>
       </Dialog>
     </>
-  )
+  );
 }
