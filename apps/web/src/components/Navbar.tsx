@@ -2,7 +2,12 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { CircleCheckIcon, CircleHelpIcon, CircleIcon } from "lucide-react";
+import {
+  ArrowLeftIcon,
+  CircleCheckIcon,
+  CircleHelpIcon,
+  CircleIcon,
+} from "lucide-react";
 
 import {
   NavigationMenu,
@@ -63,6 +68,23 @@ export function Navbar() {
       className="sketch-border bg-transparent backdrop-blur-xs rounded-xl p-1 sticky top-5 z-10 mx-auto"
     >
       <NavigationMenuList className="flex-wrap gap-1">
+        <NavigationMenuItem>
+          <NavigationMenuLink
+            asChild
+            className={`${navigationMenuTriggerStyle()} sketch-border hover:bg-brand/10 hover:text-brand transition-colors`}
+          >
+            <Link href="/dashboard">
+              <div className="flex items-center gap-2 justify-center">
+                <ArrowLeftIcon
+                  className="w-8 h-8 hover:fill-brand hover:stroke-brand transition-colors"
+                  fill="black"
+                  stroke="black"
+                />
+                Dashboard
+              </div>
+            </Link>
+          </NavigationMenuLink>
+        </NavigationMenuItem>
         <NavigationMenuItem>
           <NavigationMenuTrigger className="sketch-border hover:bg-brand/10 hover:text-brand transition-colors">
             Home

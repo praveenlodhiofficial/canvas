@@ -21,6 +21,7 @@ import { Pencil } from "lucide-react";
 import { Eye } from "lucide-react";
 import { EyeOff } from "lucide-react";
 import { useState } from "react";
+import { config } from "@/lib/config";
 
 export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -35,8 +36,7 @@ export default function SignInPage() {
   });
 
   async function onSubmit(data: SignInInput) {
-    // TODO: Use the backend URL from the environment variables
-    const response = await fetch(`http://localhost:3001/api/v1/signin`, {
+    const response = await fetch(`${config.backendUrl}/api/v1/signin`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -48,20 +48,12 @@ export default function SignInPage() {
     if (!response.ok) {
       const error = await response.json();
       console.error("error:", error);
-      toast.error(error.message);
+      toast.error(error.message || "User not found or credentials are incorrect");
       return;
     }
-
-    // if user not found or credentials are incorrect, show toast error and redirect to sign in page
-    if (response.status === 400) {
-      toast.error("User not found or credentials are incorrect");
-      return;
-    } else {
-      const responseData = await response.json();
-      console.log("responseData:", responseData);
-      toast.success("User signed in successfully");
-      router.replace("/dashboard");
-    }
+    
+    toast.success("User signed in successfully");
+    router.replace("/dashboard");
   }
 
   return (

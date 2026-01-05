@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Pencil, ArrowLeft, Eye, EyeOff, Github, Mail } from "lucide-react";
 import { useState } from "react";
+import { config } from "@/lib/config";
 
 export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -33,34 +34,27 @@ export default function SignUpPage() {
   });
 
   async function onSubmit(data: SignUpInput) {
-    // TODO: Use the backend URL from the environment variables
-    const response = await fetch(`http://localhost:3001/api/v1/signup`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify(data),
-    });
-
+    const response = await fetch(
+      `${config.backendUrl}/api/v1/signup`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(data),
+      }
+    );
+  
+    const result = await response.json();
+  
     if (!response.ok) {
-      const error = await response.json();
-      console.error("error:", error);
-      toast.error(error.message);
+      toast.error(result.message);
       return;
     }
-
-    // if user already exists, show toast error and redirect to sign in page
-    if (response.status === 400) {
-      toast.error("User already exists");
-      return;
-    } else {
-      const responseData = await response.json();
-      console.log("responseData:", responseData);
-      toast.success("User signed up successfully");
-      router.push("/sign-in");
-    }
+  
+    toast.success("User signed up successfully");
+    router.push("/sign-in");
   }
+  
 
   return (
     <div className="min-h-screen font-sans selection:bg-indigo-100 bg-background text-foreground relative flex items-center justify-center p-4">

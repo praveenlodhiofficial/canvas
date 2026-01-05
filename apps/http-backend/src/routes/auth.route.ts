@@ -116,10 +116,10 @@ export function registerAuthRoutes(router: Router) {
 
       cookies.set("session", token, {
         httpOnly: true,
-        secure: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         maxAge: 60 * 60 * 24 * 7, // 7 days - TODO: Use the environment variable for the max age
         path: "/",
-        sameSite: "none",
       });
 
       return Response.json(
