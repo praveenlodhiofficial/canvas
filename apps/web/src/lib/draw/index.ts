@@ -1,57 +1,154 @@
-export async function initDraw(canvas: HTMLCanvasElement) {
+import { Shape } from "@/types/shape";
+
+export function initDraw(
+  canvas: HTMLCanvasElement,
+  shapes: Shape[],
+) {
   const ctx = canvas.getContext("2d");
-  if (!ctx) {
-    console.error(
-      "Failed to get 2D context. Check if the canvas is properly initialized.",
-    );
-    return;
-  }
+  if (!ctx) return;
 
-  // Device Pixel Ratio
+  // DPR handling
   const dpr = window.devicePixelRatio || 1;
-
-  // Get the canvas bounding client rect
   const rect = canvas.getBoundingClientRect();
-  console.log(rect);
 
-  // Set the canvas width and height
   canvas.width = rect.width * dpr;
   canvas.height = rect.height * dpr;
-
-  // Scale the context to the device pixel ratio
   ctx.scale(dpr, dpr);
 
-  // Mouse events
+  // Clear & render shapes
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawShapes(shapes, ctx);
+
+  /* ---------------------------
+   ❌ DRAWING LOGIC (DISABLED)
+  ----------------------------
+
   let clicked = false;
-  let posX1 = 0;
-  let posY1 = 0;
-  let posX2 = 0;
-  let posY2 = 0;
+  let startX = 0;
+  let startY = 0;
 
-  // Mouse down event - set the starting position
-  canvas.addEventListener("mousedown", (e) => {
-    clicked = true;
-    posX1 = e.clientX - rect.left;
-    posY1 = e.clientY - rect.top;
-    console.log(`mouse down at ${posX1}, ${posY1}`);
-  });
+  canvas.addEventListener("mousedown", ...)
+  canvas.addEventListener("mousemove", ...)
+  canvas.addEventListener("mouseup", ...)
+  
+  ---------------------------- */
+}
 
-  // Mouse move event - draw the rectangle
-  canvas.addEventListener("mousemove", (e) => {
-    if (clicked) {
-      posX2 = e.clientX - rect.left;
-      posY2 = e.clientY - rect.top;
+function drawShapes(
+  shapes: Shape[],
+  ctx: CanvasRenderingContext2D,
+) {
+  shapes.forEach((shape) => {
+    switch (shape.type) {
+      case "rectangle":
+        ctx.strokeRect(
+          shape.x,
+          shape.y,
+          shape.width,
+          shape.height,
+        );
+        break;
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.strokeRect(posX1, posY1, posX2 - posX1, posY2 - posY1);
+      case "circle":
+        ctx.beginPath();
+        ctx.arc(
+          shape.x,
+          shape.y,
+          shape.radius,
+          0,
+          Math.PI * 2,
+        );
+        ctx.stroke();
+        break;
     }
   });
-
-  // Mouse up event -  clear the rectangle
-  canvas.addEventListener("mouseup", (e) => {
-    clicked = false;
-    posX2 = e.clientX - rect.left;
-    posY2 = e.clientY - rect.top;
-    console.log(`mouse up at ${posX2}, ${posY2}`);
-  });
 }
+
+
+
+
+
+
+
+
+
+
+// import { Shape } from "@/types/shape";
+
+// export async function initDraw(canvas: HTMLCanvasElement) {
+//   const ctx = canvas.getContext("2d");
+//   if (!ctx) return;
+
+//   const shapes: Shape[] = [];
+
+//   // DPR handling
+//   const dpr = window.devicePixelRatio || 1;
+//   const rect = canvas.getBoundingClientRect();
+
+//   canvas.width = rect.width * dpr;
+//   canvas.height = rect.height * dpr;
+//   ctx.scale(dpr, dpr);
+
+//   let clicked = false;
+//   let startX = 0;
+//   let startY = 0;
+
+//   canvas.addEventListener("mousedown", (e) => {
+//     clicked = true;
+//     startX = e.clientX - rect.left;
+//     startY = e.clientY - rect.top;
+//   });
+
+//   canvas.addEventListener("mousemove", (e) => {
+//     if (!clicked) return;
+
+//     const currentX = e.clientX - rect.left;
+//     const currentY = e.clientY - rect.top;
+
+//     // 1️⃣ Clear
+//     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+//     // 2️⃣ Map all stored shapes
+//     drawShapes(shapes, ctx);
+
+//     // 3️⃣ Draw preview rectangle
+//     ctx.strokeRect(startX, startY, currentX - startX, currentY - startY);
+//   });
+
+//   canvas.addEventListener("mouseup", (e) => {
+//     clicked = false;
+
+//     const endX = e.clientX - rect.left;
+//     const endY = e.clientY - rect.top;
+
+//     shapes.push({
+//       type: "rectangle",
+//       x: startX,
+//       y: startY,
+//       width: endX - startX,
+//       height: endY - startY,
+//     });
+
+//     // Final redraw
+//     ctx.clearRect(0, 0, canvas.width, canvas.height);
+//     drawShapes(shapes, ctx);
+
+//     console.log("All shapes:", shapes);
+//   });
+// }
+
+// function drawShapes(shapes: Shape[], ctx: CanvasRenderingContext2D) {
+//   shapes.forEach((shape) => {
+//     switch (shape.type) {
+//       case "rectangle":
+//         ctx.strokeRect(shape.x, shape.y, shape.width, shape.height);
+//         break;
+
+//       case "circle":
+//         ctx.beginPath();
+//         ctx.arc(shape.x, shape.y, shape.radius, 0, Math.PI * 2);
+//         ctx.stroke();
+//         break;
+//     }
+//   });
+// }

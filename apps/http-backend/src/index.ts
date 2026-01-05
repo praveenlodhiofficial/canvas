@@ -3,10 +3,12 @@ import { Router } from "@/core/router";
 import { registerAuthRoutes } from "@/routes/auth.route";
 import { registerRoomRoutes } from "@/routes/room.route";
 import { corsMiddleware } from "@/middleware/cors.middleware";
+import { registerShapeRoutes } from "./routes/shape.route";
 
 const router = new Router();
 registerAuthRoutes(router);
 registerRoomRoutes(router);
+registerShapeRoutes(router);
 
 const app = new App(router);
 app.use(corsMiddleware);

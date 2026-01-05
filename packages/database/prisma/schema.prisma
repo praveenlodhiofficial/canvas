@@ -13,6 +13,15 @@ datasource db {
   provider = "postgresql"
 }
 
+enum ShapeType {
+  rectangle
+  circle
+  line
+  pencil
+  arrow
+  text
+}
+
 model User {
   id        String   @id @default(uuid())
   name      String
@@ -35,5 +44,31 @@ model Room {
   adminId  String
   admin    User     @relation(fields: [adminId], references: [id], onDelete: Cascade)
 
+  /* relation to Shape model */
+  shapes    Shape[]
+
   @@index([adminId])
+}
+
+model Shape {
+  id        String   @id @default(uuid())
+  type      ShapeType
+
+  x         Float
+  y         Float
+  width     Float?
+  height    Float?
+  radius    Float?
+
+  points    Json?     // for freehand / pencil / line
+  style     Json?     // strokeColor, fillColor, strokeWidth, etc.
+
+  // relation to Room model
+  roomId    String
+  room      Room      @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([roomId])
 }
