@@ -20,4 +20,9 @@ export type Circle = BaseShapes & StyleProps & {
     radius: number;
 };
 
+export type Line = BaseShapes & StyleProps & {
+    type: "line";
+    points: { x: number; y: number }[];
+};
+
 export type Shape = Rectangle | Circle;

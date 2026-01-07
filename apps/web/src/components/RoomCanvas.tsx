@@ -1,19 +1,26 @@
 "use client";
 
-import { initDraw } from "@/lib/draw";
 import { Circle, PenLine, Square, Triangle } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { Button } from "./ui/button";
-import { ShapeType } from "@repo/shared/schema";
 import { Shape } from "@/types/shape";
+import { initCanvas, renderShapes } from "@/lib/canvas";
 
-export default function RoomCanvas({ initialShapes }: { initialShapes: ShapeType[] }) {
+export default function RoomCanvas({ initialShapes }: { initialShapes: Shape[] }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const ctx = useRef<CanvasRenderingContext2D>(null);
 
+  // Initialize the canvas and context once only
   useEffect(() => {
     if (!canvasRef.current) return;
-    initDraw(canvasRef.current, initialShapes as Shape[]);
+    ctx.current = initCanvas(canvasRef.current);
   }, []);
+
+  // Render shapes when data changes (initialShapes)
+  useEffect(() => {
+    if (!ctx.current || !canvasRef.current) return;
+    renderShapes(initialShapes, ctx.current, canvasRef.current);
+  }, [initialShapes]);
 
   return (
     <div className="relative border w-full h-full">
