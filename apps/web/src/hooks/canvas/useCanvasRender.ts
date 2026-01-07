@@ -1,12 +1,14 @@
 import { useEffect } from "react";
 import { CanvasShape } from "@/types/shape";
 import { renderShapes } from "@/lib/canvas";
+import { ToolType } from "@/types/tool";
 
 export function useCanvasRender(
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
   ctxRef: React.RefObject<CanvasRenderingContext2D | null>,
   shapes: CanvasShape[],
   previewShape: CanvasShape | null,
+  tool: ToolType | null,
 ) {
   useEffect(() => {
     // NOTE: .current mutation doesn't trigger re-renders
@@ -18,5 +20,5 @@ export function useCanvasRender(
       canvasRef.current,
       previewShape,
     );
-  }, [shapes, previewShape, canvasRef, ctxRef]);
+  }, [shapes, previewShape, canvasRef, ctxRef, tool]);
 }

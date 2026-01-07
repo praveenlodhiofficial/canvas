@@ -1,113 +1,105 @@
+import type { ServerWebSocket } from "bun";
 import type { WebSocketData } from "@repo/shared/types";
 import { authMiddleware } from "./middleware/auth.middleware";
-import type { ServerWebSocket } from "bun";
+import { prisma } from "@repo/database";
 
-// "praveen-room" → [ socket1, socket2, socket3 ]
-const rooms = new Map<string, Set<ServerWebSocket<WebSocketData>>>();
+type WsData = WebSocketData & {
+  room: string;
+};
 
-const server = Bun.serve<WebSocketData>({
+const server = Bun.serve<WsData>({
   port: 3002,
 
-  fetch(req, server) {
-    if (req.headers.get("upgrade")?.toLowerCase() === "websocket") {
-      const authResult = authMiddleware(req);
-      if (authResult instanceof Response) {
-        return authResult;
-      }
-      const { payload } = authResult;
-
-      const url = new URL(req.url);
-      const room = url.searchParams.get("room");
-
-      if (!room) {
-        return new Response("Room is required", { status: 400 });
-      }
-
-      if (
-        server.upgrade(req, {
-          data: {
-            user: payload,
-            room: room,
-          },
-        })
-      ) {
-        return;
-      }
-
-      return new Response("Upgrade failed", { status: 400 });
+  fetch: async (req, server) => {
+    // Only handle WS upgrades
+    if (req.headers.get("upgrade")?.toLowerCase() !== "websocket") {
+      return new Response("WS Backend Running", { status: 200 });
     }
 
-    return new Response("WS Backend Running!", { status: 200 });
+    // 1️⃣ Authenticate
+    const auth = await authMiddleware(req);
+    if (!auth.ok) return auth.response;
+
+    // 2️⃣ Extract roomId
+    const url = new URL(req.url);
+    const roomId = url.searchParams.get("room");
+
+    if (!roomId) {
+      return Response.json({ message: "Room is required" }, { status: 400 });
+    }
+
+    const existingRoom = await prisma.room.findUnique({
+      where: { id: roomId },
+      select: {
+        name: true,
+      },
+    });
+
+    if (!existingRoom) {
+      // return Response.json({ message: "Room not found" }, { status: 404 });
+      return new Response("Room not found", { status: 404 });
+    }
+
+    // if (existingRoom.adminId !== auth.payload.id) {
+    //   return Response.json({ message: "You are not the admin of this room" }, { status: 403 });
+    // }
+
+    // 3️⃣ Upgrade connection
+    const success = server.upgrade(req, {
+      data: {
+        user: auth.payload,
+        room: existingRoom.name,
+      },
+    });
+
+    if (success) return;
+    return Response.json({ message: "WebSocket upgrade failed" }, { status: 400 });
   },
 
   websocket: {
+    data: {} as WsData,
+
     // 🔗 Client connected
-    open(ws) {
-      const { user, room } = ws.data;
+    open(ws: ServerWebSocket<WsData>) {
+      const channel = `room:${ws.data.room}`;
 
-      if (!rooms.has(room)) {
-        rooms.set(room, new Set());
-      }
-
-      rooms.get(room)!.add(ws);
-
-      console.log(`${user.id} joined room ${room}`);
+      ws.subscribe(channel);
 
       ws.send(
         JSON.stringify({
-          type: "joined-room",
-          room,
+          type: "room:joined",
+          room: ws.data.room,
           user: {
-            id: user.id,
-            email: user.email,
+            id: ws.data.user.id,
+            email: ws.data.user.email,
           },
         }),
       );
+
+      console.log(
+        `[WS] ${ws.data.user.id} joined ${channel}`,
+      );
     },
 
-    // 📩 Client sent message
+    // 📩 Incoming canvas events
     message(ws, rawMessage) {
-      const { user, room } = ws.data;
-      const message = rawMessage.toString();
+      const channel = `room:${ws.data.room}`;
 
-      console.log(`${user.id} says "${message}" in ${room}`);
-
-      const clients = rooms.get(room);
-      if (!clients) return;
-
-      // Broadcast to everyone except sender
-      for (const client of clients) {
-        if (client !== ws) {
-          client.send(
-            JSON.stringify({
-              type: "room-message",
-              message,
-              user: {
-                id: user.id,
-                email: user.email,
-              },
-            }),
-          );
-        }
-      }
+      // IMPORTANT:
+      // rawMessage should be a canvas delta (not full state)
+      server.publish(channel, rawMessage.toString());
     },
 
     // ❌ Client disconnected
     close(ws) {
-      const { user, room } = ws.data;
+      const channel = `room:${ws.data.room}`;
+      ws.unsubscribe(channel);
 
-      const clients = rooms.get(room);
-      if (clients) {
-        clients.delete(ws);
-
-        if (clients.size === 0) {
-          rooms.delete(room);
-        }
-      }
-
-      console.log(`${user.id} left room ${room}`);
+      console.log(
+        `[WS] ${ws.data.user.id} left ${channel}`,
+      );
     },
   },
 });
 
-console.log(`WebSocket server running on ${server.url}`);
+console.log(`✅ WebSocket server running on ${server.url}`);

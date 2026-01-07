@@ -3,6 +3,7 @@ import { CanvasShape } from "@/types/shape";
 import React, { useEffect, useRef } from "react";
 
 export function useDrawBox(
+  enabled: boolean,
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
   onCommit: (shape: CanvasShape) => void,
   onPreview: (shape: CanvasShape | null) => void
@@ -12,6 +13,8 @@ export function useDrawBox(
   const previewRef = useRef<CanvasShape | null>(null);
 
   useEffect(() => {
+    if (!enabled) return;
+
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -73,5 +76,5 @@ export function useDrawBox(
       canvas.removeEventListener("mousemove", handleMouseMove);
       canvas.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [canvasRef, onCommit, onPreview]);
+  }, [enabled, canvasRef, onCommit, onPreview]);
 }

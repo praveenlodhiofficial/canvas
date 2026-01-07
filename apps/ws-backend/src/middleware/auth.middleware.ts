@@ -1,13 +1,42 @@
-import type { AuthPayload } from "@repo/shared/types";
-import { authenticateRequest } from "@repo/shared/utils";
+import { prisma } from "@repo/database";
+import type { AuthenticatedRequest } from "@repo/shared/types";
+import { authenticateRequest } from "../utils/authenticateRequest";
 
-// Validates auth token for WebSocket upgrade requests.
-export function authMiddleware(
-  req: Request,
-): { payload: AuthPayload } | Response {
+export type WsAuthResult =
+  | { ok: true; payload: AuthenticatedRequest["user"] }
+  | { ok: false; response: Response };
+
+export async function authMiddleware(req: Request): Promise<WsAuthResult> {
   const payload = authenticateRequest(req);
 
-  if (!payload) return new Response("Unauthorized", { status: 401 });
+  if (!payload) {
+    return {
+      ok: false,
+      response: Response.json(
+        { message: "Unauthorized" },
+        { status: 401 },
+      ),
+    };
+  }
 
-  return { payload };
+  // DB-level protection (deleted users, reset DB, etc.)
+  const user = await prisma.user.findUnique({
+    where: { id: payload.id },
+    select: { id: true },
+  });
+
+  if (!user) {
+    return {
+      ok: false,
+      response: Response.json(
+        { message: "Session expired" },
+        { status: 401 },
+      ),
+    };
+  }
+
+  return {
+    ok: true,
+    payload,
+  };
 }

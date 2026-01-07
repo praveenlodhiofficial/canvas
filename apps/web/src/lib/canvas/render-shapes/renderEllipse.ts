@@ -12,17 +12,6 @@ export function renderEllipse(
   ctx: CanvasRenderingContext2D,
   shape: Extract<CanvasShape, { type: "ellipse" }>
 ) {
-  // Dev-only safety guard (does not mutate data)
-  if (process.env.NODE_ENV !== "production") {
-    if (shape.width <= 0 || shape.height <= 0) {
-      console.warn(
-        "renderEllipse received non-normalized shape",
-        shape
-      );
-      return;
-    }
-  }
-
   const cx = shape.x + shape.width / 2;
   const cy = shape.y + shape.height / 2;
 

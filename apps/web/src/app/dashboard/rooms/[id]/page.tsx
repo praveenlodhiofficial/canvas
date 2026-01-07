@@ -5,7 +5,6 @@ import { redirect } from "next/navigation";
 import { toast } from "sonner";
 import { getAllShapes } from "@/dal/shape.dal";
 import { CanvasShape } from "@/types/shape";
-// import { CanvasShape } from "@/types/shape";
 
 export default async function RoomPage({
   params,
@@ -32,7 +31,7 @@ export default async function RoomPage({
       <h1 className="text-2xl font-semibold mb-3">Room {room.name}</h1>
       <div className="border border-muted-foreground overflow-hidden w-[62rem] aspect-video mx-auto rounded-2xl flex justify-center items-center">
         {/* <RoomCanvas roomId={room.id!} /> */}
-        <RoomCanvas initialShapes={shapes as unknown as CanvasShape[]} />
+        <RoomCanvas initialShapes={shapes as unknown as CanvasShape[]} roomId={room.id!} />
       </div>
 
       <div className="flex flex-col gap-2">
