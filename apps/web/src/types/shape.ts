@@ -1,28 +1,19 @@
-type StyleProps = {
-  strokeColor?: string;
-  fillColor?: string;
-  strokeWidth?: number;
-};
-
-type BaseShapes = {
+export type CanvasBox = {
+  type: "box";
   x: number;
   y: number;
+  width: number;
+  height: number;
 };
 
-export type Rectangle = BaseShapes & StyleProps & {
-    type: "rectangle";
-    width: number;
-    height: number;
+// ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle)
+
+export type CanvasEllipse = {
+  type: "ellipse";
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 };
 
-export type Circle = BaseShapes & StyleProps & {
-    type: "circle";
-    radius: number;
-};
-
-export type Line = BaseShapes & StyleProps & {
-    type: "line";
-    points: { x: number; y: number }[];
-};
-
-export type Shape = Rectangle | Circle;
+export type CanvasShape = CanvasBox | CanvasEllipse;

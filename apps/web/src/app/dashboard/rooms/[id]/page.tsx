@@ -1,10 +1,11 @@
 import { getRoomById } from "@/dal/room.dal";
 import RoomCanvas from "@/components/RoomCanvas";
-import { RoomType, ShapeType } from "@repo/shared/schema";
+import { RoomType } from "@repo/shared/schema";
 import { redirect } from "next/navigation";
 import { toast } from "sonner";
 import { getAllShapes } from "@/dal/shape.dal";
-import { Shape } from "@/types/shape";
+import { CanvasShape } from "@/types/shape";
+// import { CanvasShape } from "@/types/shape";
 
 export default async function RoomPage({
   params,
@@ -29,9 +30,9 @@ export default async function RoomPage({
   return (
     <div className="flex flex-col w-full items-center justify-center">
       <h1 className="text-2xl font-semibold mb-3">Room {room.name}</h1>
-      <div className="border border-muted-foreground overflow-hidden w-4xl aspect-video mx-auto rounded-2xl flex justify-center items-center">
+      <div className="border border-muted-foreground overflow-hidden w-[62rem] aspect-video mx-auto rounded-2xl flex justify-center items-center">
         {/* <RoomCanvas roomId={room.id!} /> */}
-        <RoomCanvas initialShapes={shapes as Shape[]} />
+        <RoomCanvas initialShapes={shapes as unknown as CanvasShape[]} />
       </div>
 
       <div className="flex flex-col gap-2">

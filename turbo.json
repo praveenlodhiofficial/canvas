@@ -16,6 +16,7 @@
         "!.next/cache/**"
       ],
       "env": [
+        "NODE_ENV",
         "DATABASE_URL",
         "DATABASE_URL_LOCAL",
         "HTTP_BACKEND_URL"
