@@ -3,6 +3,11 @@ import type { WebSocketData } from "@repo/shared/types";
 import { authMiddleware } from "./middleware/auth.middleware";
 import { prisma } from "@repo/database";
 
+import { registerServer, broadcastToRoom } from "./server";
+import { joinRoom, leaveRoom, applyShape } from "./rooms/room.manager";
+import { snapshotRoom } from "./snapshot/snapshot.service";
+import type { ClientMessage } from "./rooms/room.types";
+
 type WsData = WebSocketData & {
   room: string;
 };
@@ -10,96 +15,113 @@ type WsData = WebSocketData & {
 const server = Bun.serve<WsData>({
   port: 3002,
 
-  fetch: async (req, server) => {
-    // Only handle WS upgrades
+  async fetch(req, server) {
+    /* ---------------- ONLY WS UPGRADES ---------------- */
     if (req.headers.get("upgrade")?.toLowerCase() !== "websocket") {
       return new Response("WS Backend Running", { status: 200 });
     }
 
-    // 1️⃣ Authenticate
     const auth = await authMiddleware(req);
     if (!auth.ok) return auth.response;
 
-    // 2️⃣ Extract roomId
     const url = new URL(req.url);
     const roomId = url.searchParams.get("room");
 
     if (!roomId) {
-      return Response.json({ message: "Room is required" }, { status: 400 });
+      return new Response("Room is required", { status: 400 });
     }
 
-    const existingRoom = await prisma.room.findUnique({
+    const room = await prisma.room.findUnique({
       where: { id: roomId },
-      select: {
-        name: true,
-      },
+      select: { id: true },
     });
 
-    if (!existingRoom) {
-      // return Response.json({ message: "Room not found" }, { status: 404 });
+    if (!room) {
       return new Response("Room not found", { status: 404 });
     }
 
-    // if (existingRoom.adminId !== auth.payload.id) {
-    //   return Response.json({ message: "You are not the admin of this room" }, { status: 403 });
-    // }
-
-    // 3️⃣ Upgrade connection
     const success = server.upgrade(req, {
       data: {
         user: auth.payload,
-        room: existingRoom.name,
+        room: roomId,
       },
     });
 
-    if (success) return;
-    return Response.json({ message: "WebSocket upgrade failed" }, { status: 400 });
+    if (success) return new Response("WebSocket upgrade successful", { status: 200 });
+
+    return new Response("Failed to upgrade to WebSocket", { status: 500 });
   },
 
   websocket: {
     data: {} as WsData,
 
-    // 🔗 Client connected
-    open(ws: ServerWebSocket<WsData>) {
-      const channel = `room:${ws.data.room}`;
+    /* ---------------- OPEN WS CONNECTION ---------------- */
+    open: async (ws: ServerWebSocket<WsData>) => {
+      const roomId = ws.data.room;
+      const userId = ws.data.user.id;
+      const channel = `room:${roomId}`;
 
       ws.subscribe(channel);
 
+      // Join room + get initial snapshot
+      const shapes = await joinRoom(roomId, userId);
+
       ws.send(
         JSON.stringify({
-          type: "room:joined",
-          room: ws.data.room,
-          user: {
-            id: ws.data.user.id,
-            email: ws.data.user.email,
-          },
+          type: "room:init",
+          payload: shapes,
         }),
       );
-
-      console.log(
-        `[WS] ${ws.data.user.id} joined ${channel}`,
-      );
     },
 
-    // 📩 Incoming canvas events
+    /* ---------------- MESSAGE (canvas delta) ---------------- */
     message(ws, rawMessage) {
-      const channel = `room:${ws.data.room}`;
+      let msg: ClientMessage;
 
-      // IMPORTANT:
-      // rawMessage should be a canvas delta (not full state)
-      server.publish(channel, rawMessage.toString());
+      try {
+        msg = JSON.parse(rawMessage.toString());
+      } catch {
+        console.warn("[WS] Invalid message received");
+        return;
+      }
+
+      const roomId = ws.data.room;
+
+      // TODO: Implement shape update later
+      if (msg.type === "shape:add") {
+        const shape = {
+          ...msg.payload,
+          id: crypto.randomUUID(),
+        };
+      
+        applyShape(roomId, shape);
+        broadcastToRoom(roomId, { type: "shape:broadcast", payload: shape });
+      }
+
+      // TODO: Implement shape deletion
+      if (msg.type === "shape:delete") {
+        // Optional extension:
+        // remove from room.shapes + broadcast delete
+      }
     },
 
-    // ❌ Client disconnected
-    close(ws) {
-      const channel = `room:${ws.data.room}`;
-      ws.unsubscribe(channel);
+    /* ---------------- CLOSE WS CONNECTION ---------------- */
+    close: async (ws: ServerWebSocket<WsData>) => {
+      const roomId = ws.data.room;
+      const userId = ws.data.user.id;
 
-      console.log(
-        `[WS] ${ws.data.user.id} left ${channel}`,
-      );
+      const room = await leaveRoom(roomId, userId);
+      if (!room) return;
+
+      // Take a snapshot of the room before disconnecting
+      await snapshotRoom(room);
+
+      // TODO: Cleanup handled inside room.manager
     },
   },
 });
 
-console.log(`✅ WebSocket server running on ${server.url}`);
+/* ---------------- REGISTER BUN SERVER FOR BROADCAST HELPER ---------------- */
+registerServer(server);
+
+console.log(`[WS] WebSocket server running on ${server.url}`);

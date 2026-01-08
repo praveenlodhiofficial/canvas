@@ -12,10 +12,7 @@ export async function authMiddleware(req: Request): Promise<WsAuthResult> {
   if (!payload) {
     return {
       ok: false,
-      response: Response.json(
-        { message: "Unauthorized" },
-        { status: 401 },
-      ),
+      response: Response.json({ message: "Unauthorized" }, { status: 401 }),
     };
   }
 
@@ -28,10 +25,7 @@ export async function authMiddleware(req: Request): Promise<WsAuthResult> {
   if (!user) {
     return {
       ok: false,
-      response: Response.json(
-        { message: "Session expired" },
-        { status: 401 },
-      ),
+      response: Response.json({ message: "Session expired" }, { status: 401 }),
     };
   }
 
