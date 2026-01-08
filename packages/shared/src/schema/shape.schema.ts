@@ -1,12 +1,8 @@
 import { z } from "zod";
 
 export const ShapeTypeSchema = z.enum([
-  "rectangle",
-  "circle",
-  "line",
-  "pencil",
-  "arrow",
-  "text",
+  "BOX",
+  "ELLIPSE",
 ]);
 
 export const ShapeSchema = z.object({
@@ -26,7 +22,7 @@ export const ShapeSchema = z.object({
       z.object({
         x: z.number(),
         y: z.number(),
-      })
+      }),
     )
     .optional(),
 

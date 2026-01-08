@@ -14,12 +14,8 @@ datasource db {
 }
 
 enum ShapeType {
-  rectangle
-  circle
-  line
-  pencil
-  arrow
-  text
+  BOX
+  ELLIPSE
 }
 
 model User {
