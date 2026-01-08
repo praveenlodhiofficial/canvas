@@ -26,5 +26,4 @@ export const getAllShapes = cache(async (roomId: string) => {
     points: shape.points,
     style: shape.style,
   }));
-
 });

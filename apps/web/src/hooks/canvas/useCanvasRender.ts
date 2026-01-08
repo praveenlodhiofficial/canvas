@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { CanvasShape } from "@/types/shape";
+import { CanvasShape } from "@repo/shared/types";
 import { renderShapes } from "@/lib/canvas";
 import { ToolType } from "@/types/tool";
 
@@ -14,11 +14,6 @@ export function useCanvasRender(
     // NOTE: .current mutation doesn't trigger re-renders
     if (!canvasRef.current || !ctxRef.current) return;
 
-    renderShapes(
-      shapes,
-      ctxRef.current,
-      canvasRef.current,
-      previewShape,
-    );
+    renderShapes(shapes, ctxRef.current, canvasRef.current, previewShape);
   }, [shapes, previewShape, canvasRef, ctxRef, tool]);
 }

@@ -1,12 +1,12 @@
 import { normalizeShapes } from "@/lib/canvas/normalize-shapes";
-import { CanvasShape } from "@/types/shape";
+import { CanvasShape } from "@repo/shared/types";
 import { useEffect, useRef } from "react";
 
 export function useDrawEllipse(
   enabled: boolean,
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
   onCommit: (shape: CanvasShape) => void,
-  onPreview: (shape: CanvasShape | null) => void
+  onPreview: (shape: CanvasShape | null) => void,
 ) {
   const isDrawing = useRef(false);
   const start = useRef({ x: 0, y: 0 });
@@ -14,7 +14,7 @@ export function useDrawEllipse(
 
   useEffect(() => {
     if (!enabled) return;
-    
+
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -37,6 +37,7 @@ export function useDrawEllipse(
       const { x, y } = pos(e);
 
       const shape: Extract<CanvasShape, { type: "ellipse" }> = {
+        id: crypto.randomUUID(),
         type: "ellipse",
         x: start.current.x,
         y: start.current.y,
@@ -53,10 +54,11 @@ export function useDrawEllipse(
       isDrawing.current = false;
 
       const shape = previewRef.current;
+      console.log(shape);
 
       // normalize the shape before committing
       const normalized = normalizeShapes.ellipse(
-        shape as Extract<CanvasShape, { type: "ellipse" }>
+        shape as Extract<CanvasShape, { type: "ellipse" }>,
       );
 
       onCommit(normalized);

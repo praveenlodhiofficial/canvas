@@ -1,4 +1,4 @@
-import { CanvasShape } from "@/types/shape";
+import { CanvasShape } from "@repo/shared/types";
 
 /**
  * Draws an ellipse derived from a normalized bounding rectangle.
@@ -10,7 +10,7 @@ import { CanvasShape } from "@/types/shape";
  */
 export function renderEllipse(
   ctx: CanvasRenderingContext2D,
-  shape: Extract<CanvasShape, { type: "ellipse" }>
+  shape: Extract<CanvasShape, { type: "ellipse" }>,
 ) {
   const cx = shape.x + shape.width / 2;
   const cy = shape.y + shape.height / 2;

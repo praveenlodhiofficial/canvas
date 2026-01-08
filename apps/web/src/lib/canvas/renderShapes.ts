@@ -1,4 +1,4 @@
-import { CanvasShape } from "@/types/shape";
+import { CanvasShape } from "@repo/shared/types";
 import { renderShape } from "@/lib/canvas/render-shapes";
 import { normalizeShapes } from "@/lib/canvas/normalize-shapes";
 

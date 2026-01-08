@@ -1,12 +1,12 @@
 import { normalizeShapes } from "@/lib/canvas/normalize-shapes";
-import { CanvasShape } from "@/types/shape";
+import { CanvasShape } from "@repo/shared/types";
 import React, { useEffect, useRef } from "react";
 
 export function useDrawBox(
   enabled: boolean,
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
   onCommit: (shape: CanvasShape) => void,
-  onPreview: (shape: CanvasShape | null) => void
+  onPreview: (shape: CanvasShape | null) => void,
 ) {
   const isDrawing = useRef(false);
   const start = useRef({ x: 0, y: 0 });
@@ -38,6 +38,7 @@ export function useDrawBox(
       const { x, y } = pos(e);
 
       const shape: Extract<CanvasShape, { type: "box" }> = {
+        id: crypto.randomUUID(),
         type: "box",
         x: start.current.x,
         y: start.current.y,
@@ -55,10 +56,11 @@ export function useDrawBox(
       isDrawing.current = false;
 
       const shape = previewRef.current;
+      console.log(shape);
 
       // normalize the shape before committing
       const normalized = normalizeShapes.box(
-        shape as Extract<CanvasShape, { type: "box" }>
+        shape as Extract<CanvasShape, { type: "box" }>,
       );
 
       onCommit(normalized);
