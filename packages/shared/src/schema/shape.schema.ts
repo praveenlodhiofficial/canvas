@@ -1,14 +1,11 @@
 import { z } from "zod";
 
-export const ShapeTypeSchema = z.enum([
-  "BOX",
-  "ELLIPSE",
-]);
+export const ShapeTypeSchema = z.enum(["BOX", "ELLIPSE"]).optional();
 
 export const ShapeSchema = z.object({
   id: z.uuid(),
   roomId: z.uuid(),
-  type: ShapeTypeSchema,
+  type: ShapeTypeSchema.optional(),
 
   x: z.number(),
   y: z.number(),

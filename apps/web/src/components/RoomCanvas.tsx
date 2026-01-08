@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { CanvasShape } from "@/types/shape";
+import { CanvasShape } from "@repo/shared/types";
 import { ToolType } from "@/types/tool";
 import { useCanvasInit } from "@/hooks/canvas/useCanvasInit";
 import { useCanvasRender } from "@/hooks/canvas/useCanvasRender";
@@ -21,20 +21,24 @@ export default function RoomCanvas({
   // Runs once when the component is mounted and never causes re-renders
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useCanvasInit(canvasRef);
+  const wsRef = useRef<WebSocket | null>(null);
+
+  // 🔑 Shapes stored by ID to prevent duplicates
+  const [shapes, setShapes] = useState<Map<string, CanvasShape>>(
+    () => new Map(initialShapes.map((s) => [s.id, s])),
+  );
 
   // State management for shapes and preview
-  const [shapes, setShapes] = useState<CanvasShape[]>(initialShapes);
   const [preview, setPreview] = useState<CanvasShape | null>(null);
   const [tool, setTool] = useState<ToolType | null>("box");
-
-  // ws coonection
   const [wsStatus, setWsStatus] = useState<
-    "connecting" | "connected" | "error" | "disconnected"
+    "connecting" | "connected" | "error"
   >("connecting");
 
-  // WS connection (side-effect, correct use)
+  /* ---------------- WS CONNECTION ---------------- */
   useEffect(() => {
     const ws = new WebSocket(`${config.websocketUrl}?room=${roomId}`);
+    wsRef.current = ws;
 
     ws.onopen = () => setWsStatus("connected");
     ws.onerror = () => setWsStatus("error");
@@ -42,34 +46,80 @@ export default function RoomCanvas({
     ws.onmessage = (event) => {
       const msg = JSON.parse(event.data);
 
-      if (msg.type === "shape:add") {
-        setShapes((s) => [...s, msg.shape]);
+      // server broadcast
+      if (msg.type === "shape:broadcast") {
+        setShapes((prev) => {
+          const next = new Map(prev);
+          next.set(msg.payload.id, msg.payload);
+          return next;
+        });
+      }
+
+      // initial room snapshot
+      if (msg.type === "room:init") {
+        setShapes(new Map(msg.payload.map((s: CanvasShape) => [s.id, s])));
       }
     };
 
     return () => ws.close();
   }, [roomId]);
 
+  /* ---------------- DRAW HOOKS ---------------- */
+
   useDrawBox(
     tool === "box",
     canvasRef,
-    (shape: CanvasShape) => setShapes((s) => [...s, shape]),
-    setPreview
+    (shape: CanvasShape) => {
+      // optimistic render
+      setShapes((prev) => {
+        const next = new Map(prev);
+        next.set(shape.id, shape);
+        return next;
+      });
+
+      // send to server
+      wsRef.current?.send(
+        JSON.stringify({
+          type: "shape:add",
+          payload: shape,
+        }),
+      );
+    },
+    setPreview,
   );
 
   useDrawEllipse(
     tool === "ellipse",
     canvasRef,
-    (shape: CanvasShape) => setShapes((s) => [...s, shape]),
-    setPreview
-  );
-  // 🔼 🔼 🔼 END DRAW HOOKS 🔼 🔼 🔼
+    (shape: CanvasShape) => {
+      setShapes((prev) => {
+        const next = new Map(prev);
+        next.set(shape.id, shape);
+        return next;
+      });
 
-  useCanvasRender(canvasRef, ctxRef, shapes, preview, tool);
+      wsRef.current?.send(
+        JSON.stringify({
+          type: "shape:add",
+          payload: shape,
+        }),
+      );
+    },
+    setPreview,
+  );
+
+  /* ---------------- RENDER ---------------- */
+
+  useCanvasRender(
+    canvasRef,
+    ctxRef,
+    Array.from(shapes.values()),
+    preview,
+    tool,
+  );
 
   return (
     <div className="relative border w-full h-full">
-
       {/* Canvas */}
       <canvas
         ref={canvasRef}

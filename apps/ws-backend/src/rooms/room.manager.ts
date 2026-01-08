@@ -11,11 +11,10 @@ export async function joinRoom(roomId: string, userId: string) {
   });
   if (!user) return null;
 
-
   const roomDetails = await prisma.room.findUnique({
     where: { id: roomId },
     select: { name: true },
-  }); 
+  });
   if (!roomDetails) return null;
 
   console.log(`[WS] Joined Room: ${roomDetails.name} || User: ${user.name}`);

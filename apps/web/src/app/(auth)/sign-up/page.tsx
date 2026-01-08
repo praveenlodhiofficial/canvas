@@ -34,27 +34,23 @@ export default function SignUpPage() {
   });
 
   async function onSubmit(data: SignUpInput) {
-    const response = await fetch(
-      `${config.backendUrl}/api/v1/signup`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(data),
-      }
-    );
-  
+    const response = await fetch(`${config.backendUrl}/api/v1/signup`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(data),
+    });
+
     const result = await response.json();
-  
+
     if (!response.ok) {
       toast.error(result.message);
       return;
     }
-  
+
     toast.success("User signed up successfully");
     router.push("/sign-in");
   }
-  
 
   return (
     <div className="min-h-screen font-sans selection:bg-indigo-100 bg-background text-foreground relative flex items-center justify-center p-4">

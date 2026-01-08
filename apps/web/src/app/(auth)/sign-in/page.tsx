@@ -48,10 +48,12 @@ export default function SignInPage() {
     if (!response.ok) {
       const error = await response.json();
       console.error("error:", error);
-      toast.error(error.message || "User not found or credentials are incorrect");
+      toast.error(
+        error.message || "User not found or credentials are incorrect",
+      );
       return;
     }
-    
+
     toast.success("User signed in successfully");
     router.replace("/dashboard");
   }

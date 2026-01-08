@@ -47,7 +47,8 @@ const server = Bun.serve<WsData>({
       },
     });
 
-    if (success) return new Response("WebSocket upgrade successful", { status: 200 });
+    if (success)
+      return new Response("WebSocket upgrade successful", { status: 200 });
 
     return new Response("Failed to upgrade to WebSocket", { status: 500 });
   },
@@ -93,7 +94,7 @@ const server = Bun.serve<WsData>({
           ...msg.payload,
           id: crypto.randomUUID(),
         };
-      
+
         applyShape(roomId, shape);
         broadcastToRoom(roomId, { type: "shape:broadcast", payload: shape });
       }
