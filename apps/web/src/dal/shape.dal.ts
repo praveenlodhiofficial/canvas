@@ -2,7 +2,6 @@ import { authFetch } from "@/lib/auth/auth-fetch";
 import { config } from "@/lib/config";
 import { ShapeType } from "@repo/shared/schema";
 import { cache } from "react";
-import { toast } from "sonner";
 
 export const getAllShapes = cache(async (roomId: string) => {
   const data = await authFetch<{
@@ -11,7 +10,7 @@ export const getAllShapes = cache(async (roomId: string) => {
   }>(`${config.backendUrl}/api/v1/rooms/${roomId}/shapes`);
 
   if (!data.message) {
-    toast.error(data.message);
+    console.error(data.message);
     return;
   }
 

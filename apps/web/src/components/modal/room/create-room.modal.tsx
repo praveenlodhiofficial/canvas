@@ -26,9 +26,11 @@ import {
 } from "@/components/ui/form";
 import { config } from "@/lib/config";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export function CreateRoomModal() {
   const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
   const form = useForm<RoomType>({
     resolver: zodResolver(RoomSchema),
     defaultValues: {
@@ -55,6 +57,7 @@ export function CreateRoomModal() {
     setIsOpen(false);
     form.reset();
     window.open(`/dashboard/rooms/${responseData.room.id}`, "_blank");
+    router.refresh();
   }
 
   return (

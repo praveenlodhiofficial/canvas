@@ -5,14 +5,24 @@ import { RoomType } from "@repo/shared/schema";
 import RoomActions from "@/components/modal/room/delete-room.modal";
 import { MoveRight } from "lucide-react";
 import { timeAgo } from "@/lib/time";
+import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { JoinRoom } from "@/components/JoinRoom";
 
 export default async function RoomPage() {
-  const rooms = await getAllRooms();
+  const rooms: RoomType[] | undefined = await getAllRooms();
+
   if (!rooms) {
+    toast.error("Failed to load rooms");
+    return;
+  }
+
+  if (rooms.length === 0) {
     return (
       <div className="flex h-[400px] items-center justify-center">
         <div className="sketch-border bg-background p-8 text-center">
-          <p className="text-muted-foreground">Loading rooms...</p>
+          <p className="text-muted-foreground">No rooms found</p>
         </div>
       </div>
     );
@@ -20,25 +30,29 @@ export default async function RoomPage() {
   return (
     <div className="flex flex-col gap-8 w-full">
       {/* Header */}
-      <div className="flex flex-col gap-2">
-        <h1 className="text-4xl font-bold tracking-tight">
-          My <span className="text-brand">Canvas</span> Rooms
-        </h1>
-        <p className="text-muted-foreground">
-          Create a new room or jump back into your existing sketches.
-        </p>
+      <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-4xl font-bold tracking-tight">
+            My <span className="text-brand">Canvas</span> Rooms
+          </h1>
+          <p className="text-muted-foreground">
+            Create a new room or jump back into your existing sketches.
+          </p>
+        </div>
+        {/* Join a room */}
+          <JoinRoom />
       </div>
       {/* Rooms */}
       <div className="flex flex-wrap gap-10">
         <CreateRoomModal />
-        {rooms.map((room: RoomType) => (
+        {rooms.map((room) => (
           <div
             key={room.id}
-            className="relative flex flex-col gap-4 h-70 w-54 sketch-border bg-background transition-all hover:bg-brand/5 hover:-translate-y-1"
+            className="relative flex flex-col gap-4 h-70 w-54 sketch-border bg-background transition-all hover:bg-brand/5"
           >
             {/* 🔹 Three dots (TOP RIGHT) - with higher z-index */}
             <div className="absolute right-4 top-4 z-50 ">
-              <RoomActions roomId={room.id as string} />
+              <RoomActions room={room} />
             </div>
             {/* 🔹 Card content */}
             <Link
@@ -59,7 +73,7 @@ export default async function RoomPage() {
 
                 {/* updated at */}
                 <p className="text-xs text-muted-foreground">
-                  About {timeAgo(room.updatedAt as Date)}
+                  About {timeAgo(room.updatedAt || new Date())}
                 </p>
               </div>
 

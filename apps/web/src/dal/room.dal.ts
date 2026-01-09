@@ -2,7 +2,6 @@ import { authFetch } from "@/lib/auth/auth-fetch";
 import { config } from "@/lib/config";
 import { RoomType } from "@repo/shared/schema";
 import { cache } from "react";
-import { toast } from "sonner";
 
 export const getAllRooms = cache(async () => {
   const data = await authFetch<{
@@ -11,7 +10,7 @@ export const getAllRooms = cache(async () => {
   }>(`${config.backendUrl}/api/v1/rooms`);
 
   if (!data.message) {
-    toast.error(data.message);
+    console.error(data.message);
     return;
   }
 
@@ -29,26 +28,9 @@ export const getRoomById = cache(async (id: string) => {
   }>(`${config.backendUrl}/api/v1/rooms/${id}`);
 
   if (!data.message) {
-    toast.error(data.message);
+    console.error(data.message);
     return;
   }
 
   return data.room;
 });
-
-// export const deleteRoom = async(id: string) => {
-//   const response = await fetch(`${config.backendUrl}/api/v1/rooms/${id}`, {
-//     method: "DELETE",
-//     credentials: "include",
-//   });
-
-//   if (!response.ok) {
-//     const error = await response.json();
-//     toast.error(error.message);
-//     return;
-//   }
-
-//   const data = await response.json();
-//   toast.success(data.message);
-//   return data.message;
-// }
