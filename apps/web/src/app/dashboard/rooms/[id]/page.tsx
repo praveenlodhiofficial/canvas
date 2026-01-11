@@ -21,7 +21,10 @@ export default async function RoomPage({
 
   return (
     <div className="flex flex-col w-full items-center justify-center">
-      <h1 className="text-2xl font-semibold mb-3">[{room.visibility === "PUBLIC" ? "Public" : "Private"}] Room {room.name} | {room.totalMembers} members</h1>
+      <h1 className="text-2xl font-semibold mb-3">
+        [{room.visibility === "PUBLIC" ? "Public" : "Private"}] Room {room.name}
+        {/* | {room.totalMembers} members */}
+      </h1>
 
       <div className="border border-muted-foreground overflow-hidden w-248 aspect-video mx-auto rounded-2xl flex justify-center items-center">
         <RoomCanvas

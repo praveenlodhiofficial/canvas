@@ -6,12 +6,9 @@ import { MoreVertical, Pencil, ShareIcon, TrashIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-
 import type { Room, RoomInput } from "@repo/shared/schema";
 import { RoomSchema } from "@repo/shared/schema";
-
-import { deleteRoomAction, renameRoomAction } from "@/actions/room.actions";
-
+import { deleteRoomAction, renameRoomAction, shareRoomAction } from "@/actions/room.actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -96,9 +93,16 @@ export default function RoomActionButton({ room }: { room: Room }) {
     }
   }
 
-  function onShareRoomLink() {
+  async function onShareRoomLink() {
+    const result = await shareRoomAction({ id: room.id });
+
+    if (!result.success) {
+      toast.error(result.message);
+      return;
+    }
+
     navigator.clipboard.writeText(room.id!);
-    toast.success("Room link copied to clipboard");
+    toast.success(`${result.message} - ${room.id}`);
   }
 
   return (

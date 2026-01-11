@@ -1,10 +1,10 @@
 import { authFetch } from "@/lib/auth/auth-fetch";
 import { config } from "@/lib/config";
-import type { Room, RoomInput } from "@repo/shared/schema";
+import type { Room, RoomInput, RoomMember } from "@repo/shared/schema";
 
 // --------------------------------------------> CREATE ROOM <--------------------------------------------
 export const createRoom = async (
-  room: Pick<RoomInput, "name">,
+  room: Pick<RoomInput, "name">
 ): Promise<
   | { success: true; message: string; room: Room }
   | { success: false; message: string }
@@ -56,7 +56,7 @@ export const getRoomById = async (id: string): Promise<Room | null> => {
 
 // --------------------------------------------> DELETE ROOM <--------------------------------------------
 export const deleteRoom = async (
-  id: RoomInput["id"],
+  id: RoomInput["id"]
 ): Promise<
   { success: true; message: string } | { success: false; message: string }
 > => {
@@ -75,9 +75,8 @@ export const deleteRoom = async (
 };
 
 // --------------------------------------------> RENAME ROOM <--------------------------------------------
-
 export const renameRoom = async (
-  room: Pick<RoomInput, "id" | "name">,
+  room: Pick<RoomInput, "id" | "name">
 ): Promise<
   | { success: true; message: string; name: string; previousName: string }
   | { success: false; message: string }
@@ -104,10 +103,9 @@ export const renameRoom = async (
   }
 };
 
-// --------------------------------------------> JOIN ROOM <--------------------------------------------
-
-export const joinRoom = async (
-  roomId: string,
+// --------------------------------------------> SHARE ROOM <--------------------------------------------
+export const shareRoom = async (
+  roomId: string
 ): Promise<
   | { success: true; message: string; room: Room }
   | { success: false; message: string }
@@ -116,7 +114,7 @@ export const joinRoom = async (
     const data = await authFetch<{
       message: string;
       room: Room;
-    }>(`${config.backendUrl}/api/v1/rooms/${roomId}/join`, {
+    }>(`${config.backendUrl}/api/v1/rooms/${roomId}/share`, {
       method: "POST",
     });
 
@@ -125,10 +123,49 @@ export const joinRoom = async (
       message: data.message,
       room: data.room,
     };
-  } catch {
+  } catch (error) {
+    console.error(error);
+    return { success: false, message: "Failed to share room" };
+  }
+};
+
+// --------------------------------------------> JOIN ROOM <--------------------------------------------
+export const joinRoom = async (
+  roomId: string
+): Promise<
+  | { success: true; message: string; member: RoomMember; roomId: string }
+  | { success: false; message: string }
+> => {
+  try {
+    const data = await authFetch<{
+      message: string;
+      member: RoomMember;
+      roomId: string;
+    }>(`${config.backendUrl}/api/v1/rooms/${roomId}/join`, {
+      method: "POST",
+    });
+
     return {
-      success: false,
-      message: "Failed to join room",
+      success: true,
+      message: data.message,
+      roomId: data.roomId,
+      member: data.member,
     };
+  } catch {
+    return { success: false, message: "Failed to join room" };
+  }
+};
+
+// --------------------------------------------> FETCH MEMBER'S ROOMS <--------------------------------------------
+export const getMemberRooms = async (): Promise<{ rooms: Room[]; message: string }> => {
+  try {
+    const data = await authFetch<{
+      message: string;
+      rooms: Room[];
+    }>(`${config.backendUrl}/api/v1/rooms/member`);
+
+    return { rooms: data.rooms, message: data.message };
+  } catch {
+    return { rooms: [], message: "Failed to load collaborative rooms" };
   }
 };

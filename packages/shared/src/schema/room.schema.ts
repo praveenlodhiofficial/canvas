@@ -11,9 +11,11 @@ export const RoomSchema = z.object({
   id: z.uuid().optional(),
   name: z.string().min(3),
   visibility: RoomVisibilitySchema.default("PRIVATE"),
-  totalMembers: z.number().int().nonnegative(),
-  createdAt: z.date().optional(),
-  updatedAt: z.date().optional(),
+  // totalMembers: z.number().int().nonnegative(),
+  // createdAt: z.date().optional(),
+  // updatedAt: z.date().optional(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
 });
 
 export type RoomInput = z.input<typeof RoomSchema>;
@@ -28,4 +30,5 @@ export const CreateRoomSchema = RoomSchema.pick({
 export const GetRoomByIdSchema = RoomSchema.pick({ id: true });
 export const RenameRoomSchema = RoomSchema.pick({ id: true, name: true });
 export const DeleteRoomSchema = RoomSchema.pick({ id: true });
+export const ShareRoomSchema = RoomSchema.pick({ id: true });
 export const JoinRoomSchema = RoomSchema.pick({ id: true });

@@ -4,6 +4,7 @@ import type { AuthenticatedRequest } from "@repo/shared/types";
 import { z } from "zod";
 import { Router } from "@/core/router";
 import { authMiddleware } from "@/middleware/auth.middleware";
+import { roomAccessWhere } from "@/utils/permissions/room-access";
 
 export function registerRoomRoutes(router: Router) {
   // --------------------------------------------> CREATE ROOM ROUTE <--------------------------------------------
@@ -23,7 +24,7 @@ export function registerRoomRoutes(router: Router) {
         const errors = z.treeifyError(parsed.error);
         return Response.json(
           { message: "Validation failed", errors },
-          { status: 400 },
+          { status: 400 }
         );
       }
 
@@ -38,7 +39,7 @@ export function registerRoomRoutes(router: Router) {
       if (exist) {
         return Response.json(
           { message: "Room already exists, please use a different name" },
-          { status: 400 },
+          { status: 400 }
         );
       }
 
@@ -76,13 +77,13 @@ export function registerRoomRoutes(router: Router) {
             admin: room.admin.name,
           },
         },
-        { status: 201 },
+        { status: 201 }
       );
     } catch (error) {
       console.error("Error creating room:", error);
       return Response.json(
         { message: "Internal server error" },
-        { status: 500 },
+        { status: 500 }
       );
     }
   });
@@ -99,7 +100,7 @@ export function registerRoomRoutes(router: Router) {
       if (!roomId)
         return Response.json(
           { message: "Room ID is required" },
-          { status: 400 },
+          { status: 400 }
         );
 
       const room = await prisma.room.findUnique({
@@ -122,13 +123,13 @@ export function registerRoomRoutes(router: Router) {
 
       return Response.json(
         { message: "Room deleted successfully" },
-        { status: 200 },
+        { status: 200 }
       );
     } catch (error) {
       console.error("Error deleting room:", error);
       return Response.json(
         { message: "Internal server error" },
-        { status: 500 },
+        { status: 500 }
       );
     }
   });
@@ -148,13 +149,13 @@ export function registerRoomRoutes(router: Router) {
 
       return Response.json(
         { message: "All rooms deleted successfully" },
-        { status: 200 },
+        { status: 200 }
       );
     } catch (error) {
       console.error("Error deleting all rooms:", error);
       return Response.json(
         { message: "Internal server error" },
-        { status: 500 },
+        { status: 500 }
       );
     }
   });
@@ -204,87 +205,84 @@ export function registerRoomRoutes(router: Router) {
             updatedAt: room.updatedAt.toISOString(),
           })),
         },
-        { status: 200 },
+        { status: 200 }
       );
     } catch (error) {
       console.error("Error fetching rooms:", error);
       return Response.json(
         { message: "Internal server error" },
-        { status: 500 },
+        { status: 500 }
+      );
+    }
+  });
+
+  // ----------------------------------------> FETCH MEMBER'S ROOMS <------------------------------------------
+  router.get("/api/v1/rooms/member", async (req) => {
+    try {
+      const authResult = await authMiddleware(req);
+      if (authResult) return authResult;
+
+      const user = (req as AuthenticatedRequest).user;
+
+      const rooms = await prisma.room.findMany({
+        where: {
+          members: {
+            some: {
+              userId: user.id,
+            },
+          },
+        },
+        select: {
+          id: true,
+          name: true,
+          visibility: true,
+          updatedAt: true,
+          adminId: true,
+        },
+        orderBy: {
+          updatedAt: "desc",
+        },
+      });
+
+      return Response.json(
+        {
+          message: "Member rooms fetched successfully",
+          rooms,
+        },
+        { status: 200 }
+      );
+    } catch (error) {
+      console.error("Error fetching member rooms:", error);
+      return Response.json(
+        { message: "Internal server error" },
+        { status: 500 }
       );
     }
   });
 
   // ----------------------------------------> GET ROOM BY ID <------------------------------------------
-  // router.get("/api/v1/rooms/:id", async (req, params) => {
-  //   try {
-  //     const authResult = await authMiddleware(req);
-  //     if (authResult) return authResult;
-  //     const admin = (req as AuthenticatedRequest).user;
-
-  //     const roomId = params.id;
-
-  //     if (!roomId)
-  //       return Response.json(
-  //         { message: "Room ID is required" },
-  //         { status: 400 },
-  //       );
-
-  //     const room = await prisma.room.findUnique({
-  //       where: {
-  //         id: roomId,
-  //         adminId: admin.id,
-  //       },
-  //       select: {
-  //         members: {
-
-  //         }
-  //       },
-  //     });
-
-  //     if (!room) {
-  //       return Response.json({ message: "Room not found" }, { status: 404 });
-  //     }
-
-  //     return Response.json(
-  //       { message: "Room fetched successfully", room },
-  //       { status: 200 },
-  //     );
-  //   } catch (error) {
-  //     console.error("Error fetching room:", error);
-  //     return Response.json(
-  //       { message: "Internal server error" },
-  //       { status: 500 },
-  //     );
-  //   }
-  // });
-
   router.get("/api/v1/rooms/:id", async (req, params) => {
     try {
       const authResult = await authMiddleware(req);
       if (authResult) return authResult;
-  
+
       const user = (req as AuthenticatedRequest).user;
       const roomId = params.id;
-  
+
       if (!roomId) {
         return Response.json(
           { message: "Room ID is required" },
           { status: 400 }
         );
       }
-  
+
       const room = await prisma.room.findFirst({
-        where: {
-          id: roomId,
-          adminId: user.id, // only admin can fetch full room details
-        },
+        where: roomAccessWhere(roomId, user.id),
         select: {
           id: true,
           name: true,
           visibility: true,
           adminId: true,
-  
           _count: {
             select: {
               members: true,
@@ -292,16 +290,14 @@ export function registerRoomRoutes(router: Router) {
           },
         },
       });
-  
+
       if (!room) {
         return Response.json(
-          { message: "Room not found" },
-          { status: 404 }
+          { message: "You do not have access to this room" },
+          { status: 403 }
         );
       }
-  
-      const totalMembers = room._count.members + 1; // + admin
-  
+
       return Response.json(
         {
           message: "Room fetched successfully",
@@ -309,7 +305,7 @@ export function registerRoomRoutes(router: Router) {
             id: room.id,
             name: room.name,
             visibility: room.visibility,
-            totalMembers,
+            totalMembers: room._count.members + 1, // include admin
           },
         },
         { status: 200 }
@@ -322,7 +318,6 @@ export function registerRoomRoutes(router: Router) {
       );
     }
   });
-  
 
   // ----------------------------------------> RENAME ROOM <------------------------------------------
   router.post("/api/v1/rooms/:id/rename", async (req, params) => {
@@ -338,7 +333,7 @@ export function registerRoomRoutes(router: Router) {
         const errors = z.treeifyError(parsed.error);
         return Response.json(
           { message: "validation failed", errors },
-          { status: 400 },
+          { status: 400 }
         );
       }
 
@@ -347,7 +342,7 @@ export function registerRoomRoutes(router: Router) {
       if (!roomId) {
         return Response.json(
           { message: "Room ID is required" },
-          { status: 400 },
+          { status: 400 }
         );
       }
 
@@ -368,7 +363,7 @@ export function registerRoomRoutes(router: Router) {
       if (room.name === parsed.data.name) {
         return Response.json(
           { message: "Room name is the same as the current name" },
-          { status: 400 },
+          { status: 400 }
         );
       }
 
@@ -382,7 +377,7 @@ export function registerRoomRoutes(router: Router) {
       if (exist) {
         return Response.json(
           { message: "Room name already exists" },
-          { status: 400 },
+          { status: 400 }
         );
       }
 
@@ -400,13 +395,13 @@ export function registerRoomRoutes(router: Router) {
           name: updatedRoom.name,
           previousName: room.name,
         },
-        { status: 200 },
+        { status: 200 }
       );
     } catch (error) {
       console.error("Error renaming room:", error);
       return Response.json(
         { message: "Internal server error" },
-        { status: 500 },
+        { status: 500 }
       );
     }
   });
@@ -423,7 +418,7 @@ export function registerRoomRoutes(router: Router) {
       if (!roomId) {
         return Response.json(
           { message: "Room ID is required" },
-          { status: 400 },
+          { status: 400 }
         );
       }
 
@@ -438,7 +433,7 @@ export function registerRoomRoutes(router: Router) {
       if (!room) {
         return Response.json(
           { message: "Room not found or unauthorized" },
-          { status: 404 },
+          { status: 404 }
         );
       }
 
@@ -457,16 +452,16 @@ export function registerRoomRoutes(router: Router) {
 
       return Response.json(
         {
-          message: "Room is now public",
+          message: "Room is now public and shareable",
           room: updatedRoom,
         },
-        { status: 200 },
+        { status: 200 }
       );
     } catch (error) {
       console.error("Error sharing room:", error);
       return Response.json(
         { message: "Internal server error" },
-        { status: 500 },
+        { status: 500 }
       );
     }
   });
@@ -483,7 +478,7 @@ export function registerRoomRoutes(router: Router) {
       if (!roomId) {
         return Response.json(
           { message: "Room ID is required" },
-          { status: 400 },
+          { status: 400 }
         );
       }
 
@@ -505,7 +500,7 @@ export function registerRoomRoutes(router: Router) {
       if (room.adminId === user.id) {
         return Response.json(
           { message: "Admin is already a member of the room" },
-          { status: 400 },
+          { status: 400 }
         );
       }
 
@@ -513,7 +508,7 @@ export function registerRoomRoutes(router: Router) {
       if (room.visibility !== "PUBLIC") {
         return Response.json(
           { message: "This room is private" },
-          { status: 403 },
+          { status: 403 }
         );
       }
 
@@ -528,7 +523,7 @@ export function registerRoomRoutes(router: Router) {
       if (existingMember) {
         return Response.json(
           { message: "User already joined this room" },
-          { status: 400 },
+          { status: 400 }
         );
       }
 
@@ -549,15 +544,16 @@ export function registerRoomRoutes(router: Router) {
       return Response.json(
         {
           message: "Joined room successfully",
+          roomId: room.id,
           member,
         },
-        { status: 201 },
+        { status: 201 }
       );
     } catch (error) {
       console.error("Error joining room:", error);
       return Response.json(
         { message: "Internal server error" },
-        { status: 500 },
+        { status: 500 }
       );
     }
   });

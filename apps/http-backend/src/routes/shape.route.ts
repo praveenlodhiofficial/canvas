@@ -4,6 +4,7 @@ import { Router } from "@/core/router";
 import { prisma } from "@repo/database";
 import { CreateShapeSchema } from "@repo/shared/schema";
 import { z } from "zod";
+import { roomAccessWhere } from "@/utils/permissions/room-access";
 
 export function registerShapeRoutes(router: Router) {
   // ----------------------------------------> SAVE SHAPES <------------------------------------------
@@ -12,21 +13,18 @@ export function registerShapeRoutes(router: Router) {
       const authResult = await authMiddleware(req);
       if (authResult) return authResult;
 
-      const admin = (req as AuthenticatedRequest).user;
+      const user = (req as AuthenticatedRequest).user;
       const roomId = params.id;
 
       if (!roomId) {
         return Response.json(
           { message: "Room ID is required" },
-          { status: 400 },
+          { status: 400 }
         );
       }
 
       const room = await prisma.room.findFirst({
-        where: {
-          id: roomId,
-          adminId: admin.id, // later: replace with permission check
-        },
+        where: roomAccessWhere(roomId, user.id),
         select: { id: true },
       });
 
@@ -43,7 +41,7 @@ export function registerShapeRoutes(router: Router) {
             message: "Validation failed",
             errors: z.treeifyError(parsed.error),
           },
-          { status: 400 },
+          { status: 400 }
         );
       }
 
@@ -65,13 +63,13 @@ export function registerShapeRoutes(router: Router) {
 
       return Response.json(
         { message: "Shape saved successfully", shape },
-        { status: 201 },
+        { status: 201 }
       );
     } catch (error) {
       console.error("Error saving shape:", error);
       return Response.json(
         { message: "Internal server error" },
-        { status: 500 },
+        { status: 500 }
       );
     }
   });
@@ -81,22 +79,19 @@ export function registerShapeRoutes(router: Router) {
     try {
       const authResult = await authMiddleware(req);
       if (authResult) return authResult;
-      const admin = (req as AuthenticatedRequest).user;
+      const user = (req as AuthenticatedRequest).user;
 
       const roomId = params.id;
 
       if (!roomId) {
         return Response.json(
           { message: "Room ID is required" },
-          { status: 400 },
+          { status: 400 }
         );
       }
 
       const room = await prisma.room.findFirst({
-        where: {
-          id: roomId,
-          adminId: admin.id, // later: replace with permission check
-        },
+        where: roomAccessWhere(roomId, user.id),
         select: { id: true },
       });
 
@@ -105,9 +100,7 @@ export function registerShapeRoutes(router: Router) {
       }
 
       const shapes = await prisma.shape.findMany({
-        where: {
-          roomId: roomId,
-        },
+        where: { roomId },
         select: {
           id: true,
           type: true,
@@ -133,13 +126,13 @@ export function registerShapeRoutes(router: Router) {
 
       return Response.json(
         { message: "Shapes fetched successfully", shapes },
-        { status: 200 },
+        { status: 200 }
       );
     } catch (error) {
       console.error("Error getting shapes:", error);
       return Response.json(
         { message: "Internal server error" },
-        { status: 500 },
+        { status: 500 }
       );
     }
   });

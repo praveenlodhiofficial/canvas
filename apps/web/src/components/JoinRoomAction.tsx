@@ -31,7 +31,8 @@ export function JoinRoomAction() {
       }
 
       toast.success(result.message);
-      router.push(`/dashboard/rooms/${result.room.id}`);
+      window.open(`/dashboard/rooms/${result.roomId}`, "_blank");
+      router.refresh();
     } finally {
       setLoading(false);
     }

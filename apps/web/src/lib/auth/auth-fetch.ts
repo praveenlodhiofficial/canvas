@@ -1,5 +1,4 @@
 import { getAuthCookieHeader } from "./cookies";
-import { redirect } from "next/navigation";
 
 type AuthFetchOptions = RequestInit & {
   forwardCookies?: boolean;

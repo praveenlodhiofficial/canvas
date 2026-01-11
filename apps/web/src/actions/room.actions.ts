@@ -6,7 +6,9 @@ import {
   getAllRooms,
   getRoomById,
   joinRoom,
+  shareRoom,
   renameRoom,
+  getMemberRooms,
 } from "@/dal/room.dal";
 import {
   CreateRoomSchema,
@@ -15,6 +17,8 @@ import {
   RenameRoomSchema,
   type Room,
   JoinRoomSchema,
+  ShareRoomSchema,
+  RoomMember,
 } from "@repo/shared/schema";
 
 // --------------------------------------------> CREATE ROOM ACTION <--------------------------------------------
@@ -24,7 +28,7 @@ type CreateRoomResult =
   | { success: false; message: string };
 
 export const createRoomAction = async (
-  input: unknown,
+  input: unknown
 ): Promise<CreateRoomResult> => {
   try {
     const { name } = CreateRoomSchema.parse(input);
@@ -54,7 +58,7 @@ type DeleteRoomResult =
   | { success: false; message: string };
 
 export const deleteRoomAction = async (
-  input: unknown,
+  input: unknown
 ): Promise<DeleteRoomResult> => {
   try {
     const { id } = DeleteRoomSchema.parse(input);
@@ -106,7 +110,7 @@ type GetRoomByIdResult =
   | { success: false; message: string };
 
 export const getRoomByIdAction = async (
-  input: unknown,
+  input: unknown
 ): Promise<GetRoomByIdResult> => {
   try {
     const { id } = GetRoomByIdSchema.parse(input);
@@ -138,7 +142,7 @@ type RenameRoomResult =
   | { success: false; message: string };
 
 export const renameRoomAction = async (
-  input: unknown,
+  input: unknown
 ): Promise<RenameRoomResult> => {
   try {
     const { id, name } = RenameRoomSchema.parse(input);
@@ -166,18 +170,18 @@ export const renameRoomAction = async (
   }
 };
 
-// --------------------------------------------> JOIN ROOM ACTION <--------------------------------------------
+// --------------------------------------------> SHARE ROOM ACTION <--------------------------------------------
 
-type JoinRoomResult =
+type ShareRoomResult =
   | { success: true; message: string; room: Room }
   | { success: false; message: string };
 
-export const joinRoomAction = async (
-  input: unknown,
-): Promise<JoinRoomResult> => {
+export const shareRoomAction = async (
+  input: unknown
+): Promise<ShareRoomResult> => {
   try {
-    const { id } = JoinRoomSchema.parse(input);
-    const result = await joinRoom(id!);
+    const { id } = ShareRoomSchema.parse(input);
+    const result = await shareRoom(id!);
 
     if (!result.success) {
       return {
@@ -196,5 +200,54 @@ export const joinRoomAction = async (
       success: false,
       message: error instanceof Error ? error.message : "Invalid room id",
     };
+  }
+};
+
+// --------------------------------------------> JOIN ROOM ACTION <--------------------------------------------
+
+type JoinRoomResult =
+  | { success: true; message: string; member: RoomMember; roomId: string }
+  | { success: false; message: string };
+
+export const joinRoomAction = async (
+  input: unknown
+): Promise<JoinRoomResult> => {
+  try {
+    const { id } = JoinRoomSchema.parse(input);
+    const result = await joinRoom(id!);
+
+    if (!result.success) {
+      return {
+        success: false,
+        message: result.message,
+      };
+    }
+
+    return {
+      success: true,
+      message: result.message,
+      member: result.member,
+      roomId: result.roomId,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Invalid room id",
+    };
+  }
+};
+
+// --------------------------------------------> FETCH MEMBER'S ROOMS ACTION <--------------------------------------------
+
+type GetMemberRoomsResult =
+  | { success: true; rooms: Room[]; message: string }
+  | { success: false; message: string };
+
+export const getMemberRoomsAction = async (): Promise<GetMemberRoomsResult> => {
+  try {
+    const { rooms, message } = await getMemberRooms();
+    return { success: true, rooms, message };
+  } catch {
+    return { success: false, message: "Failed to load collaborative rooms" };
   }
 };
