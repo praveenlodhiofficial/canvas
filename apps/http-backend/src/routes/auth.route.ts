@@ -1,10 +1,9 @@
 import { prisma } from "@repo/database";
 import { config } from "@repo/shared";
-import { SignInSchema, SignUpSchema, UserSchema } from "@repo/shared/schema";
+import { SignInSchema, SignUpSchema } from "@repo/shared/schema";
 import { signJWT } from "@repo/shared/utils";
 import { z } from "zod";
 import { Router } from "@/core/router";
-import { getCookies } from "@/utils/cookies";
 import { authMiddleware } from "@/middleware/auth.middleware";
 import { AuthenticatedRequest } from "@repo/shared/types";
 
@@ -68,109 +67,115 @@ export function registerAuthRoutes(router: Router) {
 
   // --------------------------------------------> SIGN IN ROUTE <--------------------------------------------
 
+  // nextjs managing cookies for us
+  // router.post("/api/v1/signin", async (req) => {
+  //   const body = await req.json();
+  //   const parsed = SignInSchema.safeParse(body);
+
+  //   if (!parsed.success) {
+  //     return Response.json({ message: "Invalid input" }, { status: 400 });
+  //   }
+
+  //   const user = await prisma.user.findUnique({
+  //     where: { email: parsed.data.email },
+  //   });
+
+  //   if (!user) {
+  //     return Response.json({ message: "Invalid credentials" }, { status: 401 });
+  //   }
+
+  //   const valid = await Bun.password.verify(
+  //     parsed.data.password,
+  //     user.password,
+  //   );
+
+  //   if (!valid) {
+  //     return Response.json({ message: "Invalid credentials" }, { status: 401 });
+  //   }
+
+  //   const token = await signJWT({
+  //     id: user.id,
+  //     email: user.email,
+  //   });
+
+  //   return Response.json(
+  //     {
+  //       token,
+  //       user: {
+  //         id: user.id,
+  //         email: user.email,
+  //         name: user.name,
+  //       },
+  //     },
+  //     { status: 200 },
+  //   );
+  // });
+
+  // http backend managing cookies for us
   router.post("/api/v1/signin", async (req) => {
-    try {
-      const body = await req.json();
-      const parsed = SignInSchema.safeParse(body);
+    const body = await req.json();
+    const parsed = SignInSchema.safeParse(body);
 
-      if (!parsed.success) {
-        const errors = z.treeifyError(parsed.error);
-        return Response.json(
-          { message: "validation failed", errors },
-          { status: 400 },
-        );
-      }
-
-      const user = await prisma.user.findUnique({
-        where: {
-          email: parsed.data.email,
-        },
-      });
-
-      if (!user) {
-        return Response.json(
-          { message: "User not found or credentials are incorrect" },
-          { status: 404 },
-        );
-      }
-
-      const isPasswordValid = await Bun.password.verify(
-        parsed.data.password,
-        user.password,
-      );
-
-      if (!isPasswordValid) {
-        return Response.json(
-          { message: "User not found or credentials are incorrect" },
-          { status: 404 },
-        );
-      }
-
-      const token = await signJWT({
-        id: user.id,
-        email: user.email,
-      });
-
-      const headers = new Headers();
-      const cookies = getCookies(headers, req);
-
-      cookies.set("session", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-        maxAge: 60 * 60 * 24 * 7, // 7 days - TODO: Use the environment variable for the max age
-        path: "/",
-      });
-
-      return Response.json(
-        {
-          message: "User signed in successfully",
-          email: user.email,
-        },
-        { status: 200, headers },
-      );
-    } catch (error) {
-      console.error("Error during signin:", error);
-      return Response.json(
-        { message: "Internal server error" },
-        { status: 500 },
-      );
+    if (!parsed.success) {
+      return Response.json({ message: "Invalid input" }, { status: 400 });
     }
+
+    const user = await prisma.user.findUnique({
+      where: { email: parsed.data.email },
+    });
+
+    if (!user) {
+      return Response.json({ message: "Invalid credentials" }, { status: 401 });
+    }
+
+    const valid = await Bun.password.verify(
+      parsed.data.password,
+      user.password,
+    );
+
+    if (!valid) {
+      return Response.json({ message: "Invalid credentials" }, { status: 401 });
+    }
+
+    // 🔑 Generate JWT
+    const token = await signJWT({
+      id: user.id,
+      email: user.email,
+    });
+
+    // 🍪 Set cookie
+    const headers = new Headers();
+    headers.append(
+      "Set-Cookie",
+      `session=${token}; HttpOnly; Path=/; SameSite=Lax${
+        process.env.NODE_ENV === "production" ? "; Secure" : ""
+      }`,
+    );
+
+    return new Response(
+      JSON.stringify({
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+        },
+      }),
+      {
+        status: 200,
+        headers,
+      },
+    );
   });
 
   // --------------------------------------------> LOGOUT ROUTE <--------------------------------------------
-  router.post("/api/v1/logout", async (req) => {
-    try {
-      const authResult = await authMiddleware(req);
-      if (authResult) return authResult;
 
-      // headers to be sent back to the client & cookies to be deleted
-      const headers = new Headers();
-      const cookies = getCookies(headers, req);
-
-      cookies.delete("session");
-
-      return Response.json(
-        { message: "User logged out successfully" },
-        {
-          status: 200,
-          headers,
-        },
-      );
-    } catch (error) {
-      console.error("Error during logout:", error);
-      return Response.json(
-        { message: "Internal server error" },
-        { status: 500 },
-      );
-    }
+  router.post("/api/v1/logout", async () => {
+    return Response.json({ success: true });
   });
 
   // ---------------------------------------> GET USER DETAILS ROUTE <---------------------------------------
   router.get("/api/v1/me", async (req) => {
     try {
-      const cookies = getCookies(new Headers(), req);
-
       const authResult = await authMiddleware(req);
       if (authResult) return authResult;
       const user = (req as AuthenticatedRequest).user;
@@ -186,21 +191,31 @@ export function registerAuthRoutes(router: Router) {
       });
 
       if (!currentUser) {
-        return Response.json({ message: "User not found" }, { status: 404 });
+        return Response.json(
+          {
+            success: false,
+            message: "User not found",
+          },
+          { status: 404 },
+        );
       }
 
+      // add success & message to the response
       return Response.json(
         {
+          success: true,
           message: "User details fetched successfully",
           user: currentUser,
-          cookies: cookies.get("session"),
         },
         { status: 200 },
       );
     } catch (error) {
       console.error("Error fetching user details:", error);
       return Response.json(
-        { message: "Internal server error" },
+        {
+          success: false,
+          message: "Internal server error",
+        },
         { status: 500 },
       );
     }

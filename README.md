@@ -15,11 +15,33 @@ Work to be Done:
 - [ ] Add a way to invite users to the room
 - [ ] Add a way to remove users from the room
 
+\***\*\*\*\*\*\*\***\*\*\*\*\***\*\*\*\*\*\*\***## Final Logout Flow**\*\***\*\***\*\***\***\*\***\*\***\*\***
+
+Click Logout
+↓
+Client Component
+↓
+logoutUserAction
+↓
+DAL → POST /api/v1/logout
+↓
+authMiddleware (skipped)
+↓
+Cookie deleted
+↓
+Response 200
+↓
+router.refresh()
+↓
+proxy.ts sees no cookie
+↓
+redirect to /sign-in
+
 # Turborepo starter
 
 This Turborepo starter is maintained by the Turborepo core team.
 
-## Using this example
+\***\*\*\*\*\*\*\***\*\*\*\*\***\*\*\*\*\*\*\***## Using this example
 
 Run the following command:
 

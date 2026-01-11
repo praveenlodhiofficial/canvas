@@ -20,8 +20,8 @@ import { ArrowLeft, Github, Mail } from "lucide-react";
 import { Pencil } from "lucide-react";
 import { Eye } from "lucide-react";
 import { EyeOff } from "lucide-react";
-import { useState } from "react";
-import { config } from "@/lib/config";
+import { startTransition, useState } from "react";
+import { signinUserAction } from "@/actions/auth.actions";
 
 export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -35,26 +35,36 @@ export default function SignInPage() {
     },
   });
 
+  // async function onSubmit(data: SignInInput) {
+  //   startTransition(async () => {
+  //     const res = await signinUserAction(data.email, data.password);
+
+  //     if (!res.success) {
+  //       toast.error(res.error);
+  //       return;
+  //     }
+
+  //     toast.success("User signed in successfully");
+
+  //     router.refresh();
+  //     router.replace("/dashboard");
+  //   });
+  // }
+
   async function onSubmit(data: SignInInput) {
-    const response = await fetch(`${config.backendUrl}/api/v1/signin`, {
+    const res = await fetch("/api/v1/signin", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
+      credentials: "include", // 🔑 browser stores cookie
     });
 
-    if (!response.ok) {
-      const error = await response.json();
-      console.error("error:", error);
-      toast.error(
-        error.message || "User not found or credentials are incorrect",
-      );
+    if (!res.ok) {
+      toast.error("Invalid credentials");
       return;
     }
 
-    toast.success("User signed in successfully");
+    toast.success("Signed in successfully");
     router.replace("/dashboard");
   }
 
@@ -98,7 +108,9 @@ export default function SignInPage() {
                     </FormLabel>
                     <FormControl>
                       <Input
+                        type="email"
                         placeholder="name@example.com"
+                        autoComplete="email"
                         className="h-12 sketch-border border-border font-medium focus-visible:ring-indigo-500/20"
                         {...field}
                       />
@@ -129,6 +141,7 @@ export default function SignInPage() {
                         <Input
                           type={showPassword ? "text" : "password"}
                           placeholder="••••••••"
+                          autoComplete="current-password"
                           className="h-12 sketch-border border-border font-medium focus-visible:ring-indigo-500/20 pr-10"
                           {...field}
                         />

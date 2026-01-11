@@ -23,5 +23,6 @@ export class App {
 
     const response = await this.router.handle(req);
     return withCors(response);
+    return response;
   }
 }

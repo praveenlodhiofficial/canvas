@@ -19,7 +19,8 @@
         "NODE_ENV",
         "DATABASE_URL",
         "DATABASE_URL_LOCAL",
-        "HTTP_BACKEND_URL"
+        "HTTP_BACKEND_URL",
+        "WEBSOCKET_BACKEND_URL"
       ]
     },
     "lint": {

@@ -49,7 +49,9 @@ export function registerShapeRoutes(router: Router) {
 
       const shape = await prisma.shape.create({
         data: {
-          type: parsed.data.type,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          type: parsed.data.type as any,
+          // type: parsed.data.type,
           x: parsed.data.x,
           y: parsed.data.y,
           width: parsed.data.width,

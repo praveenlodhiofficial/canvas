@@ -9,5 +9,6 @@ export type CookieOptions = {
 export type Cookies = {
   set(key: string, value: string, options?: CookieOptions): void;
   get(key: string): string | undefined;
-  delete(key: string): void;
+  // delete(key: string): void;
+  delete(key: string, options?: CookieOptions): void;
 };

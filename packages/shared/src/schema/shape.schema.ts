@@ -1,11 +1,14 @@
 import { z } from "zod";
 
-export const ShapeTypeSchema = z.enum(["BOX", "ELLIPSE"]).optional();
+// --------------------------------------------> SHAPE ENUM <--------------------------------------------
+export const ShapeTypeSchema = z.enum(["BOX", "ELLIPSE"]);
 
+// --------------------------------------------> BASE SHAPE SCHEMA <--------------------------------------------
 export const ShapeSchema = z.object({
-  id: z.uuid(),
-  roomId: z.uuid(),
-  type: ShapeTypeSchema.optional(),
+  id: z.string().optional(),
+  roomId: z.string(),
+
+  type: ShapeTypeSchema,
 
   x: z.number(),
   y: z.number(),
@@ -35,13 +38,27 @@ export const ShapeSchema = z.object({
   updatedAt: z.date().optional(),
 });
 
-export type ShapeType = z.infer<typeof ShapeSchema>;
-
+// --------------------------------------------> OTHER SHAPE SCHEMA <--------------------------------------------
 export const CreateShapeSchema = ShapeSchema.omit({
   id: true,
-  roomId: true,
   createdAt: true,
   updatedAt: true,
 });
+export const GetShapeByIdSchema = ShapeSchema.pick({ id: true });
+export const GetShapesByRoomSchema = ShapeSchema.pick({ roomId: true });
+export const DeleteShapeSchema = ShapeSchema.pick({ id: true });
+export const UpdateShapeSchema = ShapeSchema.pick({ id: true }).extend(
+  ShapeSchema.omit({
+    id: true,
+    roomId: true,
+    createdAt: true,
+    updatedAt: true,
+  }).partial().shape,
+);
 
-export type CreateShapeInput = z.infer<typeof CreateShapeSchema>;
+// --------------------------------------------> SHAPE INPUT AND OUTPUT <--------------------------------------------
+export type ShapeInput = z.input<typeof ShapeSchema>;
+export type Shape = z.output<typeof ShapeSchema>;
+
+export type CreateShapeInput = z.input<typeof CreateShapeSchema>;
+export type UpdateShapeInput = z.input<typeof UpdateShapeSchema>;

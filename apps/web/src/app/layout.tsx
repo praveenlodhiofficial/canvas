@@ -27,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} ${exo2.variable}`}>
         <div className="mx-auto">{children}</div>
         <Toaster richColors position="top-right" duration={2000} />

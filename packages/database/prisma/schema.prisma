@@ -13,58 +13,87 @@ datasource db {
   provider = "postgresql"
 }
 
+enum RoomVisibility {
+  PUBLIC
+  PRIVATE
+}
+
+enum RoomRole {
+  ADMIN
+  MEMBER
+  GUEST
+}
+
 enum ShapeType {
   BOX
   ELLIPSE
 }
 
 model User {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  password  String
+  id       String @id @default(uuid())
+  name     String
+  email    String @unique
+  password String
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  /* relation to Room model */
-  rooms     Room[]
+  rooms       Room[]
+  roomMembers RoomMember[]
 }
 
 model Room {
-  id           String   @id @default(uuid())
-  name         String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id        String   @id @default(uuid())
+  name      String
+  visibility RoomVisibility @default(PRIVATE)
 
-  /* foreign key + relation to User model (admin of the room) */
-  adminId  String
-  admin    User     @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  /* relation to Shape model */
-  shapes    Shape[]
+  
+  adminId String
+  admin   User   @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  members RoomMember[]
+  shapes  Shape[]
 
   @@index([adminId])
 }
 
+model RoomMember {
+  id     String   @id @default(uuid())
+  userId String
+  roomId String
+  role   RoomRole @default(MEMBER)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  joinedAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([roomId])
+}
+
 model Shape {
-  id        String   @id @default(uuid())
-  type      ShapeType? @default(BOX)
+  id   String     @id @default(uuid())
+  type ShapeType? @default(BOX)
 
-  x         Float
-  y         Float
-  width     Float?
-  height    Float?
-  radius    Float?
+  x      Float
+  y      Float
+  width  Float?
+  height Float?
+  radius Float?
 
-  points    Json?     // for freehand / pencil / line
-  style     Json?     // strokeColor, fillColor, strokeWidth, etc.
+  points Json? // for freehand / pencil / line
+  style  Json? // strokeColor, fillColor, strokeWidth, etc.
 
-  // relation to Room model
-  roomId    String
-  room      Room      @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  roomId String
+  room   Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([roomId])
 }

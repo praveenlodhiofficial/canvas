@@ -1,19 +1,17 @@
-import { cache } from "react";
 import { authFetch } from "@/lib/auth/auth-fetch";
 import { config } from "@/lib/config";
 import { UserType } from "@repo/shared/schema";
 
-export const getCurrentUser = cache(async () => {
-  const data = await authFetch<{
-    user: UserType;
-  }>(`${config.backendUrl}/api/v1/me`);
+/* ----------------------> GET CURRENT USER DAL FUNCTION <-------------------------- */
+export const getCurrentUser = async () => {
+  try {
+    const data = await authFetch<{
+      success: boolean;
+      user: UserType;
+    }>(`${config.backendUrl}/api/v1/me`);
 
-  return data.user;
-});
-
-export const logoutUser = async () => {
-  const data = await authFetch<{ message: string }>(
-    `${config.backendUrl}/api/v1/logout`,
-  );
-  return data.message;
+    return { success: data.success, user: data.user };
+  } catch {
+    return { success: false, user: null };
+  }
 };

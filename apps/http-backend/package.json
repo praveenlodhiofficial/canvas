@@ -5,7 +5,9 @@
   "scripts": {
     "build": "tsc -b",
     "start": "bun run dist/index.js",
-    "dev": "bun run --watch src/index.ts"
+    "dev": "bun run --watch src/index.ts",
+    "lint": "eslint --max-warnings 0",
+    "check-types": "tsc --noEmit"
   },
   "private": true,
   "devDependencies": {

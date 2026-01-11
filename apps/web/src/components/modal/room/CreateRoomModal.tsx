@@ -15,7 +15,7 @@ import { PlusIcon, Sparkles } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { RoomSchema, type RoomType } from "@repo/shared/schema";
+import { RoomSchema, type RoomInput } from "@repo/shared/schema";
 import {
   Form,
   FormControl,
@@ -24,39 +24,39 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { config } from "@/lib/config";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { createRoomAction } from "@/actions/room.actions";
 
 export function CreateRoomModal() {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
-  const form = useForm<RoomType>({
-    resolver: zodResolver(RoomSchema),
+
+  const form = useForm<Pick<RoomInput, "name">>({
+    resolver: zodResolver(RoomSchema.pick({ name: true })),
     defaultValues: {
       name: "",
     },
   });
 
-  async function onSubmit(data: RoomType) {
-    const response = await fetch(`${config.backendUrl}/api/v1/create-room`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify(data),
-    });
+  async function onSubmit(data: Pick<RoomInput, "name">) {
+    const response = await createRoomAction({ name: data.name });
 
-    if (!response.ok) {
-      const error = await response.json();
-      toast.error(error.message);
+    if (!response.success) {
+      toast.error(response.message);
       return;
     }
 
-    const responseData = await response.json();
-    toast.success("Room created successfully");
+    const room = response.room;
+    if (!room) {
+      toast.error(response.message);
+      return;
+    }
+
+    toast.success(response.message);
     setIsOpen(false);
     form.reset();
-    window.open(`/dashboard/rooms/${responseData.room.id}`, "_blank");
+    window.open(`/dashboard/rooms/${room.id}`, "_blank");
     router.refresh();
   }
 

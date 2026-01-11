@@ -1,50 +1,37 @@
 import { prisma } from "@repo/database";
 import { RoomSchema } from "@repo/shared/schema";
 import type { AuthenticatedRequest } from "@repo/shared/types";
-import { safeParse, z } from "zod";
+import { z } from "zod";
 import { Router } from "@/core/router";
 import { authMiddleware } from "@/middleware/auth.middleware";
-import { authenticateRequest } from "@/utils/authenticateRequest";
 
 export function registerRoomRoutes(router: Router) {
   // --------------------------------------------> CREATE ROOM ROUTE <--------------------------------------------
 
-  router.post("/api/v1/create-room", async (req) => {
+  router.post("/api/v1/rooms", async (req) => {
     try {
-      // Protect route with auth middleware
+      // auth
       const authResult = await authMiddleware(req);
       if (authResult) return authResult;
-      const admin = (req as AuthenticatedRequest).user;
+      const user = (req as AuthenticatedRequest).user;
 
+      // validate body
       const body = await req.json();
       const parsed = RoomSchema.safeParse(body);
 
       if (!parsed.success) {
         const errors = z.treeifyError(parsed.error);
         return Response.json(
-          { message: "validation failed", errors },
+          { message: "Validation failed", errors },
           { status: 400 },
         );
       }
 
-      // fetch user name from database
-      const adminDetails = await prisma.user.findUnique({
-        where: {
-          id: admin.id,
-        },
-        select: {
-          name: true,
-        },
-      });
-
-      if (!adminDetails) {
-        return Response.json({ message: "User not found" }, { status: 404 });
-      }
-
+      // check duplicate room for same admin
       const exist = await prisma.room.findFirst({
         where: {
           name: parsed.data.name,
-          adminId: admin.id,
+          adminId: user.id,
         },
       });
 
@@ -55,13 +42,27 @@ export function registerRoomRoutes(router: Router) {
         );
       }
 
+      // create room + admin membership (TRANSACTION)
       const room = await prisma.room.create({
         data: {
           name: parsed.data.name,
-          adminId: admin.id,
+          visibility: parsed.data.visibility,
+          adminId: user.id,
+
+          members: {
+            create: {
+              userId: user.id,
+              role: "ADMIN",
+            },
+          },
         },
-        include: {
-          admin: true,
+        select: {
+          id: true,
+          name: true,
+          visibility: true,
+          admin: {
+            select: { name: true },
+          },
         },
       });
 
@@ -71,6 +72,7 @@ export function registerRoomRoutes(router: Router) {
           room: {
             id: room.id,
             name: room.name,
+            visibility: room.visibility,
             admin: room.admin.name,
           },
         },
@@ -114,6 +116,7 @@ export function registerRoomRoutes(router: Router) {
       await prisma.room.delete({
         where: {
           id: roomId,
+          adminId: admin.id,
         },
       });
 
@@ -212,47 +215,117 @@ export function registerRoomRoutes(router: Router) {
     }
   });
 
-  // ----------------------------------------> FETCH ONE ROOM <------------------------------------------
+  // ----------------------------------------> GET ROOM BY ID <------------------------------------------
+  // router.get("/api/v1/rooms/:id", async (req, params) => {
+  //   try {
+  //     const authResult = await authMiddleware(req);
+  //     if (authResult) return authResult;
+  //     const admin = (req as AuthenticatedRequest).user;
+
+  //     const roomId = params.id;
+
+  //     if (!roomId)
+  //       return Response.json(
+  //         { message: "Room ID is required" },
+  //         { status: 400 },
+  //       );
+
+  //     const room = await prisma.room.findUnique({
+  //       where: {
+  //         id: roomId,
+  //         adminId: admin.id,
+  //       },
+  //       select: {
+  //         members: {
+
+  //         }
+  //       },
+  //     });
+
+  //     if (!room) {
+  //       return Response.json({ message: "Room not found" }, { status: 404 });
+  //     }
+
+  //     return Response.json(
+  //       { message: "Room fetched successfully", room },
+  //       { status: 200 },
+  //     );
+  //   } catch (error) {
+  //     console.error("Error fetching room:", error);
+  //     return Response.json(
+  //       { message: "Internal server error" },
+  //       { status: 500 },
+  //     );
+  //   }
+  // });
+
   router.get("/api/v1/rooms/:id", async (req, params) => {
     try {
       const authResult = await authMiddleware(req);
       if (authResult) return authResult;
-      const admin = (req as AuthenticatedRequest).user;
-
+  
+      const user = (req as AuthenticatedRequest).user;
       const roomId = params.id;
-
-      if (!roomId)
+  
+      if (!roomId) {
         return Response.json(
           { message: "Room ID is required" },
-          { status: 400 },
+          { status: 400 }
         );
-
-      const room = await prisma.room.findUnique({
+      }
+  
+      const room = await prisma.room.findFirst({
         where: {
           id: roomId,
-          adminId: admin.id,
+          adminId: user.id, // only admin can fetch full room details
+        },
+        select: {
+          id: true,
+          name: true,
+          visibility: true,
+          adminId: true,
+  
+          _count: {
+            select: {
+              members: true,
+            },
+          },
         },
       });
-
+  
       if (!room) {
-        return Response.json({ message: "Room not found" }, { status: 404 });
+        return Response.json(
+          { message: "Room not found" },
+          { status: 404 }
+        );
       }
-
+  
+      const totalMembers = room._count.members + 1; // + admin
+  
       return Response.json(
-        { message: "Room fetched successfully", room },
-        { status: 200 },
+        {
+          message: "Room fetched successfully",
+          room: {
+            id: room.id,
+            name: room.name,
+            visibility: room.visibility,
+            totalMembers,
+          },
+        },
+        { status: 200 }
       );
     } catch (error) {
       console.error("Error fetching room:", error);
       return Response.json(
         { message: "Internal server error" },
-        { status: 500 },
+        { status: 500 }
       );
     }
   });
+  
 
   // ----------------------------------------> RENAME ROOM <------------------------------------------
-  router.post("api/v1/rooms/:id/rename", async (req, params) => {
+  router.post("/api/v1/rooms/:id/rename", async (req, params) => {
     try {
       const authResult = await authMiddleware(req);
       if (authResult) return authResult;
@@ -331,6 +404,157 @@ export function registerRoomRoutes(router: Router) {
       );
     } catch (error) {
       console.error("Error renaming room:", error);
+      return Response.json(
+        { message: "Internal server error" },
+        { status: 500 },
+      );
+    }
+  });
+
+  // ----------------------------------------> SHARE ROOM <------------------------------------------
+  router.post("/api/v1/rooms/:id/share", async (req, params) => {
+    try {
+      const authResult = await authMiddleware(req);
+      if (authResult) return authResult;
+
+      const admin = (req as AuthenticatedRequest).user;
+      const roomId = params.id;
+
+      if (!roomId) {
+        return Response.json(
+          { message: "Room ID is required" },
+          { status: 400 },
+        );
+      }
+
+      // Ensure room exists AND requester is admin
+      const room = await prisma.room.findFirst({
+        where: {
+          id: roomId,
+          adminId: admin.id,
+        },
+      });
+
+      if (!room) {
+        return Response.json(
+          { message: "Room not found or unauthorized" },
+          { status: 404 },
+        );
+      }
+
+      // Make room PUBLIC
+      const updatedRoom = await prisma.room.update({
+        where: { id: roomId },
+        data: {
+          visibility: "PUBLIC",
+        },
+        select: {
+          id: true,
+          name: true,
+          visibility: true,
+        },
+      });
+
+      return Response.json(
+        {
+          message: "Room is now public",
+          room: updatedRoom,
+        },
+        { status: 200 },
+      );
+    } catch (error) {
+      console.error("Error sharing room:", error);
+      return Response.json(
+        { message: "Internal server error" },
+        { status: 500 },
+      );
+    }
+  });
+
+  // ----------------------------------------> JOIN ROOM <------------------------------------------
+  router.post("/api/v1/rooms/:id/join", async (req, params) => {
+    try {
+      const authResult = await authMiddleware(req);
+      if (authResult) return authResult;
+
+      const user = (req as AuthenticatedRequest).user;
+      const roomId = params.id;
+
+      if (!roomId) {
+        return Response.json(
+          { message: "Room ID is required" },
+          { status: 400 },
+        );
+      }
+
+      // fetch room
+      const room = await prisma.room.findUnique({
+        where: { id: roomId },
+        select: {
+          id: true,
+          visibility: true,
+          adminId: true,
+        },
+      });
+
+      if (!room) {
+        return Response.json({ message: "Room not found" }, { status: 404 });
+      }
+
+      // admin cannot join again
+      if (room.adminId === user.id) {
+        return Response.json(
+          { message: "Admin is already a member of the room" },
+          { status: 400 },
+        );
+      }
+
+      // only PUBLIC rooms can be joined
+      if (room.visibility !== "PUBLIC") {
+        return Response.json(
+          { message: "This room is private" },
+          { status: 403 },
+        );
+      }
+
+      // prevent duplicate membership
+      const existingMember = await prisma.roomMember.findFirst({
+        where: {
+          roomId,
+          userId: user.id,
+        },
+      });
+
+      if (existingMember) {
+        return Response.json(
+          { message: "User already joined this room" },
+          { status: 400 },
+        );
+      }
+
+      // create membership
+      const member = await prisma.roomMember.create({
+        data: {
+          roomId,
+          userId: user.id,
+          role: "MEMBER",
+        },
+        select: {
+          id: true,
+          role: true,
+          joinedAt: true,
+        },
+      });
+
+      return Response.json(
+        {
+          message: "Joined room successfully",
+          member,
+        },
+        { status: 201 },
+      );
+    } catch (error) {
+      console.error("Error joining room:", error);
       return Response.json(
         { message: "Internal server error" },
         { status: 500 },

@@ -1,20 +1,32 @@
 import { getAuthCookieHeader } from "./cookies";
+import { redirect } from "next/navigation";
+
+type AuthFetchOptions = RequestInit & {
+  forwardCookies?: boolean;
+};
 
 export async function authFetch<T>(
   url: string,
-  options: RequestInit = {},
+  options: AuthFetchOptions = {},
 ): Promise<T> {
+  const { forwardCookies = true, ...rest } = options;
+
+  const headers: Record<string, string> = {
+    ...(rest.headers as Record<string, string> | undefined),
+  };
+
+  if (forwardCookies) {
+    headers["Cookie"] = await getAuthCookieHeader();
+  }
+
   const res = await fetch(url, {
-    ...options,
-    headers: {
-      ...(options.headers || {}),
-      Cookie: await getAuthCookieHeader(),
-    },
-    cache: "no-store", // auth-sensitive
+    ...rest,
+    headers,
+    cache: "no-store",
   });
 
   if (!res.ok) {
-    throw new Error(`Auth fetch failed: ${res.status}`);
+    throw new Error("UNAUTHORIZED");
   }
 
   return res.json();
