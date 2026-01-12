@@ -27,6 +27,7 @@ enum RoomRole {
 enum ShapeType {
   BOX
   ELLIPSE
+  LINE
 }
 
 model User {
@@ -78,16 +79,13 @@ model RoomMember {
 
 model Shape {
   id   String     @id @default(uuid())
-  type ShapeType? @default(BOX)
+  type ShapeType?
 
   x      Float
   y      Float
   width  Float?
   height Float?
-  radius Float?
-
   points Json? // for freehand / pencil / line
-  style  Json? // strokeColor, fillColor, strokeWidth, etc.
 
   roomId String
   room   Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)

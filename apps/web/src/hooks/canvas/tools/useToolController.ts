@@ -20,6 +20,9 @@ export function useToolController(
       case "ellipse":
         drawShape.ellipse(true, canvasRef, onCommit, onPreview);
         break;
+      case "line":
+        drawShape.line(true, canvasRef, onCommit, onPreview);
+        break;
       default:
         break;
     }

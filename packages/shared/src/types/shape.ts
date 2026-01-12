@@ -16,4 +16,9 @@ export type CanvasEllipse = BaseShape & {
   height: number;
 };
 
-export type CanvasShape = CanvasBox | CanvasEllipse;
+export type CanvasLine = BaseShape & {
+  type: "line";
+  points: { x: number; y: number }[];
+};
+
+export type CanvasShape = CanvasBox | CanvasEllipse | CanvasLine;

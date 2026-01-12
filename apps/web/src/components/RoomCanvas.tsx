@@ -6,10 +6,11 @@ import { ToolType } from "@/types/tool";
 import { useCanvasInit } from "@/hooks/canvas/useCanvasInit";
 import { useCanvasRender } from "@/hooks/canvas/useCanvasRender";
 import { Button } from "./ui/button";
-import { Square, Circle, PenLine, Triangle } from "lucide-react";
+import { Square, Circle, PenLine, Triangle, Minus } from "lucide-react";
 import { useDrawBox } from "@/hooks/canvas/draw-shapes/useDrawBox";
 import { useDrawEllipse } from "@/hooks/canvas/draw-shapes/useDrawEllipse";
 import { config } from "@/lib/config";
+import { useDrawLine } from "@/hooks/canvas/draw-shapes/useDrawLine";
 
 export default function RoomCanvas({
   initialShapes,
@@ -108,6 +109,26 @@ export default function RoomCanvas({
     setPreview
   );
 
+  useDrawLine(
+    tool === "line",
+    canvasRef,
+    (shape: CanvasShape) => {
+      setShapes((prev) => {
+        const next = new Map(prev);
+        next.set(shape.id, shape);
+        return next;
+      });
+
+      wsRef.current?.send(
+        JSON.stringify({
+          type: "shape:add",
+          payload: shape,
+        })
+      );
+    },
+    setPreview
+  );
+
   /* ---------------- RENDER ---------------- */
 
   useCanvasRender(
@@ -168,6 +189,21 @@ export default function RoomCanvas({
           >
             <Circle
               className="size-4.5 group-hover:size-5 transition-all duration-200"
+              fill="black"
+            />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            className={
+              tool === "line"
+                ? "bg-brand/50 sketch-border group"
+                : "bg-white sketch-border group"
+            }
+            onClick={() => setTool("line")}
+          >
+            <Minus
+              className="size-4.5 scale-140 rotate-60 group-hover:size-5 transition-all duration-200"
               fill="black"
             />
           </Button>

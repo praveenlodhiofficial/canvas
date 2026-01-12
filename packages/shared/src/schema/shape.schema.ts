@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 // --------------------------------------------> SHAPE ENUM <--------------------------------------------
-export const ShapeTypeSchema = z.enum(["BOX", "ELLIPSE"]);
+export const ShapeTypeSchema = z.enum(["BOX", "ELLIPSE", "LINE"]);
 
 // --------------------------------------------> BASE SHAPE SCHEMA <--------------------------------------------
 export const ShapeSchema = z.object({
@@ -15,7 +15,6 @@ export const ShapeSchema = z.object({
 
   width: z.number().optional(),
   height: z.number().optional(),
-  radius: z.number().optional(),
 
   points: z
     .array(
@@ -24,14 +23,7 @@ export const ShapeSchema = z.object({
         y: z.number(),
       }),
     )
-    .optional(),
-
-  style: z
-    .object({
-      strokeColor: z.string().optional(),
-      fillColor: z.string().optional(),
-      strokeWidth: z.number().optional(),
-    })
+    .min(2)
     .optional(),
 
   createdAt: z.date().optional(),

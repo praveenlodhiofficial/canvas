@@ -8,6 +8,8 @@ function normalizeForRender(shape: CanvasShape): CanvasShape {
       return normalizeShapes.box(shape);
     case "ellipse":
       return normalizeShapes.ellipse(shape);
+    case "line":
+      return normalizeShapes.line(shape);
     default:
       return shape;
   }
@@ -67,6 +69,9 @@ function render(ctx: CanvasRenderingContext2D, shape: CanvasShape) {
       break;
     case "ellipse":
       renderShape.ellipse(ctx, shape);
+      break;
+    case "line":
+      renderShape.line(ctx, shape);
       break;
   }
 }

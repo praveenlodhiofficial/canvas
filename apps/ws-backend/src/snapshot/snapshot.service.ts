@@ -23,6 +23,7 @@ export async function snapshotRoom(room: RoomState) {
         y: shape.y,
         width: "width" in shape ? shape.width : null,
         height: "height" in shape ? shape.height : null,
+        points: "points" in shape ? shape.points : undefined,
         roomId: room.roomId,
       })),
     }),

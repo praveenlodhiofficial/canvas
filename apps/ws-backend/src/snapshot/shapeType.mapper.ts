@@ -8,5 +8,8 @@ export function mapCanvasShapeToDbType(shape: CanvasShape): ShapeType {
 
     case "ellipse":
       return ShapeType.ELLIPSE;
+
+    case "line":
+      return ShapeType.LINE;
   }
 }
