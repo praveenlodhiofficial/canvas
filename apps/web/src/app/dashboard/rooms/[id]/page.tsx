@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { CanvasShape } from "@repo/shared/types";
 import { getRoomByIdAction } from "@/actions/room.actions";
 import { getRoomShapesAction } from "@/actions/shape.actions";
+import Link from "next/link";
 
 export default async function RoomPage({
   params,
@@ -20,72 +21,26 @@ export default async function RoomPage({
   const shapes = await getRoomShapesAction(room.id!);
 
   return (
-    <div className="flex flex-col w-full items-center justify-center">
-      <h1 className="text-2xl font-semibold mb-3">
-        [{room.visibility === "PUBLIC" ? "Public" : "Private"}] Room {room.name}
-        {/* | {room.totalMembers} members */}
-      </h1>
+    <div className=" flex flex-col w-full items-center justify-center">
+      <div className="z-50 pointer-events-auto bg-white shadow-xl sketch-border border h-14 flex justify-between items-center top-3 left-[7.5%] translate-x-[-50%] absolute border-red-500">
+        <div className="pointer-events-auto flex justify-between items-center bg-muted-foreground/15 px-5 w-full h-full">
+          <Link
+            href="/dashboard/rooms"
+            className="text-muted-foreground text-md font-medium cursor-pointer"
+          >
+            Rooms
+          </Link>
+          <span>&nbsp;/&nbsp;</span>
+          <span className="text-md font-medium capitalize">{room.name}</span>
+        </div>
+      </div>
 
-      <div className="border border-muted-foreground overflow-hidden w-248 aspect-video mx-auto rounded-2xl flex justify-center items-center">
+      <div className="absolute inset-0 overflow-hidden bg-white w-full h-screen flex justify-center items-center">
         <RoomCanvas
           roomId={room.id!}
           initialShapes={shapes as unknown as CanvasShape[]}
         />
       </div>
-
-      <div className="flex flex-col gap-2">
-        {shapes.map((shape) => (
-          <div key={shape.id}>{JSON.stringify(shape)}</div>
-        ))}
-      </div>
     </div>
   );
 }
-
-// import { getRoomById } from "@/dal/room.dal";
-// import RoomCanvas from "@/components/RoomCanvas";
-// import { RoomType } from "@repo/shared/schema";
-// import { redirect } from "next/navigation";
-// import { toast } from "sonner";
-// import { getAllShapes } from "@/dal/shape.dal";
-// import { CanvasShape } from "@repo/shared/types";
-
-// export default async function RoomPage({
-//   params,
-// }: {
-//   params: Promise<{ id: string }>;
-// }) {
-//   const { id } = await params;
-//   const room = (await getRoomById(id)) as RoomType;
-
-//   if (!room) {
-//     toast.error("Room not found");
-//     redirect("/dashboard/rooms");
-//   }
-
-//   const shapes = await getAllShapes(room.id!);
-
-//   if (!shapes) {
-//     toast.error("Shapes not found");
-//     return;
-//   }
-
-//   return (
-//     <div className="flex flex-col w-full items-center justify-center">
-//       <h1 className="text-2xl font-semibold mb-3">Room {room.name}</h1>
-//       <div className="border border-muted-foreground overflow-hidden w-[62rem] aspect-video mx-auto rounded-2xl flex justify-center items-center">
-//         {/* <RoomCanvas roomId={room.id!} /> */}
-//         <RoomCanvas
-//           initialShapes={shapes as unknown as CanvasShape[]}
-//           roomId={room.id!}
-//         />
-//       </div>
-
-//       <div className="flex flex-col gap-2">
-//         {shapes.map((shape) => (
-//           <div key={shape.id}>{JSON.stringify(shape)}</div>
-//         ))}
-//       </div>
-//     </div>
-//   );
-// }

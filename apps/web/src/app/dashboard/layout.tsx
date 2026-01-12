@@ -20,7 +20,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex flex-col gap-10 py-5 px-12">
-      <div className="sticky top-5 z-10 flex justify-between items-center">
+      <div className="sticky top-5 z-5 flex justify-between items-center">
         <Navbar />
         <UserMenu user={user} />
       </div>

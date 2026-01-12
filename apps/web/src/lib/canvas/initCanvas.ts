@@ -7,11 +7,16 @@ export function initCanvas(
   const dpr = window.devicePixelRatio || 1;
   const rect = canvas.getBoundingClientRect();
 
-  canvas.width = rect.width * dpr;
-  canvas.height = rect.height * dpr;
+  // Actual pixel size
+  canvas.width = Math.floor(rect.width * dpr);
+  canvas.height = Math.floor(rect.height * dpr);
 
+  // Reset transform before applying DPR
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  // ctx.scale(dpr, dpr);            // not - needed because setTransform already does this
+
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
 
   return ctx;
 }

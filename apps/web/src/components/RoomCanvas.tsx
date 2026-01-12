@@ -25,7 +25,7 @@ export default function RoomCanvas({
 
   // 🔑 Shapes stored by ID to prevent duplicates
   const [shapes, setShapes] = useState<Map<string, CanvasShape>>(
-    () => new Map(initialShapes.map((s) => [s.id, s])),
+    () => new Map(initialShapes.map((s) => [s.id, s]))
   );
 
   // State management for shapes and preview
@@ -82,10 +82,10 @@ export default function RoomCanvas({
         JSON.stringify({
           type: "shape:add",
           payload: shape,
-        }),
+        })
       );
     },
-    setPreview,
+    setPreview
   );
 
   useDrawEllipse(
@@ -102,10 +102,10 @@ export default function RoomCanvas({
         JSON.stringify({
           type: "shape:add",
           payload: shape,
-        }),
+        })
       );
     },
-    setPreview,
+    setPreview
   );
 
   /* ---------------- RENDER ---------------- */
@@ -115,15 +115,15 @@ export default function RoomCanvas({
     ctxRef,
     Array.from(shapes.values()),
     preview,
-    tool,
+    tool
   );
 
   return (
-    <div className="relative border w-full h-full">
+    <div className="relative w-full h-full">
       {/* Canvas */}
       <canvas
         ref={canvasRef}
-        className="w-full h-full cursor-auto"
+        className="w-full h-full cursor-auto z-10"
         data-cursor="pencil"
       />
 
@@ -139,65 +139,67 @@ export default function RoomCanvas({
       )}
 
       {/* Tools */}
-      <div className="w-lg rounded-lg flex items-center justify-center gap-5 bg-muted-foreground/20 border sketch-border p-2 absolute top-[7%] left-[50%] translate-x-[-50%] translate-y-[-50%]">
-        <Button
-          variant="outline"
-          className={
-            tool === "box"
-              ? "bg-brand/50 sketch-border group"
-              : "bg-white sketch-border group"
-          }
-          size="icon"
-          onClick={() => setTool("box")}
-        >
-          <Square
-            className="size-4.5 group-hover:size-5 transition-all duration-200"
-            fill="black"
-          />
-        </Button>
-        <Button
-          variant="outline"
-          size="icon"
-          className={
-            tool === "ellipse"
-              ? "bg-brand/50 sketch-border group"
-              : "bg-white sketch-border group"
-          }
-          onClick={() => setTool("ellipse")}
-        >
-          <Circle
-            className="size-4.5 group-hover:size-5 transition-all duration-200"
-            fill="black"
-          />
-        </Button>
-        <Button
-          variant="outline"
-          size="icon"
-          className={
-            tool === "pencil"
-              ? "bg-brand/50 sketch-border group"
-              : "bg-white sketch-border group"
-          }
-        >
-          <PenLine
-            className="size-4.5 group-hover:size-5 transition-all duration-200"
-            fill="black"
-          />
-        </Button>
-        <Button
-          variant="outline"
-          size="icon"
-          className={
-            tool === "triangle"
-              ? "bg-brand/50 sketch-border group"
-              : "bg-white sketch-border group"
-          }
-        >
-          <Triangle
-            className="size-4.5 group-hover:size-5 transition-all duration-200"
-            fill="black"
-          />
-        </Button>
+      <div className="z-50 top-3 left-[50%] translate-x-[-50%] bg-white shadow-lg sketch-border absolute min-w-md h-14 justify-center flex items-center">
+        <div className="w-full h-full  gap-5 bg-muted-foreground/20 justify-center flex items-center">
+          <Button
+            variant="outline"
+            className={
+              tool === "box"
+                ? "bg-brand/50 sketch-border group"
+                : "bg-white sketch-border group"
+            }
+            size="icon"
+            onClick={() => setTool("box")}
+          >
+            <Square
+              className="size-4.5 group-hover:size-5 transition-all duration-200"
+              fill="black"
+            />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            className={
+              tool === "ellipse"
+                ? "bg-brand/50 sketch-border group"
+                : "bg-white sketch-border group"
+            }
+            onClick={() => setTool("ellipse")}
+          >
+            <Circle
+              className="size-4.5 group-hover:size-5 transition-all duration-200"
+              fill="black"
+            />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            className={
+              tool === "pencil"
+                ? "bg-brand/50 sketch-border group"
+                : "bg-white sketch-border group"
+            }
+          >
+            <PenLine
+              className="size-4.5 group-hover:size-5 transition-all duration-200"
+              fill="black"
+            />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            className={
+              tool === "triangle"
+                ? "bg-brand/50 sketch-border group"
+                : "bg-white sketch-border group"
+            }
+          >
+            <Triangle
+              className="size-4.5 group-hover:size-5 transition-all duration-200"
+              fill="black"
+            />
+          </Button>
+        </div>
       </div>
     </div>
   );

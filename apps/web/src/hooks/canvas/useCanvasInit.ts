@@ -7,8 +7,22 @@ export function useCanvasInit(
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
 
   useEffect(() => {
-    if (!canvasRef.current) return;
-    ctxRef.current = initCanvas(canvasRef.current);
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const resize = () => {
+      ctxRef.current = initCanvas(canvas);
+    };
+
+    // Initial setup
+    resize();
+
+    // Re-init on resize
+    window.addEventListener("resize", resize);
+
+    return () => {
+      window.removeEventListener("resize", resize);
+    };
   });
 
   return ctxRef;
