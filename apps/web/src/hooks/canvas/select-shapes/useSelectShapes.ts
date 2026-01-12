@@ -1,0 +1,83 @@
+import { normalizeShapes } from "@/lib/canvas/normalize-shapes";
+import { intersects } from "../intersects";
+import { CanvasShape } from "@repo/shared/types";
+import React, { useEffect, useRef } from "react";
+
+export function useSelectShapes(
+  enabled: boolean,
+  canvasRef: React.RefObject<HTMLCanvasElement | null>,
+  shapes: CanvasShape[],
+  onSelect: (ids: string[]) => void,
+  onPreview: (shape: CanvasShape | null) => void
+) {
+  const isDrawing = useRef(false);
+  const start = useRef({ x: 0, y: 0 });
+  const previewRef = useRef<CanvasShape | null>(null);
+
+  useEffect(() => {
+    if (!enabled) return;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const pos = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      return {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+      };
+    };
+
+    function handleMouseDown(e: MouseEvent) {
+      isDrawing.current = true;
+      start.current = pos(e);
+    }
+
+    function handleMouseMove(e: MouseEvent) {
+      if (!isDrawing.current) return;
+
+      const { x, y } = pos(e);
+
+      const box: Extract<CanvasShape, { type: "box" }> = {
+        id: "selection",
+        type: "box",
+        x: start.current.x,
+        y: start.current.y,
+        width: x - start.current.x,
+        height: y - start.current.y,
+      };
+
+      previewRef.current = box;
+      onPreview(box);
+    }
+
+    function handleMouseUp() {
+      if (!isDrawing.current || !previewRef.current) return;
+      isDrawing.current = false;
+
+      const selection = normalizeShapes.box(
+        previewRef.current as Extract<CanvasShape, { type: "box" }>
+      );
+
+      const idsToSelect = shapes
+        .filter((shape) => intersects(selection, shape))
+        .map((shape) => shape.id!)
+        .filter(Boolean);
+
+      onSelect(idsToSelect);
+
+      previewRef.current = null;
+      onPreview(null);
+    }
+
+    canvas.addEventListener("mousedown", handleMouseDown);
+    canvas.addEventListener("mousemove", handleMouseMove);
+    canvas.addEventListener("mouseup", handleMouseUp);
+
+    return () => {
+      canvas.removeEventListener("mousedown", handleMouseDown);
+      canvas.removeEventListener("mousemove", handleMouseMove);
+      canvas.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [enabled, canvasRef, shapes, onSelect, onPreview]);
+}

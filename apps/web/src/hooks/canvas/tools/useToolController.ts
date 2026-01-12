@@ -13,18 +13,15 @@ export function useToolController(
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    if (tool === "selection" || tool === null) return;
+
     switch (tool) {
       case "box":
-        drawShape.box(true, canvasRef, onCommit, onPreview);
-        break;
+        return drawShape.box(true, canvasRef, onCommit, onPreview);
       case "ellipse":
-        drawShape.ellipse(true, canvasRef, onCommit, onPreview);
-        break;
+        return drawShape.ellipse(true, canvasRef, onCommit, onPreview);
       case "line":
-        drawShape.line(true, canvasRef, onCommit, onPreview);
-        break;
-      default:
-        break;
+        return drawShape.line(true, canvasRef, onCommit, onPreview);
     }
   }, [tool, canvasRef, onCommit, onPreview]);
 }

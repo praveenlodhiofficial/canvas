@@ -28,6 +28,7 @@ enum ShapeType {
   BOX
   ELLIPSE
   LINE
+  SELECTION
 }
 
 model User {

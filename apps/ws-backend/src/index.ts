@@ -7,6 +7,7 @@ import { registerServer, broadcastToRoom } from "./server";
 import { joinRoom, leaveRoom, applyShape } from "./rooms/room.manager";
 import { snapshotRoom } from "./snapshot/snapshot.service";
 import type { ClientMessage } from "./rooms/room.types";
+import { memoryStore } from "./store/memory.store";
 
 type WsData = WebSocketData & {
   room: string;
@@ -76,36 +77,109 @@ const server = Bun.serve<WsData>({
     },
 
     /* ---------------- MESSAGE (canvas delta) ---------------- */
-    message(ws, rawMessage) {
-      let msg: ClientMessage;
+    // message: async (ws, rawMessage) => {
+    //   let msg: ClientMessage;
 
+    //   try {
+    //     msg = JSON.parse(rawMessage.toString());
+    //   } catch {
+    //     console.warn("[WS] Invalid message received");
+    //     return;
+    //   }
+
+    //   const roomId = ws.data.room;
+
+    //   // TODO: Implement shape update later
+    //   if (msg.type === "shape:add") {
+    //     const shape = {
+    //       ...msg.payload,
+    //       id: crypto.randomUUID(),
+    //     };
+
+    //     applyShape(roomId, shape);
+    //     broadcastToRoom(roomId, { type: "shape:broadcast", payload: shape });
+    //   }
+
+    //   if (msg.type === "shape:delete") {
+    //     const ids: string[] = msg.payload;
+    //     const roomId = ws.data.room;
+      
+    //     const room = memoryStore.get(roomId);
+    //     if (!room) return;
+      
+    //     // 🔥 remove from memory
+    //     ids.forEach((id) => room.shapes.delete(id));
+    //     room.lastUpdated = Date.now();
+      
+    //     // 🔥 remove from DB
+    //     await prisma.shape.deleteMany({
+    //       where: {
+    //         id: { in: ids },
+    //         roomId,
+    //       },
+    //     });
+      
+    //     // 🔥 broadcast delete to others
+    //     broadcastToRoom(roomId, {
+    //       type: "shape:delete",
+    //       payload: ids,
+    //     });
+    //   }
+    // },
+
+    message: async (ws, rawMessage) => {
+      let msg: ClientMessage;
+    
       try {
         msg = JSON.parse(rawMessage.toString());
       } catch {
-        console.warn("[WS] Invalid message received");
+        console.warn("[WS] Invalid message");
         return;
       }
-
+    
       const roomId = ws.data.room;
-
-      // TODO: Implement shape update later
+    
+      /* ---------- ADD SHAPE ---------- */
       if (msg.type === "shape:add") {
         const shape = {
           ...msg.payload,
           id: crypto.randomUUID(),
         };
-
+    
         applyShape(roomId, shape);
-        broadcastToRoom(roomId, { type: "shape:broadcast", payload: shape });
+    
+        broadcastToRoom(roomId, {
+          type: "shape:created",
+          payload: shape,
+        });
       }
-
-      // TODO: Implement shape deletion
+    
+      /* ---------- DELETE SHAPES ---------- */
       if (msg.type === "shape:delete") {
-        // Optional extension:
-        // remove from room.shapes + broadcast delete
+        const ids = msg.payload;
+    
+        const room = memoryStore.get(roomId);
+        if (!room) return;
+    
+        // remove from memory
+        ids.forEach((id) => room.shapes.delete(id));
+        room.lastUpdated = Date.now();
+    
+        // remove from DB
+        await prisma.shape.deleteMany({
+          where: {
+            id: { in: ids },
+            roomId,
+          },
+        });
+    
+        broadcastToRoom(roomId, {
+          type: "shape:deleted",
+          payload: ids,
+        });
       }
     },
-
+    
     /* ---------------- CLOSE WS CONNECTION ---------------- */
     close: async (ws: ServerWebSocket<WsData>) => {
       const roomId = ws.data.room;

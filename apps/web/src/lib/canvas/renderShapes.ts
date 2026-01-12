@@ -57,9 +57,17 @@ export function renderShapes(
       ctx.fill();    // ✅ preview fill
       ctx.stroke();  // ✅ preview border
     }
+
+    if (shape.type === "box" && shape.id === "selection") {
+      ctx.strokeStyle = "#F87171"; //red-300
+      ctx.fillStyle = "rgba(248, 113, 113, 0.4)"; // light red-300 fill
+      ctx.beginPath();
+      ctx.rect(shape.x, shape.y, shape.width, shape.height);
+      ctx.fill();    // ✅ preview fill
+      ctx.stroke();  // ✅ preview border
   
     ctx.restore();
-  }
+  }}
 }
 
 function render(ctx: CanvasRenderingContext2D, shape: CanvasShape) {

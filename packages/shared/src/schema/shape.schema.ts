@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 // --------------------------------------------> SHAPE ENUM <--------------------------------------------
-export const ShapeTypeSchema = z.enum(["BOX", "ELLIPSE", "LINE"]);
+export const ShapeTypeSchema = z.enum(["BOX", "ELLIPSE", "LINE", "SELECTION"]);
 
 // --------------------------------------------> BASE SHAPE SCHEMA <--------------------------------------------
 export const ShapeSchema = z.object({
