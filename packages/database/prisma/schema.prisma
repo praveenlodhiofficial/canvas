@@ -47,6 +47,7 @@ model User {
 model Room {
   id        String   @id @default(uuid())
   name      String
+  description String?
   visibility RoomVisibility @default(PRIVATE)
 
   createdAt DateTime @default(now())

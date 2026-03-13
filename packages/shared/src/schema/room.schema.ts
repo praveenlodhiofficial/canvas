@@ -11,6 +11,7 @@ export const RoomSchema = z.object({
   id: z.uuid().optional(),
   name: z.string().min(3),
   visibility: RoomVisibilitySchema.default("PRIVATE"),
+  description: z.string().optional(),
   // totalMembers: z.number().int().nonnegative(),
   // createdAt: z.date().optional(),
   // updatedAt: z.date().optional(),
@@ -26,6 +27,7 @@ export type Room = z.output<typeof RoomSchema>;
 export const CreateRoomSchema = RoomSchema.pick({
   name: true,
   visibility: true,
+  description: true,
 });
 export const GetRoomByIdSchema = RoomSchema.pick({ id: true });
 export const RenameRoomSchema = RoomSchema.pick({ id: true, name: true });

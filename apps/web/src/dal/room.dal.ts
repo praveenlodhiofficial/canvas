@@ -4,7 +4,7 @@ import type { Room, RoomInput, RoomMember } from "@repo/shared/schema";
 
 // --------------------------------------------> CREATE ROOM <--------------------------------------------
 export const createRoom = async (
-  room: Pick<RoomInput, "name">
+  room: Pick<RoomInput, "name" | "description" | "visibility">
 ): Promise<
   | { success: true; message: string; room: Room }
   | { success: false; message: string }

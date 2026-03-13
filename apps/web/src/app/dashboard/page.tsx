@@ -2,11 +2,11 @@
 
 import { useState } from 'react'
 import { Header } from '@/components/Header'
-import { CreateRoomDialog } from '@/components/CreateRoomDialog'
 import { RoomCard } from '@/components/RoomCard'
 import { Button } from '@/components/ui/button'
 import { Empty } from '@/components/ui/empty'
 import { Grid2x2, List } from 'lucide-react'
+import { CreateRoomDialog } from '@/components/CreateRoomDialog'
 
 interface Room {
   id: string
@@ -148,7 +148,7 @@ export default function RoomsDashboard() {
                 Create and manage collaborative canvas rooms for your team
               </p>
             </div>
-            <CreateRoomDialog onCreateRoom={handleCreateRoom} />
+            <CreateRoomDialog/>
           </div>
 
           {/* View Controls */}

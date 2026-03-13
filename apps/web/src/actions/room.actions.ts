@@ -19,6 +19,7 @@ import {
   JoinRoomSchema,
   ShareRoomSchema,
   RoomMember,
+  RoomInput,
 } from "@repo/shared/schema";
 
 // --------------------------------------------> CREATE ROOM ACTION <--------------------------------------------
@@ -28,11 +29,11 @@ type CreateRoomResult =
   | { success: false; message: string };
 
 export const createRoomAction = async (
-  input: unknown
+  input: Pick<RoomInput, "name" | "description" | "visibility">
 ): Promise<CreateRoomResult> => {
   try {
-    const { name } = CreateRoomSchema.parse(input);
-    const result = await createRoom({ name });
+    const { name, description, visibility } = CreateRoomSchema.parse(input);
+    const result = await createRoom({ name, description, visibility });
 
     if (!result.success) {
       return { success: false, message: result.message };

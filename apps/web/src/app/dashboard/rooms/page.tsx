@@ -1,4 +1,4 @@
-import { CreateRoomModal } from "@/components/modal/room/CreateRoomModal";
+import { CreateRoomModal } from "@/components/CreateRoomDialog";
 import {
   getAllRoomsAction,
   getMemberRoomsAction,

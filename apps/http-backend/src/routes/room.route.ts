@@ -47,6 +47,7 @@ export function registerRoomRoutes(router: Router) {
       const room = await prisma.room.create({
         data: {
           name: parsed.data.name,
+          description: parsed.data.description ?? null,
           visibility: parsed.data.visibility,
           adminId: user.id,
 
@@ -60,6 +61,7 @@ export function registerRoomRoutes(router: Router) {
         select: {
           id: true,
           name: true,
+          description: true,
           visibility: true,
           admin: {
             select: { name: true },
@@ -73,6 +75,7 @@ export function registerRoomRoutes(router: Router) {
           room: {
             id: room.id,
             name: room.name,
+            description: room.description,
             visibility: room.visibility,
             admin: room.admin.name,
           },
