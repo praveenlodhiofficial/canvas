@@ -1,174 +1,137 @@
-Work Completed So Far:
+# Canvas (sketch.io)
 
-- [x] Sign Up - both frontend and backend
-- [x] Sign In - both frontend and backend
-- [x] Create Room - only backend - frontend remains to be done
-- [x] Join Room - only backend - frontend remains to be done
-- [x] Leave Room - not implemented yet
-- [x] Delete Room - not implemented yet
-- [x] Get Room - not implemented yet
-- [x] Get All Rooms - not implemented yet
+A **collaborative whiteboard** where users sign up, create or join rooms, and draw shapes (boxes, ellipses, lines) on a shared canvas with **real-time sync** via WebSockets.
 
-Work to be Done:
-
-- [ ] Add a way to share the room link
-- [ ] Add a way to invite users to the room
-- [ ] Add a way to remove users from the room
-
-\***\*\*\*\*\*\*\***\*\*\*\*\***\*\*\*\*\*\*\***## Final Logout Flow**\*\***\*\***\*\***\***\*\***\*\***\*\***
-
-Click Logout
-↓
-Client Component
-↓
-logoutUserAction
-↓
-DAL → POST /api/v1/logout
-↓
-authMiddleware (skipped)
-↓
-Cookie deleted
-↓
-Response 200
-↓
-router.refresh()
-↓
-proxy.ts sees no cookie
-↓
-redirect to /sign-in
-
-# Turborepo starter
-
-This Turborepo starter is maintained by the Turborepo core team.
-
-\***\*\*\*\*\*\*\***\*\*\*\*\***\*\*\*\*\*\*\***## Using this example
-
-Run the following command:
-
-```sh
-npx create-turbo@latest
-```
+---
 
 ## What's inside?
 
-This Turborepo includes the following packages/apps:
+This is a [Turborepo](https://turbo.build/repo) monorepo. All packages are TypeScript.
 
-### Apps and Packages
+| Package / App        | Description |
+|----------------------|-------------|
+| **`apps/web`**       | Next.js 16 frontend — auth, dashboard, rooms list, canvas UI (React 19, Tailwind) |
+| **`apps/http-backend`** | Bun REST API — sign up/sign in/logout, rooms CRUD, shapes; JWT in cookies |
+| **`apps/ws-backend`**  | Bun WebSocket server — per-room presence, shape add/delete, broadcast |
+| **`packages/database`** | Prisma + PostgreSQL — User, Room, RoomMember, Shape |
+| **`packages/shared`**  | Zod schemas, types, JWT utils, config — used by both backends and web |
+| **`packages/ui`**      | Shared React components (Radix-style exports) |
+| **`@repo/eslint-config`** | Shared ESLint config |
+| **`@repo/typescript-config`** | Shared `tsconfig` base |
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+---
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+## Prerequisites
 
-### Utilities
+- **Node.js** ≥ 18
+- **Bun** (package manager: `bun@1.2.9`)
+- **Docker** (for PostgreSQL, or use a local Postgres instance)
 
-This Turborepo has some additional tools already setup for you:
+---
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+## Quick start
 
-### Build
+### 1. Install dependencies
 
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+```bash
+bun install
 ```
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+### 2. Start PostgreSQL
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+```bash
+bun run docker:up
 ```
 
-### Develop
-
-To develop all apps and packages, run the following command:
+Then set `DATABASE_URL` (or `DATABASE_URL_LOCAL`) in `packages/database` or via `.env` at root. Example:
 
 ```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/canvas"
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+### 3. Generate Prisma client and run migrations
 
+```bash
+cd packages/database
+bun run db:generate
+bun run db:migrate
+cd ../..
 ```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
+
+### 4. Run all apps in development
+
+```bash
+bun run dev
+```
+
+This starts:
+
+- **Web:** [http://localhost:3000](http://localhost:3000)
+- **HTTP API:** [http://localhost:3001](http://localhost:3001)
+- **WebSocket server:** [ws://localhost:3002](ws://localhost:3002)
+
+Optional env for the web app (e.g. in `apps/web/.env.local`):
+
+- `HTTP_BACKEND_URL` — default `http://localhost:3001`
+- `WEBSOCKET_BACKEND_URL` — default `ws://localhost:3002`
+
+### 5. Run a single app
+
+```bash
 turbo dev --filter=web
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
+turbo dev --filter=http-backend
+turbo dev --filter=ws-backend
 ```
 
-### Remote Caching
+---
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+## Scripts
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+| Command | Description |
+|--------|-------------|
+| `bun run dev` | Run all apps in dev mode |
+| `bun run build` | Build all apps and packages |
+| `bun run lint` | Lint all packages |
+| `bun run format` | Format with Prettier |
+| `bun run check-types` | Type-check all packages |
+| `bun run docker:up` | Start PostgreSQL with Docker Compose |
+| `bun run docker:down` | Stop Docker Compose |
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+---
+
+## Features
+
+### Done
+
+- **Auth:** Sign up, sign in, logout (JWT in cookies; backend sets/clears cookie)
+- **Rooms:** Create, join, get one, get all (admin), get member rooms; rename, share, delete (single + bulk)
+- **Canvas:** Draw box, ellipse, line; selection; keyboard delete; real-time sync (shape add/delete) via WebSocket
+- **Persistence:** In-memory shape state per room; DB snapshot when last user leaves
+
+### To do
+
+- [ ] Share room link in a clear, consistent way
+- [ ] Invite users to a room
+- [ ] Remove users from a room
+
+---
+
+## Logout flow (reference)
 
 ```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
+User clicks Logout
+  → Client calls logoutUserAction()
+  → DAL → POST /api/v1/logout (with cookie)
+  → Backend auth middleware skipped for logout route; cookie cleared
+  → Response 200
+  → router.refresh()
+  → If middleware/proxy runs: no cookie → redirect to /sign-in
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+---
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+## Useful links
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+- [Turborepo — Tasks](https://turbo.build/repo/docs/core-concepts/tasks)
+- [Turborepo — Caching](https://turbo.build/repo/docs/core-concepts/caching)
+- [Turborepo — Filtering](https://turbo.build/repo/docs/core-concepts/monorepos/filtering)

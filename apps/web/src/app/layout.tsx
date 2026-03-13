@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import "@/styles/globals.css";
+import { Analytics } from "@vercel/analytics/next";
 import { Exo_2, Inter } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -29,8 +31,16 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} ${exo2.variable}`}>
-        <div className="mx-auto">{children}</div>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <div className="mx-auto">{children}</div>
+        </ThemeProvider>
         <Toaster richColors position="top-right" duration={2000} />
+        <Analytics />
       </body>
     </html>
   );
