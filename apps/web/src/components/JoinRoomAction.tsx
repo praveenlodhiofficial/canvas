@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 
-import { joinRoomAction } from "@/actions/room.actions";
+import { joinRoomAction } from "@/domains/room/room.actions";
 
 export function JoinRoomAction() {
   const router = useRouter();

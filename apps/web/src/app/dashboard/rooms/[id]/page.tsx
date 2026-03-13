@@ -1,7 +1,7 @@
 import RoomCanvas from "@/components/RoomCanvas";
 import { redirect } from "next/navigation";
 import { CanvasShape } from "@repo/shared/types";
-import { getRoomByIdAction } from "@/actions/room.actions";
+import { getRoomByIdAction } from "@/domains/room/room.actions";
 import { getRoomShapesAction } from "@/actions/shape.actions";
 import Link from "next/link";
 

@@ -91,6 +91,85 @@ export function registerRoomRoutes(router: Router) {
     }
   });
 
+  // -------------------------------------------> UPDATE ROOM <----------------------------------------------
+  router.put("/api/v1/rooms/:id", async (req, params) => {
+    try {
+      const authResult = await authMiddleware(req);
+      if (authResult) return authResult;
+      const admin = (req as AuthenticatedRequest).user;
+
+      const roomId = params.id;
+      if (!roomId) {
+        return Response.json(
+          { message: "Room ID is required" },
+          { status: 400 }
+        );
+      }
+
+      const body = await req.json();
+      const parsed = RoomSchema.pick({
+        name: true,
+        description: true,
+        visibility: true,
+      }).safeParse(body);
+
+      if (!parsed.success) {
+        const errors = z.treeifyError(parsed.error);
+        return Response.json(
+          { message: "Validation failed", errors },
+          { status: 400 }
+        );
+      }
+
+      const room = await prisma.room.findFirst({
+        where: {
+          id: roomId,
+          adminId: admin.id,
+        },
+      });
+
+      if (!room) {
+        return Response.json({ message: "Room not found" }, { status: 404 });
+      }
+
+      // If name is changing, check for duplicate
+      if (parsed.data.name !== room.name) {
+        const exist = await prisma.room.findFirst({
+          where: {
+            name: parsed.data.name,
+            adminId: admin.id,
+          },
+        });
+        if (exist) {
+          return Response.json(
+            { message: "Room already exists, please use a different name" },
+            { status: 400 }
+          );
+        }
+      }
+
+      await prisma.room.update({
+        where: { id: roomId },
+        data: {
+          name: parsed.data.name,
+          description: parsed.data.description ?? null,
+          visibility: parsed.data.visibility,
+        },
+      });
+
+      return Response.json(
+        { message: "Room updated successfully" },
+        { status: 200 }
+      );
+    } catch (error) {
+      console.error("Error updating room:", error);
+      return Response.json(
+        { message: "Internal server error" },
+        { status: 500 }
+      );
+    }
+  });
+
   // -------------------------------------------> DELETE ONE ROOM <----------------------------------------------
   router.delete("/api/v1/rooms/:id", async (req, params) => {
     try {
@@ -191,6 +270,8 @@ export function registerRoomRoutes(router: Router) {
         select: {
           id: true,
           name: true,
+          description: true,
+          visibility: true,
           updatedAt: true,
         },
         orderBy: {
@@ -205,7 +286,9 @@ export function registerRoomRoutes(router: Router) {
           rooms: rooms.map((room) => ({
             id: room.id,
             name: room.name,
-            updatedAt: room.updatedAt.toISOString(),
+            description: room.description,
+            visibility: room.visibility,
+            updatedAt: room.updatedAt,
           })),
         },
         { status: 200 }

@@ -65,14 +65,14 @@ model Room {
 
 model RoomMember {
   id     String   @id @default(uuid())
-  userId String
-  roomId String
-  role   RoomRole @default(MEMBER)
 
+  userId String
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  roomId String
   room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
 
+  role   RoomRole @default(MEMBER)
   joinedAt DateTime @default(now())
 
   @@index([userId])

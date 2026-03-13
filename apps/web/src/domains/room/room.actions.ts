@@ -9,24 +9,22 @@ import {
   shareRoom,
   renameRoom,
   getMemberRooms,
-} from "@/dal/room.dal";
+  updateRoom,
+} from "@/domains/room/room.dal";
 import {
   CreateRoomSchema,
   GetRoomByIdSchema,
   DeleteRoomSchema,
   RenameRoomSchema,
-  type Room,
   JoinRoomSchema,
   ShareRoomSchema,
   RoomMember,
   RoomInput,
+  UpdateRoomSchema,
 } from "@repo/shared/schema";
+import { CreateRoomResult, GetAllRoomsResult, GetRoomByIdResult, RenameRoomResult, ShareRoomResult, GetMemberRoomsResult, DeleteRoomResult, UpdateRoomResult } from "./room.types";
 
 // --------------------------------------------> CREATE ROOM ACTION <--------------------------------------------
-
-type CreateRoomResult =
-  | { success: true; message: string; room: Room }
-  | { success: false; message: string };
 
 export const createRoomAction = async (
   input: Pick<RoomInput, "name" | "description" | "visibility">
@@ -52,17 +50,38 @@ export const createRoomAction = async (
   }
 };
 
+// --------------------------------------------> UPDATE ROOM ACTION <--------------------------------------------
+
+export const updateRoomAction = async (
+  id: string,
+  input: Pick<RoomInput, "name" | "description" | "visibility">
+): Promise<UpdateRoomResult> => {
+  try {
+    const { name, description, visibility } = UpdateRoomSchema.parse(input as Pick<RoomInput, "name" | "description" | "visibility">);
+    const result = await updateRoom(id, { name, description, visibility });
+
+    if (!result.success) {
+      return { success: false, message: result.message };
+    }
+
+    return {
+      success: true,
+      message: result.message,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Invalid room data",
+    };
+  }
+};
 // --------------------------------------------> DELETE ROOM ACTION <--------------------------------------------
 
-type DeleteRoomResult =
-  | { success: true; message: string }
-  | { success: false; message: string };
-
 export const deleteRoomAction = async (
-  input: unknown
+  input: Pick<RoomInput, "id">
 ): Promise<DeleteRoomResult> => {
   try {
-    const { id } = DeleteRoomSchema.parse(input);
+    const { id } = DeleteRoomSchema.parse(input as Pick<RoomInput, "id">);
     const result = await deleteRoom(id);
 
     if (!result.success) {
@@ -83,13 +102,16 @@ export const deleteRoomAction = async (
 
 // --------------------------------------------> GET ALL ROOMS ACTION <--------------------------------------------
 
-type GetAllRoomsResult =
-  | { success: true; rooms: Room[] }
-  | { success: false; message: string };
-
 export const getAllRoomsAction = async (): Promise<GetAllRoomsResult> => {
   try {
     const rooms = await getAllRooms();
+
+    if (!rooms) {
+      return {
+        success: false,
+        message: "No rooms found",
+      };
+    }
 
     return {
       success: true,
@@ -106,15 +128,11 @@ export const getAllRoomsAction = async (): Promise<GetAllRoomsResult> => {
 
 // --------------------------------------------> GET ROOM BY ID ACTION <--------------------------------------------
 
-type GetRoomByIdResult =
-  | { success: true; room: Room }
-  | { success: false; message: string };
-
 export const getRoomByIdAction = async (
-  input: unknown
+  input: Pick<RoomInput, "id">
 ): Promise<GetRoomByIdResult> => {
   try {
-    const { id } = GetRoomByIdSchema.parse(input);
+    const { id } = GetRoomByIdSchema.parse(input as Pick<RoomInput, "id">);
     const room = await getRoomById(id!);
 
     if (!room) {
@@ -138,15 +156,13 @@ export const getRoomByIdAction = async (
 
 // --------------------------------------------> RENAME ROOM ACTION <--------------------------------------------
 
-type RenameRoomResult =
-  | { success: true; message: string; name: string; previousName: string }
-  | { success: false; message: string };
+
 
 export const renameRoomAction = async (
-  input: unknown
+  input: Pick<RoomInput, "id" | "name">
 ): Promise<RenameRoomResult> => {
   try {
-    const { id, name } = RenameRoomSchema.parse(input);
+    const { id, name } = RenameRoomSchema.parse(input as Pick<RoomInput, "id" | "name">);
     const result = await renameRoom({ id, name });
 
     if (!result.success) {
@@ -173,15 +189,11 @@ export const renameRoomAction = async (
 
 // --------------------------------------------> SHARE ROOM ACTION <--------------------------------------------
 
-type ShareRoomResult =
-  | { success: true; message: string; room: Room }
-  | { success: false; message: string };
-
 export const shareRoomAction = async (
-  input: unknown
+  input: Pick<RoomInput, "id">
 ): Promise<ShareRoomResult> => {
   try {
-    const { id } = ShareRoomSchema.parse(input);
+    const { id } = ShareRoomSchema.parse(input as Pick<RoomInput, "id">);
     const result = await shareRoom(id!);
 
     if (!result.success) {
@@ -211,10 +223,10 @@ type JoinRoomResult =
   | { success: false; message: string };
 
 export const joinRoomAction = async (
-  input: unknown
+  input: Pick<RoomInput, "id">
 ): Promise<JoinRoomResult> => {
   try {
-    const { id } = JoinRoomSchema.parse(input);
+    const { id } = JoinRoomSchema.parse(input as Pick<RoomInput, "id">);
     const result = await joinRoom(id!);
 
     if (!result.success) {
@@ -240,9 +252,6 @@ export const joinRoomAction = async (
 
 // --------------------------------------------> FETCH MEMBER'S ROOMS ACTION <--------------------------------------------
 
-type GetMemberRoomsResult =
-  | { success: true; rooms: Room[]; message: string }
-  | { success: false; message: string };
 
 export const getMemberRoomsAction = async (): Promise<GetMemberRoomsResult> => {
   try {

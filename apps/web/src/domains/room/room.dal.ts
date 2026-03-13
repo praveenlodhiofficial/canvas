@@ -1,14 +1,12 @@
 import { authFetch } from "@/lib/auth/auth-fetch";
 import { config } from "@/lib/config";
 import type { Room, RoomInput, RoomMember } from "@repo/shared/schema";
+import { CreateRoomResult, UpdateRoomResult } from "./room.types";
 
 // --------------------------------------------> CREATE ROOM <--------------------------------------------
 export const createRoom = async (
   room: Pick<RoomInput, "name" | "description" | "visibility">
-): Promise<
-  | { success: true; message: string; room: Room }
-  | { success: false; message: string }
-> => {
+): Promise<CreateRoomResult> => {
   try {
     const data = await authFetch<{
       message: string;
@@ -26,6 +24,29 @@ export const createRoom = async (
   } catch (error) {
     console.error(error);
     return { success: false, message: "Failed to create room" };
+  }
+};
+
+// --------------------------------------------> CREATE ROOM <--------------------------------------------
+export const updateRoom = async (
+  id: string,
+  room: Pick<RoomInput, "name" | "description" | "visibility">
+): Promise<UpdateRoomResult> => {
+  try {
+    const data = await authFetch<{
+      success: boolean;
+      message: string;
+    }>(`${config.backendUrl}/api/v1/rooms/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(room),
+    });
+    return {
+      success: true,
+      message: data.message,
+    };
+  } catch (error) {
+    console.error(error);
+    return { success: false, message: "Failed to update room" };
   }
 };
 

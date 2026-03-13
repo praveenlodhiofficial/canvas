@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Room, RoomInput } from "@repo/shared/schema";
 import { RoomSchema } from "@repo/shared/schema";
-import { deleteRoomAction, renameRoomAction, shareRoomAction } from "@/actions/room.actions";
+import { deleteRoomAction, renameRoomAction, shareRoomAction } from "@/domains/room/room.actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
