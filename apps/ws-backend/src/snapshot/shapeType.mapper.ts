@@ -12,5 +12,7 @@ export function mapCanvasShapeToDbType(shape: CanvasShape): ShapeType {
     case "line":
       return ShapeType.LINE;
 
+    case "text":
+      return ShapeType.TEXT;
   }
 }

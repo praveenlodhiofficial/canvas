@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useMemo, useCallback, useEffect } from "react";
 import { CanvasShape } from "@repo/shared/types";
 import { ToolType } from "@/types/tool";
 
@@ -15,7 +15,6 @@ import { useEraser } from "@/hooks/canvas/useEraser";
 
 import { ToolBar } from "@/components/ToolBar";
 import { useTheme } from "next-themes";
-import { useMemo } from "react";
 import { getCanvasTheme } from "@/lib/canvas/theme";
 
 /**
@@ -51,8 +50,37 @@ export default function RoomCanvas({
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [preview, setPreview] = useState<CanvasShape | null>(null);
   const [tool, setTool] = useState<ToolType>("box");
+  const [textInputAt, setTextInputAt] = useState<{ x: number; y: number } | null>(null);
+  const textInputResolveRef = useRef<((value: string | null) => void) | null>(null);
+  const textInputRef = useRef<HTMLInputElement>(null);
+  const textInputSubmittedRef = useRef(false);
+
   const { theme } = useTheme();
   const canvasTheme = useMemo(() => getCanvasTheme(theme ?? undefined), [theme]);
+
+  const getTextFromUser = useCallback((x: number, y: number) => {
+    return new Promise<string | null>((resolve) => {
+      textInputResolveRef.current = resolve;
+      textInputSubmittedRef.current = false;
+      setTextInputAt({ x, y });
+    });
+  }, []);
+
+  useEffect(() => {
+    if (textInputAt) {
+      const t = setTimeout(() => textInputRef.current?.focus(), 0);
+      return () => clearTimeout(t);
+    }
+  }, [textInputAt]);
+
+  const handleTextSubmit = useCallback((value: string | null) => {
+    if (textInputSubmittedRef.current) return;
+    textInputSubmittedRef.current = true;
+    textInputResolveRef.current?.(value);
+    textInputResolveRef.current = null;
+    setTextInputAt(null);
+  }, []);
+
   /* ======================== WEBSOCKET ======================== */
   const { wsRef, status } = useRoomWebSocket(roomId, setShapes);
 
@@ -66,15 +94,13 @@ export default function RoomCanvas({
     tool,
     canvasRef,
     (shape: CanvasShape) => {
-      // optimistic UI
       setShapes((prev) => new Map(prev).set(shape.id, shape));
-
-      // notify server
       wsRef.current?.send(
         JSON.stringify({ type: "shape:add", payload: shape })
       );
     },
-    setPreview
+    setPreview,
+    getTextFromUser
   );
 
   /* ======================== SELECTION ======================== */
@@ -109,12 +135,54 @@ export default function RoomCanvas({
   /* ======================== CANVAS UI ======================== */
   return (
     <div className="relative w-full h-full bg-background">
-      {/* Canvas (background filled in render to match theme); eraser shows crosshair cursor */}
+      {/* Canvas: eraser = crosshair, text = text cursor */}
       <canvas
         ref={canvasRef}
         className="w-full h-full z-10"
-        style={{ cursor: tool === "eraser" ? "crosshair" : undefined }}
+        style={{
+          cursor:
+            tool === "eraser"
+              ? "crosshair"
+              : tool === "text"
+                ? "text"
+                : undefined,
+        }}
       />
+
+      {/* Inline text input on canvas (replaces prompt) */}
+      {textInputAt && (
+        <div
+          className="absolute z-30 left-0 top-0 w-full h-full pointer-events-none"
+          style={{ pointerEvents: "none" }}
+        >
+          <input
+            ref={textInputRef}
+            type="text"
+            className="absolute min-w-[120px] max-w-[280px] px-2 py-1 text-sm bg-card border border-border rounded shadow-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            placeholder="Type text..."
+            style={{
+              left: textInputAt.x,
+              top: textInputAt.y,
+              pointerEvents: "auto",
+              font: "14px sans-serif",
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleTextSubmit((e.target as HTMLInputElement).value);
+              }
+              if (e.key === "Escape") {
+                e.preventDefault();
+                handleTextSubmit(null);
+              }
+            }}
+            onBlur={() => {
+              const value = (textInputRef.current?.value ?? "").trim() || null;
+              handleTextSubmit(value);
+            }}
+          />
+        </div>
+      )}
 
       {/* Connection overlay */}
       {status !== "connected" && (
@@ -128,10 +196,10 @@ export default function RoomCanvas({
       )}
 
       <div className="absolute left-1/2 top-4 z-50 flex w-full  -translate-x-1/2 items-center justify-between gap-4 px-4 pointer-events-none">
-        <div className="rounded-xl border border-border bg-card/95 px-4 py-2.5 shadow-lg shadow-black/5 backdrop-blur-md dark:bg-card/90 dark:shadow-black/20 pointer-events-auto">
-          <h1 className="text-lg font-semibold capitalize text-foreground">{roomName}</h1>
+        <div className="min-w-xs rounded-xl border border-border bg-card/95 px-4 py-2.5 shadow-lg shadow-black/5 backdrop-blur-md dark:bg-card/90 dark:shadow-black/20 pointer-events-auto">
+          <h1 className="text-lg font-medium capitalize text-foreground">{roomName}</h1>
         </div>
-        <div className="pointer-events-auto">
+        <div className="absolute left-1/2 -translate-x-1/2 pointer-events-auto">
           <ToolBar tool={tool} setTool={setTool} />
         </div>
         <div className="rounded-xl border border-border bg-card/95 px-4 py-2.5 shadow-lg shadow-black/5 backdrop-blur-md dark:bg-card/90 dark:shadow-black/20 pointer-events-auto">

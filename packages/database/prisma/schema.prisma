@@ -29,6 +29,7 @@ enum ShapeType {
   ELLIPSE
   LINE
   SELECTION
+  TEXT
 }
 
 model User {
@@ -88,6 +89,7 @@ model Shape {
   width  Float?
   height Float?
   points Json? // for freehand / pencil / line
+  text   String?  // for text shape content
 
   roomId String
   room   Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)

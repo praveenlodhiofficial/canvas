@@ -29,6 +29,9 @@ export function getSelectionBounds(
         case "line":
           return normalizeShapes.line(s);
 
+        case "text":
+          return normalizeShapes.text(s);
+
         default:
           return assertNever(s);
       }

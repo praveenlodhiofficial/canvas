@@ -10,6 +10,7 @@ import {
   Triangle,
   MousePointer,
   Eraser,
+  Type,
 } from "lucide-react";
 
 const TOOLS: { type: ToolType; label: string; icon: React.ReactNode }[] = [
@@ -52,6 +53,11 @@ const TOOLS: { type: ToolType; label: string; icon: React.ReactNode }[] = [
     type: "eraser",
     label: "Eraser",
     icon: <Eraser className="size-4.5 shrink-0" strokeWidth={2} />,
+  },
+  {
+    type: "text",
+    label: "Text",
+    icon: <Type className="size-4.5 shrink-0" strokeWidth={2} />,
   },
 ];
 

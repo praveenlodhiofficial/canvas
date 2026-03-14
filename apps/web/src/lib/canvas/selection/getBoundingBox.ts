@@ -19,6 +19,14 @@ export function getBoundingBox(shape: CanvasShape) {
         height: shape.height,
       });
 
+    case "text":
+      return normalize({
+        x: shape.x,
+        y: shape.y,
+        width: shape.width,
+        height: shape.height,
+      });
+
     case "line": {
       // 🔴 FIX: use points, not width/height
       const points = shape.points; // <-- THIS is key

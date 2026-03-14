@@ -11,6 +11,8 @@ function normalizeForRender(shape: CanvasShape): CanvasShape {
       return normalizeShapes.ellipse(shape);
     case "line":
       return normalizeShapes.line(shape);
+    case "text":
+      return normalizeShapes.text(shape);
     default:
       return shape;
   }
@@ -27,8 +29,9 @@ export function renderShapes(
   ctx.fillStyle = theme.background;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Default stroke for committed shapes (matches layout foreground)
+  // Default stroke and fill for committed shapes (matches layout foreground)
   ctx.strokeStyle = theme.foreground;
+  ctx.fillStyle = theme.foreground;
   ctx.lineWidth = 1.5;
 
   // 1️⃣ committed shapes (already normalized)
@@ -58,6 +61,8 @@ export function renderShapes(
       ctx.ellipse(shape.x + shape.width / 2, shape.y + shape.height / 2, shape.width / 2, shape.height / 2, 0, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
+    } else if (shape.type === "text") {
+      render(ctx, shape);
     } else {
       render(ctx, shape);
     }
@@ -85,6 +90,9 @@ function render(ctx: CanvasRenderingContext2D, shape: CanvasShape) {
       break;
     case "line":
       renderShape.line(ctx, shape);
+      break;
+    case "text":
+      renderShape.text(ctx, shape);
       break;
   }
 }

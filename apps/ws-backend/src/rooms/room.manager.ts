@@ -1,6 +1,7 @@
 import { memoryStore } from "@/store/memory.store";
 import { prisma } from "@repo/database";
 import { CanvasShape } from "@repo/shared/types";
+import { mapDbShapeToCanvas } from "@/snapshot/dbShapeToCanvas";
 
 export async function joinRoom(roomId: string, userId: string) {
   let room = memoryStore.get(roomId);
@@ -28,7 +29,7 @@ export async function joinRoom(roomId: string, userId: string) {
     });
 
     for (const shape of shapes) {
-      room.shapes.set(shape.id, shape as unknown as CanvasShape);
+      room.shapes.set(shape.id, mapDbShapeToCanvas(shape));
     }
   }
   room.users.add(userId);

@@ -21,4 +21,11 @@ export type CanvasLine = BaseShape & {
   points: { x: number; y: number }[];
 };
 
-export type CanvasShape = CanvasBox | CanvasEllipse | CanvasLine;
+export type CanvasText = BaseShape & {
+  type: "text";
+  text: string;
+  width: number;
+  height: number;
+};
+
+export type CanvasShape = CanvasBox | CanvasEllipse | CanvasLine | CanvasText;
