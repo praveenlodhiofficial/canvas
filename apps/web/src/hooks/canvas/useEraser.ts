@@ -15,26 +15,13 @@ function shapeContainsPoint(shape: CanvasShape, px: number, py: number): boolean
   );
 }
 
-function eraseAtPoint(
+function getShapeIdsAtPoint(
   shapes: CanvasShape[],
   px: number,
-  py: number,
-  setShapes: React.Dispatch<React.SetStateAction<Map<string, CanvasShape>>>,
-  wsRef: React.RefObject<WebSocket | null>
-) {
+  py: number
+): string[] {
   const hit = shapes.filter((s) => shapeContainsPoint(s, px, py));
-  const idsToDelete = hit.map((s) => s.id).filter((id): id is string => !!id);
-  if (idsToDelete.length === 0) return;
-
-  setShapes((prev) => {
-    const next = new Map(prev);
-    idsToDelete.forEach((id) => next.delete(id));
-    return next;
-  });
-
-  wsRef.current?.send(
-    JSON.stringify({ type: "shape:delete", payload: idsToDelete })
-  );
+  return hit.map((s) => s.id).filter((id): id is string => !!id);
 }
 
 export function useEraser(
@@ -43,10 +30,12 @@ export function useEraser(
   shapes: CanvasShape[],
   setShapes: React.Dispatch<React.SetStateAction<Map<string, CanvasShape>>>,
   wsRef: React.RefObject<WebSocket | null>,
-  getWorldPoint: GetWorldPoint
+  getWorldPoint: GetWorldPoint,
+  setPendingEraseIds: React.Dispatch<React.SetStateAction<Set<string>>>
 ) {
   const shapesRef = useRef<CanvasShape[]>(shapes);
   const isErasingRef = useRef(false);
+  const pendingEraseIdsRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     shapesRef.current = shapes;
@@ -58,20 +47,43 @@ export function useEraser(
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    function addPendingAtPoint(px: number, py: number) {
+      const ids = getShapeIdsAtPoint(shapesRef.current, px, py);
+      if (ids.length === 0) return;
+      ids.forEach((id) => pendingEraseIdsRef.current.add(id));
+      setPendingEraseIds(new Set(pendingEraseIdsRef.current));
+    }
+
     function handleMouseDown(e: MouseEvent) {
       isErasingRef.current = true;
+      pendingEraseIdsRef.current = new Set();
       const { x, y } = getWorldPoint(e);
-      eraseAtPoint(shapesRef.current, x, y, setShapes, wsRef);
+      addPendingAtPoint(x, y);
     }
 
     function handleMouseMove(e: MouseEvent) {
       if (!isErasingRef.current) return;
       const { x, y } = getWorldPoint(e);
-      eraseAtPoint(shapesRef.current, x, y, setShapes, wsRef);
+      addPendingAtPoint(x, y);
     }
 
     function handleMouseUp() {
+      if (!isErasingRef.current) return;
       isErasingRef.current = false;
+      const idsToDelete = Array.from(pendingEraseIdsRef.current);
+      pendingEraseIdsRef.current = new Set();
+      setPendingEraseIds(new Set());
+
+      if (idsToDelete.length === 0) return;
+
+      setShapes((prev) => {
+        const next = new Map(prev);
+        idsToDelete.forEach((id) => next.delete(id));
+        return next;
+      });
+      wsRef.current?.send(
+        JSON.stringify({ type: "shape:delete", payload: idsToDelete })
+      );
     }
 
     canvas.addEventListener("mousedown", handleMouseDown);
@@ -87,5 +99,5 @@ export function useEraser(
       canvas.removeEventListener("mouseleave", handleMouseUp);
       window.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [enabled, canvasRef, setShapes, wsRef, getWorldPoint]);
+  }, [enabled, canvasRef, setShapes, setPendingEraseIds, wsRef, getWorldPoint]);
 }

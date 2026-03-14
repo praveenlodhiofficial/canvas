@@ -26,21 +26,33 @@ export function renderShapes(
   canvas: HTMLCanvasElement,
   previewShape: CanvasShape | null,
   theme: CanvasTheme,
-  options?: { skipClear?: boolean }
+  options?: { skipClear?: boolean; pendingEraseIds?: Set<string> }
 ) {
   if (!options?.skipClear) {
     ctx.fillStyle = theme.background;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
 
-  // Default stroke and fill for committed shapes (matches layout foreground)
-  ctx.strokeStyle = theme.foreground;
-  ctx.fillStyle = theme.foreground;
-  ctx.lineWidth = 1.5;
+  const pendingErase = options?.pendingEraseIds;
 
   // 1️⃣ committed shapes (already normalized)
   for (const shape of shapes) {
-    render(ctx, shape);
+    const isPendingErase = shape.id && pendingErase?.has(shape.id);
+    if (isPendingErase) {
+      ctx.save();
+      ctx.strokeStyle = theme.destructive;
+      ctx.fillStyle = theme.destructive.includes("/") ? theme.destructive : theme.destructive.replace(")", " / 0.2)");
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 4]);
+      render(ctx, shape);
+      ctx.restore();
+    } else {
+      ctx.strokeStyle = theme.foreground;
+      ctx.fillStyle = theme.foreground;
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([]);
+      render(ctx, shape);
+    }
   }
 
   // 2️⃣ preview shape (normalize JUST for render)

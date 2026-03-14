@@ -13,6 +13,7 @@ export function useCanvasRender(
   previewShape: CanvasShape | null,
   tool: ToolType | null,
   selectedIds: Set<string>,
+  pendingEraseIds: Set<string>,
   theme: CanvasTheme,
   transform: CanvasTransform
 ) {
@@ -31,7 +32,10 @@ export function useCanvasRender(
     ctx.translate(panX, panY);
     ctx.scale(scale, scale);
 
-    renderShapes(shapes, ctx, canvas, previewShape, theme, { skipClear: true });
+    renderShapes(shapes, ctx, canvas, previewShape, theme, {
+      skipClear: true,
+      pendingEraseIds,
+    });
 
     if (selectedIds.size > 0) {
       const selectedShapes = shapes.filter((s) => s.id && selectedIds.has(s.id));
@@ -43,5 +47,5 @@ export function useCanvasRender(
     }
 
     ctx.restore();
-  }, [shapes, previewShape, selectedIds, canvasRef, ctxRef, theme, transform]);
+  }, [shapes, previewShape, selectedIds, pendingEraseIds, canvasRef, ctxRef, theme, transform]);
 }

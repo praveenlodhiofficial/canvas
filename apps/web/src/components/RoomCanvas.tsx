@@ -10,6 +10,7 @@ import { useCanvasZoom, screenToWorld, type CanvasTransform } from "@/hooks/canv
 
 import { useRoomWebSocket } from "@/hooks/canvas/useRoomWebSocket";
 import { useKeyboardDelete } from "@/hooks/canvas/useKeyboardDelete";
+import { useClipboard } from "@/hooks/canvas/useClipboard";
 import { useCanvasTools } from "@/hooks/canvas/useCanvasTools";
 import { useSelection } from "@/hooks/canvas/useSelection";
 import { useEraser } from "@/hooks/canvas/useEraser";
@@ -47,8 +48,10 @@ export default function RoomCanvas({
   const [shapes, setShapes] = useState<Map<string, CanvasShape>>(
     () => new Map(initialShapes.map((s) => [s.id, s]))
   );
+  const shapesRef = useRef<Map<string, CanvasShape>>(shapes);
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [pendingEraseIds, setPendingEraseIds] = useState<Set<string>>(new Set());
   const [preview, setPreview] = useState<CanvasShape | null>(null);
   const [tool, setTool] = useState<ToolType>("box");
   const [transform, setTransform] = useState<CanvasTransform>({
@@ -60,6 +63,7 @@ export default function RoomCanvas({
   const textInputResolveRef = useRef<((value: string | null) => void) | null>(null);
   const textInputRef = useRef<HTMLInputElement>(null);
   const textInputSubmittedRef = useRef(false);
+  const lastWorldPointRef = useRef({ x: 0, y: 0 });
 
   const { theme } = useTheme();
   const canvasTheme = useMemo(() => getCanvasTheme(theme ?? undefined), [theme]);
@@ -71,6 +75,10 @@ export default function RoomCanvas({
       setTextInputAt({ x, y });
     });
   }, []);
+
+  useEffect(() => {
+    shapesRef.current = shapes;
+  }, [shapes]);
 
   useEffect(() => {
     if (textInputAt) {
@@ -96,6 +104,18 @@ export default function RoomCanvas({
     [transform]
   );
 
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const onMove = (e: MouseEvent) => {
+      lastWorldPointRef.current = getWorldPoint(e);
+    };
+    canvas.addEventListener("mousemove", onMove);
+    return () => canvas.removeEventListener("mousemove", onMove);
+  }, [getWorldPoint]);
+
+  const getPastePosition = useCallback(() => lastWorldPointRef.current, []);
+
   /* ======================== ZOOM ======================== */
   useCanvasZoom(canvasRef, setTransform);
 
@@ -106,6 +126,9 @@ export default function RoomCanvas({
   useKeyboardDelete(selectedIds, setShapes, wsRef, () =>
     setSelectedIds(new Set())
   );
+
+  /* ======================== CUT / COPY / PASTE ======================== */
+  useClipboard(selectedIds, shapesRef, setShapes, setSelectedIds, wsRef, getPastePosition);
 
   /* ======================== DRAW TOOLS ======================== */
   useCanvasTools(
@@ -135,6 +158,10 @@ export default function RoomCanvas({
     getWorldPoint
   );
 
+  useEffect(() => {
+    if (tool !== "eraser") setPendingEraseIds(new Set());
+  }, [tool]);
+
   /* ======================== ERASER ======================== */
   useEraser(
     tool === "eraser",
@@ -142,7 +169,8 @@ export default function RoomCanvas({
     Array.from(shapes.values()),
     setShapes,
     wsRef,
-    getWorldPoint
+    getWorldPoint,
+    setPendingEraseIds
   );
 
   /* ======================== RENDER ======================== */
@@ -153,6 +181,7 @@ export default function RoomCanvas({
     preview,
     tool,
     selectedIds,
+    pendingEraseIds,
     canvasTheme,
     transform
   );

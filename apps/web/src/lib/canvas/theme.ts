@@ -7,6 +7,7 @@ export type CanvasTheme = {
   foreground: string;
   primary: string;
   ring: string;
+  destructive: string;
 };
 
 const fallback: CanvasTheme = {
@@ -14,6 +15,7 @@ const fallback: CanvasTheme = {
   foreground: "oklch(0.141 0.005 285.823)",
   primary: "oklch(0.65 0.15 250)",
   ring: "oklch(0.705 0.015 286.067)",
+  destructive: "oklch(0.577 0.245 27.325)",
 };
 
 function getCssVar(name: string): string {
@@ -33,5 +35,6 @@ export function getCanvasTheme(_currentTheme?: string): CanvasTheme {
     foreground: getCssVar("--foreground"),
     primary: getCssVar("--primary"),
     ring: getCssVar("--ring"),
+    destructive: getCssVar("--destructive"),
   };
 }

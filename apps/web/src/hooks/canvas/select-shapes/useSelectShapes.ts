@@ -1,6 +1,6 @@
 import { normalizeShapes } from "@/lib/canvas/normalize-shapes";
 import { getSelectionBounds } from "@/lib/canvas/selection/getSelectionBounds";
-import { intersects } from "../intersects";
+import { rectContainsShape } from "../intersects";
 import { CanvasShape } from "@repo/shared/types";
 import type { GetWorldPoint } from "../useSelection";
 import React, { useEffect, useRef } from "react";
@@ -133,7 +133,7 @@ export function useSelectShapes(
       );
 
       const idsToSelect = shapesRef.current
-        .filter((shape) => intersects(selection, shape))
+        .filter((shape) => rectContainsShape(selection, shape))
         .map((shape) => shape.id!)
         .filter(Boolean);
 
