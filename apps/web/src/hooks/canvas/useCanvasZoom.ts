@@ -21,26 +21,39 @@ export function useCanvasZoom(
 
       e.preventDefault();
 
-      const rect = canvas.getBoundingClientRect();
-      const cursorX = e.clientX - rect.left;
-      const cursorY = e.clientY - rect.top;
+      // Ctrl+wheel (or pinch on trackpad) = zoom; two-finger scroll = pan
+      if (e.ctrlKey || e.metaKey) {
+        const rect = canvas.getBoundingClientRect();
+        const cursorX = e.clientX - rect.left;
+        const cursorY = e.clientY - rect.top;
 
-      setTransform((prev) => {
-        const delta = -e.deltaY * ZOOM_SENSITIVITY;
-        const newScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, prev.scale * (1 + delta)));
+        setTransform((prev) => {
+          const delta = -e.deltaY * ZOOM_SENSITIVITY;
+          const newScale = Math.min(
+            MAX_SCALE,
+            Math.max(MIN_SCALE, prev.scale * (1 + delta))
+          );
 
-        const worldX = (cursorX - prev.panX) / prev.scale;
-        const worldY = (cursorY - prev.panY) / prev.scale;
+          const worldX = (cursorX - prev.panX) / prev.scale;
+          const worldY = (cursorY - prev.panY) / prev.scale;
 
-        const newPanX = cursorX - worldX * newScale;
-        const newPanY = cursorY - worldY * newScale;
+          const newPanX = cursorX - worldX * newScale;
+          const newPanY = cursorY - worldY * newScale;
 
-        return {
-          scale: newScale,
-          panX: newPanX,
-          panY: newPanY,
-        };
-      });
+          return {
+            scale: newScale,
+            panX: newPanX,
+            panY: newPanY,
+          };
+        });
+      } else {
+        // Two-finger trackpad pan: scroll right → left side comes into view, scroll down → top comes into view
+        setTransform((prev) => ({
+          ...prev,
+          panX: prev.panX - e.deltaX,
+          panY: prev.panY - e.deltaY,
+        }));
+      }
     },
     [canvasRef, setTransform]
   );

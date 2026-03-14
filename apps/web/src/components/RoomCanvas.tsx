@@ -143,6 +143,15 @@ export default function RoomCanvas({
 
       const key = e.key.toLowerCase();
 
+      if (key === "escape") {
+        e.preventDefault();
+        e.stopPropagation();
+        setTool("selection");
+        setSelectedIds(new Set());
+        setPreview(null);
+        return;
+      }
+
       if ((e.ctrlKey || e.metaKey) && key === "z") {
         e.preventDefault();
         e.stopPropagation();
@@ -168,7 +177,7 @@ export default function RoomCanvas({
     };
     window.addEventListener("keydown", onKeyDown, true);
     return () => window.removeEventListener("keydown", onKeyDown, true);
-  }, [undo, redo, setTool]);
+  }, [undo, redo, setTool, setSelectedIds]);
 
   /* ======================== ZOOM ======================== */
   useCanvasZoom(canvasRef, setTransform);
@@ -206,7 +215,7 @@ export default function RoomCanvas({
   );
 
   /* ======================== SELECTION ======================== */
-  useSelection(
+  const { isOverRotateHandle, isRotating } = useSelection(
     tool === "selection",
     canvasRef,
     Array.from(shapes.values()),
@@ -253,17 +262,22 @@ export default function RoomCanvas({
   /* ======================== CANVAS UI ======================== */
   return (
     <div className="relative w-full h-full bg-background">
-      {/* Canvas: eraser = crosshair, text = text cursor */}
+      {/* Canvas: rotating = grabbing, over rotate handle = grab, selection with shape = move, eraser = crosshair, text = text cursor */}
       <canvas
         ref={canvasRef}
         className="w-full h-full z-10"
         style={{
-          cursor:
-            tool === "eraser"
-              ? "crosshair"
-              : tool === "text"
-                ? "text"
-                : undefined,
+          cursor: isRotating
+            ? "grabbing"
+            : isOverRotateHandle
+              ? "grab"
+              : tool === "selection" && selectedIds.size > 0
+                ? "move"
+                : tool === "eraser"
+                  ? "crosshair"
+                  : tool === "text"
+                    ? "text"
+                    : undefined,
         }}
       />
 

@@ -4,10 +4,10 @@ import {
   getHandlePositionsForShape,
   ROTATE_HANDLE_HIT_RADIUS,
 } from "@/lib/canvas/selection/getHandlePositions";
-import { rectContainsShape } from "../intersects";
+import { getTopmostShapeAtPoint, rectContainsShape } from "../intersects";
 import { CanvasShape } from "@repo/shared/types";
 import type { GetWorldPoint } from "../useSelection";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 function pointInRect(
   bounds: { x: number; y: number; width: number; height: number },
@@ -45,9 +45,11 @@ export function useSelectShapes(
   wsRef: React.RefObject<WebSocket | null>,
   getWorldPoint: GetWorldPoint
 ) {
+  const [isOverRotateHandle, setIsOverRotateHandle] = useState(false);
+  const [isRotating, setIsRotating] = useState(false);
   const isDrawing = useRef(false);
   const isDragging = useRef(false);
-  const isRotating = useRef(false);
+  const isRotatingRef = useRef(false);
   const start = useRef({ x: 0, y: 0 });
   const lastMovePos = useRef({ x: 0, y: 0 });
   const previewRef = useRef<CanvasShape | null>(null);
@@ -76,7 +78,9 @@ export function useSelectShapes(
 
       if (selectedShapes.length > 0 && pointInAnyRotateHandle(selectedShapes, point)) {
         const rotateBounds = getSelectionBounds(selectedShapes);
-        isRotating.current = true;
+        isRotatingRef.current = true;
+        setIsRotating(true);
+        setIsOverRotateHandle(false);
         isDragging.current = false;
         isDrawing.current = false;
         rotateCenter.current = rotateBounds
@@ -97,7 +101,8 @@ export function useSelectShapes(
 
       if (bounds && pointInRect(bounds, point)) {
         isDragging.current = true;
-        isRotating.current = false;
+        isRotatingRef.current = false;
+        setIsRotating(false);
         isDrawing.current = false;
         start.current = point;
         dragInitialPositions.current = new Map(
@@ -106,8 +111,26 @@ export function useSelectShapes(
         return;
       }
 
+      const hitShape = getTopmostShapeAtPoint(shapesRef.current, point.x, point.y);
+      if (hitShape?.id) {
+        if (e.shiftKey) {
+          const next = new Set(selectedIds);
+          if (next.has(hitShape.id)) next.delete(hitShape.id);
+          else next.add(hitShape.id);
+          onSelect(Array.from(next));
+        } else {
+          onSelect([hitShape.id]);
+        }
+        isDragging.current = false;
+        isRotatingRef.current = false;
+        setIsRotating(false);
+        isDrawing.current = false;
+        return;
+      }
+
       isDragging.current = false;
-      isRotating.current = false;
+      isRotatingRef.current = false;
+      setIsRotating(false);
       isDrawing.current = true;
       start.current = point;
     }
@@ -115,7 +138,20 @@ export function useSelectShapes(
     function handleMouseMove(e: MouseEvent) {
       const { x, y } = getWorldPoint(e);
 
-      if (isRotating.current) {
+      // Update hover state for rotate handle when idle (not rotating/dragging/drawing)
+      if (!isRotatingRef.current && !isDragging.current && !isDrawing.current) {
+        const selectedShapes = shapesRef.current.filter(
+          (s) => s.id && selectedIds.has(s.id)
+        );
+        setIsOverRotateHandle(
+          selectedShapes.length > 0 &&
+            pointInAnyRotateHandle(selectedShapes, { x, y })
+        );
+      } else {
+        setIsOverRotateHandle(false);
+      }
+
+      if (isRotatingRef.current) {
         const center = rotateCenter.current;
         const currentAngle = Math.atan2(y - center.y, x - center.x);
         const deltaDeg =
@@ -174,7 +210,7 @@ export function useSelectShapes(
     }
 
     function handleMouseUp() {
-      if (isRotating.current) {
+      if (isRotatingRef.current) {
         const mapToSend = latestShapesMapRef.current;
         for (const id of selectedIds) {
           const shape = mapToSend?.get(id) ?? shapesRef.current.find((s) => s.id === id);
@@ -185,7 +221,8 @@ export function useSelectShapes(
           }
         }
         latestShapesMapRef.current = null;
-        isRotating.current = false;
+        isRotatingRef.current = false;
+        setIsRotating(false);
         return;
       }
 
@@ -238,4 +275,6 @@ export function useSelectShapes(
       window.removeEventListener("mouseup", handleMouseUp);
     };
   }, [enabled, canvasRef, selectedIds, onSelect, onPreview, setShapes, wsRef, getWorldPoint]);
+
+  return { isOverRotateHandle, isRotating };
 }

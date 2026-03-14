@@ -1,6 +1,39 @@
 import { CanvasShape } from "@repo/shared/types";
 import { getBoundingBox } from "@/lib/canvas/selection/getBoundingBox";
 
+/** Hit padding so clicking on the border (or just outside) still selects the shape. */
+const BORDER_HIT_PADDING = 10;
+
+/** True if the point is inside the shape or within BORDER_HIT_PADDING of its edge (e.g. on the border). */
+export function shapeContainsPointOrBorder(
+  shape: CanvasShape,
+  px: number,
+  py: number,
+  padding: number = BORDER_HIT_PADDING
+): boolean {
+  const b = getBoundingBox(shape);
+  return (
+    px >= b.x - padding &&
+    px <= b.x + b.width + padding &&
+    py >= b.y - padding &&
+    py <= b.y + b.height + padding
+  );
+}
+
+/** Returns the topmost shape at (px, py), or null. Uses border hit padding so border clicks select. */
+export function getTopmostShapeAtPoint(
+  shapes: CanvasShape[],
+  px: number,
+  py: number
+): CanvasShape | null {
+  for (let i = shapes.length - 1; i >= 0; i--) {
+    const s = shapes[i];
+    if (!s || !s.id || s.id === "selection") continue;
+    if (shapeContainsPointOrBorder(s, px, py)) return s;
+  }
+  return null;
+}
+
 export function intersects(
   rect: { x: number; y: number; width: number; height: number },
   shape: CanvasShape

@@ -14,6 +14,7 @@ export function useCanvasTools(
   drawShape.box(tool === "box", canvasRef, onCommit, onPreview, getWorldPoint);
   drawShape.ellipse(tool === "ellipse", canvasRef, onCommit, onPreview, getWorldPoint);
   drawShape.line(tool === "line", canvasRef, onCommit, onPreview, getWorldPoint);
+  drawShape.pencil(tool === "pencil", canvasRef, onCommit, onPreview, getWorldPoint);
   drawShape.triangle(tool === "triangle", canvasRef, onCommit, onPreview, getWorldPoint);
   drawShape.text(tool === "text", canvasRef, onCommit, onPreview, getTextFromUser, getWorldPoint);
 }

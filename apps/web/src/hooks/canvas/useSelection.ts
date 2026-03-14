@@ -14,7 +14,7 @@ export function useSelection(
   wsRef: React.RefObject<WebSocket | null>,
   getWorldPoint: GetWorldPoint
 ) {
-  useSelectShapes(
+  return useSelectShapes(
     enabled,
     canvasRef,
     shapes,
