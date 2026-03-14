@@ -9,15 +9,19 @@ import { useCanvasRender } from "@/hooks/canvas/useCanvasRender";
 import { useCanvasZoom, screenToWorld, type CanvasTransform } from "@/hooks/canvas/useCanvasZoom";
 
 import { useRoomWebSocket } from "@/hooks/canvas/useRoomWebSocket";
+import { useUndoRedo } from "@/hooks/canvas/useUndoRedo";
 import { useKeyboardDelete } from "@/hooks/canvas/useKeyboardDelete";
 import { useClipboard } from "@/hooks/canvas/useClipboard";
 import { useCanvasTools } from "@/hooks/canvas/useCanvasTools";
 import { useSelection } from "@/hooks/canvas/useSelection";
 import { useEraser } from "@/hooks/canvas/useEraser";
 
-import { ToolBar } from "@/components/ToolBar";
+import { ToolBar, TOOL_BY_SHORTCUT } from "@/components/ToolBar";
 import { useTheme } from "next-themes";
 import { getCanvasTheme } from "@/lib/canvas/theme";
+import Link from "next/link";
+import { Button } from "./ui/button";
+import { ArrowLeft } from "lucide-react";
 
 /**
  * ======================== ROOM CANVAS ORCHESTRATES ========================
@@ -44,10 +48,20 @@ export default function RoomCanvas({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useCanvasInit(canvasRef);
 
-  /* ======================== STATE ======================== */
-  const [shapes, setShapes] = useState<Map<string, CanvasShape>>(
-    () => new Map(initialShapes.map((s) => [s.id, s]))
+  /* ======================== STATE (with undo/redo) ======================== */
+  const initialMap = useMemo(
+    () => new Map(initialShapes.map((s) => [s.id, s])),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: use initial snapshot only on mount
+    []
   );
+  const {
+    shapes,
+    setShapes,
+    setShapesDirect,
+    undo,
+    redo,
+    resetHistory,
+  } = useUndoRedo(initialMap);
   const shapesRef = useRef<Map<string, CanvasShape>>(shapes);
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -116,11 +130,54 @@ export default function RoomCanvas({
 
   const getPastePosition = useCallback(() => lastWorldPointRef.current, []);
 
+  /* ======================== UNDO / REDO + TOOL SHORTCUTS ======================== */
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as Node;
+      const isInput =
+        target &&
+        (target instanceof HTMLInputElement ||
+          target instanceof HTMLTextAreaElement ||
+          (target instanceof HTMLElement && target.isContentEditable));
+      if (isInput) return;
+
+      const key = e.key.toLowerCase();
+
+      if ((e.ctrlKey || e.metaKey) && key === "z") {
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.shiftKey) redo();
+        else undo();
+        return;
+      }
+      if ((e.ctrlKey || e.metaKey) && key === "y") {
+        e.preventDefault();
+        e.stopPropagation();
+        redo();
+        return;
+      }
+
+      if (!e.ctrlKey && !e.metaKey && !e.altKey && key >= "1" && key <= "8") {
+        const tool = TOOL_BY_SHORTCUT[key];
+        if (tool) {
+          e.preventDefault();
+          e.stopPropagation();
+          setTool(tool);
+        }
+      }
+    };
+    window.addEventListener("keydown", onKeyDown, true);
+    return () => window.removeEventListener("keydown", onKeyDown, true);
+  }, [undo, redo, setTool]);
+
   /* ======================== ZOOM ======================== */
   useCanvasZoom(canvasRef, setTransform);
 
   /* ======================== WEBSOCKET ======================== */
-  const { wsRef, status } = useRoomWebSocket(roomId, setShapes);
+  const { wsRef, status } = useRoomWebSocket(roomId, setShapesDirect, {
+    onRoomInit: (payload) =>
+      resetHistory(new Map(payload.map((s: CanvasShape) => [s.id, s]))),
+  });
 
   /* ======================== KEYBOARD DELETE ======================== */
   useKeyboardDelete(selectedIds, setShapes, wsRef, () =>
@@ -250,8 +307,15 @@ export default function RoomCanvas({
       )}
 
       <div className="absolute left-1/2 top-4 z-50 flex w-full  -translate-x-1/2 items-center justify-between gap-4 px-4 pointer-events-none">
-        <div className="min-w-xs rounded-xl border border-border bg-card/95 px-4 py-2.5 shadow-lg shadow-black/5 backdrop-blur-md dark:bg-card/90 dark:shadow-black/20 pointer-events-auto">
-          <h1 className="text-lg font-medium capitalize text-foreground">{roomName}</h1>
+        <div className="pointer-events-auto flex items-center gap-2">
+          <Link href="/dashboard">
+            <Button variant="ghost" size="icon-lg" className="rounded-xl border border-border bg-card/95 p-6 shadow-lg shadow-black/5 backdrop-blur-md dark:bg-card/90 dark:shadow-black/20 pointer-events-auto">
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+          </Link>
+          <div className="min-w-xs rounded-xl border border-border bg-card/95 px-4 py-2.5 shadow-lg shadow-black/5 backdrop-blur-md dark:bg-card/90 dark:shadow-black/20 pointer-events-auto">
+            <h1 className="text-lg font-medium capitalize text-foreground">{roomName}</h1>
+          </div>
         </div>
         <div className="absolute left-1/2 -translate-x-1/2 pointer-events-auto">
           <ToolBar tool={tool} setTool={setTool} />

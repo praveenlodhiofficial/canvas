@@ -1,81 +1,84 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Pencil,
   Users,
   Share2,
-  ShieldCheck,
-  Zap,
-  Layout,
-  ArrowRight,
+  Square,
+  Type,
+  Eraser,
   MousePointer2,
   LogIn,
   UserPlus,
+  ZoomIn,
+  Keyboard,
+  Palette,
+  Circle,
+  Minus,
+  Triangle,
+  UserPlus2,
+  LayoutDashboard,
+  Lightbulb,
+  Video,
+  GraduationCap,
+  Sparkles,
+  ChevronDown,
 } from "lucide-react";
 import Link from "next/link";
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen font-sans selection:bg-indigo-100 bg-background text-foreground relative overflow-hidden">
-      <div className="fixed inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-indigo-50/50 via-background to-background" />
+    <div className="min-h-screen bg-background text-foreground antialiased">
+      {/* Gradient + grid background */}
       <div
-        className="fixed inset-0 -z-10 opacity-[0.03] "
+        className="fixed inset-0 -z-10 bg-linear-to-b from-primary/5 via-background to-background"
+        aria-hidden
+      />
+      <div
+        className="fixed inset-0 -z-10 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,var(--primary)/12%,transparent)]"
+        aria-hidden
+      />
+      <div
+        className="fixed inset-0 -z-10 opacity-[0.02] dark:opacity-[0.03]"
         style={{
-          backgroundImage: `radial-gradient(var(--brand) 1px, transparent 1px)`,
-          backgroundSize: "40px 40px",
+          backgroundImage: `linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px)`,
+          backgroundSize: "48px 48px",
         }}
       />
 
-      {/* Navigation */}
-      <header className="fixed top-0 w-full z-50 bg-background/60 backdrop-blur-xl border-b border-border/50">
+      <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/60 bg-background/70 backdrop-blur-xl">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2 group cursor-pointer">
-            <div className="w-9 h-9 flex items-center justify-center sketch-border transition-transform group-hover:rotate-6 bg-brand border-brand text-white">
-              <Pencil className="w-5 h-5 transform -rotate-12" />
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-primary text-primary-foreground transition-transform group-hover:scale-105">
+              <Pencil className="w-4 h-4" />
             </div>
-            <span className="text-xl font-bold tracking-tighter">
-              sketch.io
-            </span>
-          </div>
+            <span className="text-xl md:text-2xl font-bold tracking-tight">Canvas</span>
+          </Link>
 
-          <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-muted-foreground">
-            <Link
-              href="#features"
-              className="hover:text-foreground transition-colors"
-            >
+          <nav className="hidden md:flex items-center gap-8 text-sm md:text-base font-medium text-muted-foreground">
+            <Link href="#features" className="hover:text-foreground transition-colors">
               Features
             </Link>
-            <Link
-              href="#templates"
-              className="hover:text-foreground transition-colors"
-            >
-              Templates
+            <Link href="#how-it-works" className="hover:text-foreground transition-colors">
+              How it works
             </Link>
-            <Link
-              href="#pricing"
-              className="hover:text-foreground transition-colors"
-            >
-              Pricing
+            <Link href="#use-cases" className="hover:text-foreground transition-colors">
+              Use cases
+            </Link>
+            <Link href="#faq" className="hover:text-foreground transition-colors">
+              FAQ
             </Link>
           </nav>
 
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="hidden sm:inline-flex gap-2 font-bold text-muted-foreground hover:text-foreground"
-            >
-              <Link href="/sign-in" className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" className="text-sm md:text-base" asChild>
+              <Link href="/sign-in" className="gap-2">
                 <LogIn className="w-4 h-4" />
                 Log in
               </Link>
             </Button>
-            <Button
-              size="sm"
-              className="sketch-border flex gap-2 font-bold shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5 bg-brand border-brand text-white"
-            >
-              <Link href="/sign-up" className="flex items-center gap-2">
+            <Button className="text-sm md:text-base" asChild>
+              <Link href="/sign-up" className="gap-2">
                 <UserPlus className="w-4 h-4" />
                 Sign up
               </Link>
@@ -84,234 +87,287 @@ export default function LandingPage() {
         </div>
       </header>
 
-      <main className="pt-32 pb-20">
-        {/* Hero Section */}
-        <section className="container mx-auto px-4 text-center">
-          <div className="inline-flex items-center gap-2 bg-white/50 backdrop-blur-sm px-4 py-1.5 rounded-full mb-10 border border-border shadow-sm">
-            <Badge
-              variant="secondary"
-              className="border-none text-[10px] uppercase tracking-wider font-black px-2 py-0.5 bg-brand text-white"
-            >
-              Stable
-            </Badge>
-            <span className="text-sm font-medium">
-              Infinite Sketch 2.0 is here
-            </span>
-            <ArrowRight className="w-3 h-3" />
+      <main>
+        {/* Hero — full viewport */}
+        <section className="min-h-screen flex flex-col items-center justify-center px-4 pt-20 pb-24">
+          <div className="mt-20 max-w-4xl mx-auto text-center">
+            <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest mb-6">
+              Collaborative whiteboard
+            </p>
+            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight text-balance leading-[1.05] mb-8">
+              Draw together{" "}
+              <span className="bg-linear-to-r from-primary via-primary to-primary/80 bg-clip-text text-transparent">
+                in real time
+              </span>
+            </h1>
+            <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-14 leading-relaxed">
+              Create rooms, invite your team, and sketch with shapes, pencil, text, and more.
+              Everything syncs instantly. Undo, zoom, and keyboard shortcuts included.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Button size="lg" className="w-full sm:w-auto h-12 px-8 text-base font-semibold" asChild>
+                <Link href="/sign-up">Get started free</Link>
+              </Button>
+              <Button size="lg" variant="outline" className="w-full sm:w-auto h-12 px-8 text-base font-semibold" asChild>
+                <Link href="/sign-in">Open dashboard</Link>
+              </Button>
+            </div>
           </div>
 
-          <h1 className="text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter mb-8 max-w-6xl mx-auto leading-[0.8] text-balance">
-            Sketch your{" "}
-            <span className="italic font-serif text-brand">wildest</span> ideas.
-          </h1>
-
-          <p className="text-lg md:text-xl text-muted-foreground/80 max-w-2xl mx-auto mb-12 leading-relaxed font-semibold">
-            A collaborative whiteboard that feels as organic as pencil and
-            paper. Zero friction, total privacy.
-          </p>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-32">
-            <Button
-              size="lg"
-              className="h-16 px-12 text-xl sketch-border shadow-xl transition-all hover:scale-105 active:scale-95 font-bold bg-brand border-brand text-white"
-            >
-              Get Started Free
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="h-16 px-12 text-xl sketch-border bg-white/50 backdrop-blur-sm hover:bg-white/80 transition-all font-bold border-border"
-            >
-              Try Sandbox
-            </Button>
-          </div>
-
-          {/* Canvas Preview Area */}
-          <div className="relative max-w-6xl mx-auto group">
-            <div className="absolute -inset-1 bg-linear-to-r from-indigo-500/20 to-purple-500/20 rounded-[2rem] blur-2xl opacity-50 group-hover:opacity-100 transition duration-1000" />
-            <div className="relative aspect-video bg-white border-2 border-border/80 rounded-2xl overflow-hidden shadow-2xl">
-              {/* Fake UI Elements */}
-              <div className="absolute top-6 left-6 flex flex-col gap-3">
-                {[
-                  { id: 1, icon: MousePointer2 },
-                  { id: 2, icon: Pencil, active: true },
-                  { id: 3, icon: Layout },
-                  { id: 4, icon: Users },
-                  { id: 5, icon: Share2 },
-                ].map((tool) => (
-                  <div
-                    key={tool.id}
-                    className={`w-12 h-12 bg-white border-2 sketch-border flex items-center justify-center transition-all cursor-pointer ${tool.active ? "shadow-lg -translate-y-0.5 bg-brand border-brand text-white" : "border-border text-muted-foreground hover:bg-zinc-50 hover:text-foreground"}`}
-                  >
-                    {React.createElement(tool.icon, { className: "w-6 h-6" })}
+          {/* Hero mockup — canvas preview */}
+          <div className="relative w-full max-w-5xl mx-auto mt-16 md:mt-24">
+            <div className="absolute -inset-8 rounded-3xl bg-linear-to-br from-primary/15 via-primary/5 to-transparent blur-3xl" />
+            <div className="relative rounded-2xl border border-border/80 bg-card shadow-2xl overflow-hidden ring-1 ring-primary/5">
+              <div className="aspect-video min-h-[280px] bg-linear-to-b from-muted/40 to-muted/20 flex flex-col">
+                {/* Fake toolbar */}
+                <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-card/95 backdrop-blur">
+                  <div className="flex items-center gap-1 rounded-lg border border-border bg-background p-1.5">
+                    {[
+                      { Icon: MousePointer2, label: "Select" },
+                      { Icon: Square, label: "Rect" },
+                      { Icon: Circle, label: "Ellipse" },
+                      { Icon: Minus, label: "Line" },
+                      { Icon: Triangle, label: "Triangle" },
+                      { Icon: Pencil, label: "Draw", active: true },
+                      { Icon: Eraser, label: "Eraser" },
+                      { Icon: Type, label: "Text" },
+                    ].map(({ Icon, label, active }) => (
+                      <div
+                        key={label}
+                        className={`w-8 h-8 rounded flex items-center justify-center transition-colors ${
+                          active ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        <Icon className="w-4 h-4" />
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-
-              {/* Central Sketch Simulation */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-80">
-                <div className="relative w-full h-full p-20 flex items-center justify-center">
-                  <div className="w-80 h-56 sketch-border border-4 flex flex-col items-center justify-center rotate-2 bg-white shadow-xl border-brand">
-                    <span className="font-mono text-3xl font-bold text-brand">
-                      MVP FLOW
-                    </span>
-                    <div className="w-48 h-1 mt-6 rounded-full bg-brand/40" />
-                    <div className="w-32 h-1 mt-2 rounded-full opacity-50 bg-brand/20" />
+                </div>
+                {/* Fake canvas with shapes */}
+                <div className="flex-1 relative p-8">
+                  <div className="absolute left-16 top-14 w-24 h-16 rounded border-2 border-foreground/20 bg-background/50" />
+                  <div className="absolute left-48 top-20 w-20 h-20 rounded-full border-2 border-foreground/20 bg-background/50" />
+                  <div className="absolute right-24 top-24 w-32 h-1 bg-foreground/20 rounded-full rotate-12" />
+                  <div className="absolute left-1/2 top-32 -translate-x-1/2 px-3 py-1.5 rounded border border-foreground/20 bg-background/50 text-sm font-medium text-foreground/80">
+                    Type here...
                   </div>
-                  <div className="absolute top-1/4 right-1/4 w-32 h-32 sketch-border border-4 rounded-full -rotate-12 opacity-30 border-brand" />
+                  <div className="absolute bottom-8 right-12 flex items-center gap-2 rounded-lg border border-border bg-card/90 px-3 py-2 shadow-sm">
+                    <div className="flex -space-x-2">
+                      {[1, 2, 3].map((i) => (
+                        <div
+                          key={i}
+                          className="w-7 h-7 rounded-full border-2 border-background bg-primary/80"
+                        />
+                      ))}
+                    </div>
+                    <span className="text-xs font-medium text-muted-foreground">Live</span>
+                  </div>
                 </div>
-              </div>
-
-              <div className="absolute bottom-6 right-6 bg-white/90 backdrop-blur px-5 py-3 rounded-xl border-2 border-border sketch-border flex items-center gap-4 shadow-xl">
-                <div className="flex -space-x-3">
-                  {[1, 2, 3].map((i) => (
-                    <div
-                      key={i}
-                      className="w-10 h-10 rounded-full border-2 border-white shadow-sm"
-                      style={{ backgroundColor: `var(--chart-${i})` }}
-                    />
-                  ))}
-                </div>
-                <span className="text-sm font-black text-muted-foreground">
-                  Editing Live
-                </span>
               </div>
             </div>
           </div>
         </section>
 
-        <section id="features" className="container mx-auto px-4 mt-48">
-          <div className="text-center mb-24">
-            <h2 className="text-5xl font-black tracking-tight mb-6">
-              Everything you need to ship ideas
-            </h2>
-            <p className="text-muted-foreground/80 max-w-xl mx-auto font-medium text-lg leading-relaxed">
-              Minimal by design, powerful in execution. No bloat, just the tools
-              you love.
-            </p>
-          </div>
+        {/* Features */}
+        <section id="features" className="relative border-t border-border py-24 md:py-32 overflow-hidden">
+          <div className="absolute inset-0 -z-10 bg-linear-to-b from-muted/30 via-muted/10 to-background" />
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-16 md:mb-20">
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
+                Everything you need to collaborate
+              </h2>
+              <p className="text-muted-foreground max-w-xl mx-auto text-lg">
+                A full-featured whiteboard with real-time sync, rooms, and theme-aware canvas.
+              </p>
+            </div>
 
-          <div className="grid md:grid-cols-3 gap-10 max-w-6xl mx-auto">
-            <FeatureCard
-              icon={<Users className="w-6 h-6 text-brand" />}
-              title="Real-time Collaboration"
-              description="Invite your team and watch as ideas come to life together in real-time."
-            />
-            <FeatureCard
-              icon={<ShieldCheck className="w-6 h-6 text-brand" />}
-              title="Privacy-First"
-              description="E2E encrypted by default. We never see your data, it stays in your browser."
-            />
-            <FeatureCard
-              icon={<Share2 className="w-6 h-6 text-brand" />}
-              title="Instant Export"
-              description="PNG, SVG, or share a live link. Your work is accessible everywhere."
-            />
-            <FeatureCard
-              icon={<Zap className="w-6 h-6 text-brand" />}
-              title="Hand-drawn Feel"
-              description="The sketchy look keeps ideas low-fidelity so you can focus on the big picture."
-            />
-            <FeatureCard
-              icon={<Layout className="w-6 h-6 text-brand" />}
-              title="Infinite Sketch"
-              description="Never run out of space. Your brain doesn't have boundaries, why should your whiteboard?"
-            />
-            <FeatureCard
-              icon={<ArrowRight className="w-6 h-6 text-brand" />}
-              title="Open Source"
-              description="Built for the community, by the community. Always free, always open."
-            />
-          </div>
-        </section>
-
-        {/* Features Grid */}
-        <section id="features" className="container mx-auto px-4 mt-40">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl font-bold tracking-tight mb-4">
-              Everything you need to ship ideas
-            </h2>
-            <p className="text-muted-foreground max-w-xl mx-auto">
-              Minimal by design, powerful in execution. No bloat, just the tools
-              you love.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            <FeatureCard
-              icon={<Users className="w-6 h-6 text-blue-500" />}
-              title="Real-time Collaboration"
-              description="Invite your team and watch as ideas come to life together in real-time."
-            />
-            <FeatureCard
-              icon={<ShieldCheck className="w-6 h-6 text-green-500" />}
-              title="Privacy-First"
-              description="E2E encrypted by default. We never see your data, it stays in your browser."
-            />
-            <FeatureCard
-              icon={<Share2 className="w-6 h-6 text-purple-500" />}
-              title="Instant Export"
-              description="PNG, SVG, or share a live link. Your work is accessible everywhere."
-            />
-            <FeatureCard
-              icon={<Zap className="w-6 h-6 text-yellow-500" />}
-              title="Hand-drawn Feel"
-              description="The sketchy look keeps ideas low-fidelity so you can focus on the big picture."
-            />
-            <FeatureCard
-              icon={<Layout className="w-6 h-6 text-orange-500" />}
-              title="Infinite Sketch"
-              description="Never run out of space. Your brain doesn't have boundaries, why should your whiteboard?"
-            />
-            <FeatureCard
-              icon={<ArrowRight className="w-6 h-6 text-pink-500" />}
-              title="Open Source"
-              description="Built for the community, by the community. Always free, always open."
-            />
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto relative">
+              <FeatureCard
+                icon={<Users className="w-6 h-6" />}
+                title="Real-time sync"
+                description="Every shape, move, and delete is broadcast to everyone in the room. Join a room and draw together instantly."
+              />
+              <FeatureCard
+                icon={<Share2 className="w-6 h-6" />}
+                title="Rooms & sharing"
+                description="Create rooms, share links, and see who's in the room. Canvas state is saved when the room is empty and restored on join."
+              />
+              <FeatureCard
+                icon={<Square className="w-6 h-6" />}
+                title="Shapes & tools"
+                description="Rectangle, ellipse, line, triangle, freehand pencil, text, and eraser. Select and drag to move shapes."
+              />
+              <FeatureCard
+                icon={<Keyboard className="w-6 h-6" />}
+                title="Keyboard shortcuts"
+                description="Undo (Ctrl+Z), redo (Ctrl+Y), cut/copy/paste, delete. Use keys 1–8 to switch tools without touching the mouse."
+              />
+              <FeatureCard
+                icon={<ZoomIn className="w-6 h-6" />}
+                title="Zoom & pan"
+                description="Mouse wheel or trackpad to zoom in and out; zoom is centered on the cursor. All tools work correctly when zoomed."
+              />
+              <FeatureCard
+                icon={<Palette className="w-6 h-6" />}
+                title="Light & dark theme"
+                description="Canvas colors follow your app theme. Toggle theme and the whiteboard updates to match."
+              />
+            </div>
           </div>
         </section>
 
-        {/* Social Proof */}
-        <section className="container mx-auto px-4 mt-40 border-t pt-20">
-          <p className="text-center text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-12">
-            Trusted by teams at
-          </p>
-          <div className="flex flex-wrap justify-center items-center gap-12 md:gap-20 opacity-50 grayscale">
-            <span className="text-2xl font-black">Vercel</span>
-            <span className="text-2xl font-black">Meta</span>
-            <span className="text-2xl font-black">Adobe</span>
-            <span className="text-2xl font-black">Figma</span>
-            <span className="text-2xl font-black">Airbnb</span>
+        {/* How it works */}
+        <section id="how-it-works" className="relative py-24 md:py-32 overflow-hidden">
+          <div className="absolute inset-0 -z-10 bg-linear-to-b from-background via-muted/5 to-muted/20" />
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-16 md:mb-20">
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
+                How it works
+              </h2>
+              <p className="text-muted-foreground max-w-xl mx-auto text-lg">
+                Get your team on the same canvas in three simple steps.
+              </p>
+            </div>
+            <div className="grid md:grid-cols-3 gap-8 md:gap-10 lg:gap-20 max-w-4xl mx-auto">
+              <StepCard
+                step={1}
+                icon={<UserPlus2 className="w-7 h-7" />}
+                title="Sign up"
+                description="Create a free account with your email. No credit card required."
+              />
+              <StepCard
+                step={2}
+                icon={<LayoutDashboard className="w-7 h-7" />}
+                title="Create a room"
+                description="From your dashboard, create a new room and copy the share link to invite others."
+              />
+              <StepCard
+                step={3}
+                icon={<Pencil className="w-7 h-7" />}
+                title="Draw together"
+                description="Everyone in the room sees the same canvas. Shapes, moves, and edits sync in real time."
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Use cases */}
+        <section id="use-cases" className="relative py-24 md:py-32 overflow-hidden">
+          <div className="absolute inset-0 -z-10 bg-linear-to-b from-muted/20 via-muted/10 to-background" />
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-16 md:mb-20">
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
+                Perfect for
+              </h2>
+              <p className="text-muted-foreground max-w-xl mx-auto text-lg">
+                From quick sketches to structured workshops — one canvas for every need.
+              </p>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+              <UseCaseCard
+                icon={<Lightbulb className="w-6 h-6" />}
+                title="Team brainstorming"
+                description="Capture ideas as they flow. Shapes, text, and freehand in one shared space."
+              />
+              <UseCaseCard
+                icon={<Video className="w-6 h-6" />}
+                title="Remote meetings"
+                description="Replace static slides with a live whiteboard everyone can edit."
+              />
+              <UseCaseCard
+                icon={<GraduationCap className="w-6 h-6" />}
+                title="Teaching & workshops"
+                description="Explain concepts visually. Students can follow along or contribute."
+              />
+              <UseCaseCard
+                icon={<Sparkles className="w-6 h-6" />}
+                title="Quick sketches"
+                description="Wireframes, flowcharts, or doodles. Fast tools and keyboard shortcuts."
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ */}
+        <section id="faq" className="relative py-24 md:py-32 overflow-hidden">
+          <div className="absolute inset-0 -z-10 bg-linear-to-b from-background via-primary/5 to-muted/10" />
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-16 md:mb-20">
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
+                Frequently asked questions
+              </h2>
+              <p className="text-muted-foreground max-w-xl mx-auto text-lg">
+                Quick answers to common questions.
+              </p>
+            </div>
+            <div className="max-w-2xl mx-auto space-y-4">
+              <FaqItem
+                question="Do I need an account?"
+                answer="Yes. Sign up once to create and join rooms. Your rooms and canvas state are tied to your account so you can return anytime."
+              />
+              <FaqItem
+                question="Is it free?"
+                answer="Yes. Create rooms, invite others, and use all drawing tools and real-time sync at no cost. No credit card required."
+              />
+              <FaqItem
+                question="How does real-time sync work?"
+                answer="When you add, move, or delete a shape, the change is sent over a WebSocket to everyone in the same room. Updates appear within a moment so you can truly draw together."
+              />
+              <FaqItem
+                question="What happens when everyone leaves a room?"
+                answer="When the last person leaves, the canvas state is saved to the server. The next time someone joins that room, the same shapes load automatically."
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* CTA */}
+        <section className="relative py-24 md:py-32">
+          <div className="absolute inset-0 -z-10 bg-linear-to-b from-background via-primary/5 to-primary/10" />
+          <div className="container mx-auto px-4 text-center relative">
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
+              Ready to draw?
+            </h2>
+            <p className="text-muted-foreground text-lg mb-10 max-w-md mx-auto">
+              Sign up, create a room, and start sketching. No credit card required.
+            </p>
+            <Button size="lg" className="h-12 px-8 text-base font-semibold" asChild>
+              <Link href="/sign-up">Get started free</Link>
+            </Button>
           </div>
         </section>
       </main>
 
-      <footer className="border-t py-16 bg-white/50 backdrop-blur-sm">
-        <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-10">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded flex items-center justify-center sketch-border bg-brand border-brand text-white">
-              <Pencil className="w-4 h-4 transform -rotate-12" />
+      <footer className="border-t border-border py-12 bg-linear-to-b from-muted/10 to-muted/30">
+        <div className="container mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-6">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-primary text-primary-foreground">
+              <Pencil className="w-4 h-4" />
             </div>
-            <span className="font-black text-xl">sketch.io</span>
+            <span className="font-bold">Canvas</span>
+          </Link>
+          <div className="flex flex-wrap justify-center gap-6 sm:gap-8 text-sm text-muted-foreground">
+            <Link href="#features" className="hover:text-foreground transition-colors">
+              Features
+            </Link>
+            <Link href="#how-it-works" className="hover:text-foreground transition-colors">
+              How it works
+            </Link>
+            <Link href="#use-cases" className="hover:text-foreground transition-colors">
+              Use cases
+            </Link>
+            <Link href="#faq" className="hover:text-foreground transition-colors">
+              FAQ
+            </Link>
+            <Link href="/sign-in" className="hover:text-foreground transition-colors">
+              Log in
+            </Link>
+            <Link href="/sign-up" className="hover:text-foreground transition-colors">
+              Sign up
+            </Link>
           </div>
-
-          <div className="flex gap-8 text-sm text-muted-foreground">
-            <Link href="#" className="hover:text-foreground">
-              Terms
-            </Link>
-            <Link href="#" className="hover:text-foreground">
-              Privacy
-            </Link>
-            <Link href="#" className="hover:text-foreground">
-              GitHub
-            </Link>
-            <Link href="#" className="hover:text-foreground">
-              X (Twitter)
-            </Link>
-          </div>
-
-          <p className="text-sm font-bold text-muted-foreground">
-            © 2026 sketch.io Inc.
+          <p className="text-sm text-muted-foreground">
+            © {new Date().getFullYear()} Canvas
           </p>
         </div>
       </footer>
@@ -323,29 +379,89 @@ function FeatureCard({
   icon,
   title,
   description,
-  color,
 }: {
   icon: React.ReactNode;
   title: string;
   description: string;
-  color?: string;
 }) {
   return (
-    <div className="p-10 rounded-[2.5rem] border border-border/50 bg-white/50 backdrop-blur-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group">
-      <div
-        className="w-14 h-14 rounded-2xl flex items-center justify-center mb-8 sketch-border transition-transform group-hover:rotate-6"
-        style={{
-          color: color,
-          borderColor: color ? `${color}40` : "black",
-          backgroundColor: color ? `${color}10` : "white",
-        }}
-      >
+    <div className="group rounded-2xl border border-border/80 bg-card/80 backdrop-blur-sm p-6 md:p-8 shadow-sm hover:shadow-lg hover:border-primary/20 transition-all duration-300 bg-linear-to-b from-card to-card/50">
+      <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-linear-to-br from-primary/15 to-primary/5 text-primary mb-5 group-hover:from-primary/20 group-hover:to-primary/10 transition-colors">
         {icon}
       </div>
-      <h3 className="text-2xl font-black mb-4 tracking-tight">{title}</h3>
-      <p className="text-muted-foreground/80 leading-relaxed font-medium">
+      <h3 className="text-xl font-semibold tracking-tight mb-2">{title}</h3>
+      <p className="text-muted-foreground leading-relaxed text-sm md:text-base">
         {description}
       </p>
     </div>
+  );
+}
+
+function StepCard({
+  step,
+  icon,
+  title,
+  description,
+}: {
+  step: number;
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="relative rounded-2xl border border-border/80 bg-card/80 backdrop-blur-sm p-6 md:p-8 shadow-sm hover:shadow-md transition-all duration-300 text-center">
+      <div className="inline-flex w-14 h-14 rounded-xl items-center justify-center bg-primary/10 text-primary mb-5">
+        {icon}
+      </div>
+      <span className="z-10 absolute lg:-top-25 lg:-left-12 -top-3 md:-left-6 md:-top-15  left-3 text-[5rem] md:text-[7rem] lg:text-[10rem] bg-clip-text bg-linear-to-tl from-primary/20 to-primary font-black text-muted-foreground/30">
+        {step}
+      </span>
+      <h3 className="text-xl font-semibold tracking-tight mb-2">{title}</h3>
+      <p className="text-muted-foreground leading-relaxed text-sm">
+        {description}
+      </p>
+    </div>
+  );
+}
+
+function UseCaseCard({
+  icon,
+  title,
+  description,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="rounded-xl border border-border/80 bg-card/60 backdrop-blur-sm p-5 shadow-sm hover:shadow-md hover:border-primary/15 transition-all duration-300">
+      <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-primary/10 text-primary mb-4">
+        {icon}
+      </div>
+      <h3 className="font-semibold tracking-tight mb-1.5">{title}</h3>
+      <p className="text-muted-foreground text-sm leading-relaxed">
+        {description}
+      </p>
+    </div>
+  );
+}
+
+function FaqItem({
+  question,
+  answer,
+}: {
+  question: string;
+  answer: string;
+}) {
+  return (
+    <details className="group rounded-xl border border-border/80 bg-card/80 backdrop-blur-sm overflow-hidden shadow-sm">
+      <summary className="flex items-center justify-between gap-4 px-5 py-4 cursor-pointer list-none font-medium text-foreground hover:bg-muted/30 transition-colors [&::-webkit-details-marker]:hidden">
+        <span>{question}</span>
+        <ChevronDown className="w-5 h-5 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />
+      </summary>
+      <p className="px-5 pb-4 pt-4 text-muted-foreground text-sm leading-relaxed border-t border-border/60">
+        {answer}
+      </p>
+    </details>
   );
 }

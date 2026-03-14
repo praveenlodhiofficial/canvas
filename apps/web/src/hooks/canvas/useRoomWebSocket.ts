@@ -2,14 +2,21 @@ import { useEffect, useRef, useState } from "react";
 import { CanvasShape } from "@repo/shared/types";
 import { config } from "@/lib/config";
 
+type RoomWebSocketOptions = {
+  onRoomInit?: (shapes: CanvasShape[]) => void;
+};
+
 export function useRoomWebSocket(
   roomId: string,
-  setShapes: React.Dispatch<React.SetStateAction<Map<string, CanvasShape>>>
+  setShapes: React.Dispatch<React.SetStateAction<Map<string, CanvasShape>>>,
+  options?: RoomWebSocketOptions
 ) {
   const wsRef = useRef<WebSocket | null>(null);
   const [status, setStatus] = useState<
     "connecting" | "connected" | "error"
   >("connecting");
+  const onRoomInitRef = useRef(options?.onRoomInit);
+  onRoomInitRef.current = options?.onRoomInit;
 
   useEffect(() => {
     const ws = new WebSocket(`${config.websocketUrl}?room=${roomId}`);
@@ -21,9 +28,14 @@ export function useRoomWebSocket(
     ws.onmessage = (event) => {
       const msg = JSON.parse(event.data);
 
-      
       if (msg.type === "room:init") {
-        setShapes(new Map(msg.payload.map((s: CanvasShape) => [s.id, s])));
+        const payload = msg.payload as CanvasShape[];
+        const map = new Map(payload.map((s: CanvasShape) => [s.id, s]));
+        if (onRoomInitRef.current) {
+          onRoomInitRef.current(payload);
+        } else {
+          setShapes(map);
+        }
       }
 
       if (msg.type === "shape:created") {
@@ -44,7 +56,7 @@ export function useRoomWebSocket(
     };
 
     return () => ws.close();
-  }, [roomId]);
+  }, [roomId, setShapes]);
 
   return { wsRef, status };
 }
