@@ -8,7 +8,7 @@
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,mdx,css}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,mdx,css}\"",
     "lint-staged": "lint-staged",
-    "prepare": "husky install",
+    "prepare": "husky",
     "check-types": "turbo run check-types",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down"

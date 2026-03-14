@@ -25,6 +25,12 @@
       "cache": false,
       "persistent": true
     },
+    "format": {
+      "cache": false
+    },
+    "format:check": {
+      "cache": false
+    },
     "db:generate": {
       "cache": false
     },
