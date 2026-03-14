@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import { CanvasShape } from "@repo/shared/types";
 import { getRoomByIdAction } from "@/domains/room/room.actions";
 import { getRoomShapesAction } from "@/actions/shape.actions";
-import Link from "next/link";
 
 export default async function RoomPage({
   params,
@@ -22,23 +21,12 @@ export default async function RoomPage({
 
   return (
     <div className=" flex flex-col w-full items-center justify-center">
-      <div className="z-50 pointer-events-auto bg-white shadow-xl sketch-border border h-14 flex justify-between items-center top-3 left-[7.5%] translate-x-[-50%] absolute border-red-500">
-        <div className="pointer-events-auto flex justify-between items-center bg-muted-foreground/15 px-5 w-full h-full">
-          <Link
-            href="/dashboard/rooms"
-            className="text-muted-foreground text-md font-medium cursor-pointer"
-          >
-            Rooms
-          </Link>
-          <span>&nbsp;/&nbsp;</span>
-          <span className="text-md font-medium capitalize">{room.name}</span>
-        </div>
-      </div>
-
-      <div className="absolute inset-0 overflow-hidden bg-white w-full h-screen flex justify-center items-center">
+      <div className="absolute inset-0 overflow-hidden w-full h-screen flex justify-center items-center">
         <RoomCanvas
+          roomName={room.name!}
           roomId={room.id!}
           initialShapes={shapes as unknown as CanvasShape[]}
+          totalMembers={room.totalMembers}
         />
       </div>
     </div>

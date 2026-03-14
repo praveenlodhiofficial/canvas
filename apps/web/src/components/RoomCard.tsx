@@ -16,6 +16,7 @@ import { RoomDialog, RoomDeleteDialog } from "./RoomDialog"
 import type { RoomMember } from "@repo/shared/schema"
 import { toast } from "sonner"
 import { useState } from "react"
+import Link from "next/link"
 
 interface RoomCardProps {
   id: string
@@ -65,7 +66,8 @@ export function RoomCard({
   }
 
   return (
-    <Card className="group relative flex flex-col overflow-hidden border-border bg-card hover:border-primary/30 hover:shadow-lg transition-all duration-300 cursor-pointer">
+<Link href={`/dashboard/rooms/${id}`} target="_blank">
+<Card className="group relative flex flex-col overflow-hidden border-none  bg-card/50 hover:border-primary/30 hover:shadow-lg transition-all duration-300 cursor-pointer">
       <div className="absolute inset-0 bg-linear-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
       <div className="relative flex flex-col h-full p-6">
@@ -156,5 +158,6 @@ export function RoomCard({
         </div>
       </div>
     </Card>
+</Link>
   )
 }

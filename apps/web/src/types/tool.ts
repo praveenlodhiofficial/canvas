@@ -1,1 +1,1 @@
-export type ToolType = "box" | "ellipse" | "line" | "pencil" | "triangle" | "selection" | null;
+export type ToolType = "box" | "ellipse" | "line" | "pencil" | "triangle" | "selection" | "eraser" | null;

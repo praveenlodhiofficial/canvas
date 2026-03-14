@@ -3,6 +3,7 @@ import { CanvasShape } from "@repo/shared/types";
 import { renderShapes } from "@/lib/canvas";
 import { ToolType } from "@/types/tool";
 import { selection } from "@/lib/canvas/selection";
+import type { CanvasTheme } from "@/lib/canvas/theme";
 
 export function useCanvasRender(
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
@@ -10,39 +11,27 @@ export function useCanvasRender(
   shapes: CanvasShape[],
   previewShape: CanvasShape | null,
   tool: ToolType | null,
-  selectedIds: Set<string>
+  selectedIds: Set<string>,
+  theme: CanvasTheme
 ) {
-  // useEffect(() => {
-  //   // NOTE: .current mutation doesn't trigger re-renders
-  //   if (!canvasRef.current || !ctxRef.current) return;
-
-  //   renderShapes(shapes, ctxRef.current, canvasRef.current, previewShape);
-  // }, [shapes, previewShape, canvasRef, ctxRef, tool]);
-
   useEffect(() => {
     if (!canvasRef.current || !ctxRef.current) return;
-  
+
     const canvas = canvasRef.current;
     const ctx = ctxRef.current;
-  
-    // 1️⃣ Clear
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-  
-    // 2️⃣ Render shapes + preview
-    renderShapes(shapes, ctx, canvas, previewShape);
-  
-    // 3️⃣ Render selection overlay (VIOLET BOX)
+
+    // 1️⃣ Render shapes + preview (clears and fills background with theme)
+    renderShapes(shapes, ctx, canvas, previewShape, theme);
+
+    // 2️⃣ Render selection overlay (theme ring color)
     if (selectedIds.size > 0) {
-      const selectedShapes = shapes.filter((s) =>
-        s.id && selectedIds.has(s.id)
-      );
-  
+      const selectedShapes = shapes.filter((s) => s.id && selectedIds.has(s.id));
       const bounds = selection.getBounds(selectedShapes);
-  
+
       if (bounds) {
-        selection.renderBounds(ctx, bounds);
-        selection.renderHandles(ctx, bounds);
+        selection.renderBounds(ctx, bounds, theme);
+        selection.renderHandles(ctx, bounds, theme);
       }
     }
-  }, [shapes, previewShape, selectedIds, canvasRef, ctxRef]);
+  }, [shapes, previewShape, selectedIds, canvasRef, ctxRef, theme]);
 }

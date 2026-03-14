@@ -1,8 +1,11 @@
+import type { CanvasTheme } from "@/lib/canvas/theme";
+
 const HANDLE_SIZE = 8;
 
 export function renderSelectionHandles(
   ctx: CanvasRenderingContext2D,
-  bounds: { x: number; y: number; width: number; height: number }
+  bounds: { x: number; y: number; width: number; height: number },
+  theme: CanvasTheme
 ) {
   const points = [
     [bounds.x, bounds.y],
@@ -18,7 +21,7 @@ export function renderSelectionHandles(
   ];
 
   ctx.save();
-  ctx.fillStyle = "#7c7cff";
+  ctx.fillStyle = theme.ring;
 
   for (const [x, y] of points) {
     if (x === undefined || y === undefined) continue;
