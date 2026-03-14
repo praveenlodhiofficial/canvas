@@ -6,6 +6,7 @@
     "build": "bun run db:generate",
     "check-types": "tsc --noEmit",
     "db:generate": "prisma generate",
+    "postinstall": "prisma generate",
     "db:studio": "prisma studio",
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push && prisma generate",
