@@ -30,6 +30,10 @@ export function useRoomWebSocket(
         setShapes((prev) => new Map(prev).set(msg.payload.id, msg.payload));
       }
 
+      if (msg.type === "shape:updated") {
+        setShapes((prev) => new Map(prev).set(msg.payload.id, msg.payload));
+      }
+
       if (msg.type === "shape:deleted") {
         setShapes((prev) => {
           const next = new Map(prev);

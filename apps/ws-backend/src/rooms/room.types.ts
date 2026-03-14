@@ -26,6 +26,10 @@ export type ServerMessage =
       payload: CanvasShape;
     }
   | {
+      type: "shape:updated";
+      payload: CanvasShape;
+    }
+  | {
       type: "shape:deleted";
       payload: string[];
     };

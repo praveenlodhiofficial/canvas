@@ -154,6 +154,20 @@ const server = Bun.serve<WsData>({
         });
       }
     
+      /* ---------- UPDATE SHAPE (e.g. move) ---------- */
+      if (msg.type === "shape:update") {
+        const shape = msg.payload;
+        const room = memoryStore.get(roomId);
+        if (room && room.shapes.has(shape.id)) {
+          room.shapes.set(shape.id, shape);
+          room.lastUpdated = Date.now();
+          broadcastToRoom(roomId, {
+            type: "shape:updated",
+            payload: shape,
+          });
+        }
+      }
+
       /* ---------- DELETE SHAPES ---------- */
       if (msg.type === "shape:delete") {
         const ids = msg.payload;

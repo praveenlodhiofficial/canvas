@@ -108,8 +108,11 @@ export default function RoomCanvas({
     tool === "selection",
     canvasRef,
     Array.from(shapes.values()),
+    selectedIds,
     setSelectedIds,
-    setPreview
+    setPreview,
+    setShapes,
+    wsRef
   );
 
   /* ======================== ERASER ======================== */
