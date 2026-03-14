@@ -12,6 +12,10 @@ build
 **/out
 **/build
 
+# Database
+packages/database/generated/**
+packages/database/migrations/**
+
 # Generated files
 *.min.js
 *.min.css
