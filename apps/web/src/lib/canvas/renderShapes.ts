@@ -24,10 +24,12 @@ export function renderShapes(
   canvas: HTMLCanvasElement,
   previewShape: CanvasShape | null,
   theme: CanvasTheme,
+  options?: { skipClear?: boolean }
 ) {
-  // Clear and fill with layout background so canvas matches theme
-  ctx.fillStyle = theme.background;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  if (!options?.skipClear) {
+    ctx.fillStyle = theme.background;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
 
   // Default stroke and fill for committed shapes (matches layout foreground)
   ctx.strokeStyle = theme.foreground;

@@ -1,4 +1,5 @@
 import { CanvasShape } from "@repo/shared/types";
+import type { GetWorldPoint } from "../useSelection";
 import { useEffect } from "react";
 
 export const DEFAULT_FONT = "14px sans-serif";
@@ -29,7 +30,8 @@ export function useDrawText(
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
   onCommit: (shape: CanvasShape) => void,
   _onPreview: (shape: CanvasShape | null) => void,
-  getTextFromUser?: (x: number, y: number) => Promise<string | null>
+  getTextFromUser?: (x: number, y: number) => Promise<string | null>,
+  getWorldPoint?: GetWorldPoint
 ) {
   useEffect(() => {
     if (!enabled) return;
@@ -37,10 +39,10 @@ export function useDrawText(
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const pos = (e: MouseEvent) => {
+    const pos: GetWorldPoint = getWorldPoint ?? ((e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
       return { x: e.clientX - rect.left, y: e.clientY - rect.top };
-    };
+    });
 
     function handleMouseDown(e: MouseEvent) {
       const { x, y } = pos(e);
@@ -70,5 +72,5 @@ export function useDrawText(
 
     canvas.addEventListener("mousedown", handleMouseDown);
     return () => canvas.removeEventListener("mousedown", handleMouseDown);
-  }, [enabled, canvasRef, onCommit, getTextFromUser]);
+  }, [enabled, canvasRef, onCommit, getTextFromUser, getWorldPoint]);
 }

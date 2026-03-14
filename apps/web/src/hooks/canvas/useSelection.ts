@@ -1,6 +1,8 @@
 import { CanvasShape } from "@repo/shared/types";
 import { useSelectShapes } from "./select-shapes/useSelectShapes";
 
+export type GetWorldPoint = (e: MouseEvent) => { x: number; y: number };
+
 export function useSelection(
   enabled: boolean,
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
@@ -9,7 +11,8 @@ export function useSelection(
   setSelectedIds: (ids: Set<string>) => void,
   setPreview: (shape: CanvasShape | null) => void,
   setShapes: React.Dispatch<React.SetStateAction<Map<string, CanvasShape>>>,
-  wsRef: React.RefObject<WebSocket | null>
+  wsRef: React.RefObject<WebSocket | null>,
+  getWorldPoint: GetWorldPoint
 ) {
   useSelectShapes(
     enabled,
@@ -19,6 +22,7 @@ export function useSelection(
     (ids) => setSelectedIds(new Set(ids)),
     setPreview,
     setShapes,
-    wsRef
+    wsRef,
+    getWorldPoint
   );
 }

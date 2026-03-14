@@ -6,6 +6,7 @@ import { ToolType } from "@/types/tool";
 
 import { useCanvasInit } from "@/hooks/canvas/useCanvasInit";
 import { useCanvasRender } from "@/hooks/canvas/useCanvasRender";
+import { useCanvasZoom, screenToWorld, type CanvasTransform } from "@/hooks/canvas/useCanvasZoom";
 
 import { useRoomWebSocket } from "@/hooks/canvas/useRoomWebSocket";
 import { useKeyboardDelete } from "@/hooks/canvas/useKeyboardDelete";
@@ -50,6 +51,11 @@ export default function RoomCanvas({
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [preview, setPreview] = useState<CanvasShape | null>(null);
   const [tool, setTool] = useState<ToolType>("box");
+  const [transform, setTransform] = useState<CanvasTransform>({
+    scale: 1,
+    panX: 0,
+    panY: 0,
+  });
   const [textInputAt, setTextInputAt] = useState<{ x: number; y: number } | null>(null);
   const textInputResolveRef = useRef<((value: string | null) => void) | null>(null);
   const textInputRef = useRef<HTMLInputElement>(null);
@@ -81,6 +87,18 @@ export default function RoomCanvas({
     setTextInputAt(null);
   }, []);
 
+  const getWorldPoint = useCallback(
+    (e: MouseEvent) => {
+      const canvas = canvasRef.current;
+      if (!canvas) return { x: 0, y: 0 };
+      return screenToWorld(e.clientX, e.clientY, canvas, transform);
+    },
+    [transform]
+  );
+
+  /* ======================== ZOOM ======================== */
+  useCanvasZoom(canvasRef, setTransform);
+
   /* ======================== WEBSOCKET ======================== */
   const { wsRef, status } = useRoomWebSocket(roomId, setShapes);
 
@@ -100,7 +118,8 @@ export default function RoomCanvas({
       );
     },
     setPreview,
-    getTextFromUser
+    getTextFromUser,
+    getWorldPoint
   );
 
   /* ======================== SELECTION ======================== */
@@ -112,7 +131,8 @@ export default function RoomCanvas({
     setSelectedIds,
     setPreview,
     setShapes,
-    wsRef
+    wsRef,
+    getWorldPoint
   );
 
   /* ======================== ERASER ======================== */
@@ -121,7 +141,8 @@ export default function RoomCanvas({
     canvasRef,
     Array.from(shapes.values()),
     setShapes,
-    wsRef
+    wsRef,
+    getWorldPoint
   );
 
   /* ======================== RENDER ======================== */
@@ -132,7 +153,8 @@ export default function RoomCanvas({
     preview,
     tool,
     selectedIds,
-    canvasTheme
+    canvasTheme,
+    transform
   );
 
   /* ======================== CANVAS UI ======================== */

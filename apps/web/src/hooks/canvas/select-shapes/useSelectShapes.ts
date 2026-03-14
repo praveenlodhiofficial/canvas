@@ -2,6 +2,7 @@ import { normalizeShapes } from "@/lib/canvas/normalize-shapes";
 import { getSelectionBounds } from "@/lib/canvas/selection/getSelectionBounds";
 import { intersects } from "../intersects";
 import { CanvasShape } from "@repo/shared/types";
+import type { GetWorldPoint } from "../useSelection";
 import React, { useEffect, useRef } from "react";
 
 function pointInRect(
@@ -24,7 +25,8 @@ export function useSelectShapes(
   onSelect: (ids: string[]) => void,
   onPreview: (shape: CanvasShape | null) => void,
   setShapes: React.Dispatch<React.SetStateAction<Map<string, CanvasShape>>>,
-  wsRef: React.RefObject<WebSocket | null>
+  wsRef: React.RefObject<WebSocket | null>,
+  getWorldPoint: GetWorldPoint
 ) {
   const isDrawing = useRef(false);
   const isDragging = useRef(false);
@@ -44,16 +46,8 @@ export function useSelectShapes(
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const pos = (e: MouseEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      return {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      };
-    };
-
     function handleMouseDown(e: MouseEvent) {
-      const point = pos(e);
+      const point = getWorldPoint(e);
 
       const selectedShapes = shapesRef.current.filter((s) => s.id && selectedIds.has(s.id));
       const bounds = selectedShapes.length > 0 ? getSelectionBounds(selectedShapes) : null;
@@ -74,7 +68,7 @@ export function useSelectShapes(
     }
 
     function handleMouseMove(e: MouseEvent) {
-      const { x, y } = pos(e);
+      const { x, y } = getWorldPoint(e);
 
       if (isDragging.current) {
         lastMovePos.current = { x, y };
@@ -160,5 +154,5 @@ export function useSelectShapes(
       canvas.removeEventListener("mouseup", handleMouseUp);
       window.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [enabled, canvasRef, selectedIds, onSelect, onPreview, setShapes, wsRef]);
+  }, [enabled, canvasRef, selectedIds, onSelect, onPreview, setShapes, wsRef, getWorldPoint]);
 }

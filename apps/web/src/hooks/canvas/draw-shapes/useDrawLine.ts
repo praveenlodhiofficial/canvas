@@ -1,40 +1,38 @@
 import { normalizeShapes } from "@/lib/canvas/normalize-shapes";
 import { CanvasShape } from "@repo/shared/types";
+import type { GetWorldPoint } from "../useSelection";
 import { useEffect, useRef } from "react";
 
 export function useDrawLine(
-    enabled: boolean,
-    canvasRef: React.RefObject<HTMLCanvasElement | null>,
-    onCommit: (shape: CanvasShape) => void,
-    onPreview: (shape: CanvasShape | null) => void,
+  enabled: boolean,
+  canvasRef: React.RefObject<HTMLCanvasElement | null>,
+  onCommit: (shape: CanvasShape) => void,
+  onPreview: (shape: CanvasShape | null) => void,
+  getWorldPoint?: GetWorldPoint
 ) {
-    const isDrawing = useRef(false);
-    const start = useRef({ x: 0, y: 0 });
-    const previewRef = useRef<CanvasShape | null>(null);
+  const isDrawing = useRef(false);
+  const start = useRef({ x: 0, y: 0 });
+  const previewRef = useRef<CanvasShape | null>(null);
 
-    useEffect(() => {
-        if (!enabled) return;
+  useEffect(() => {
+    if (!enabled) return;
 
-        const canvas = canvasRef.current;
-        if (!canvas) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-        const pos = (e: MouseEvent) => {
-            const rect = canvas.getBoundingClientRect();
-            return {
-                x: e.clientX - rect.left,
-                y: e.clientY - rect.top,
-            };
-        };
+    const pos: GetWorldPoint = getWorldPoint ?? ((e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    });
 
-        function handleMouseDown(e: MouseEvent) {
-            isDrawing.current = true;
-            start.current = pos(e);
-        }
+    function handleMouseDown(e: MouseEvent) {
+      isDrawing.current = true;
+      start.current = pos(e);
+    }
 
-        function handleMouseMove(e: MouseEvent) {
-            if (!isDrawing.current) return;
-
-            const end = pos(e);
+    function handleMouseMove(e: MouseEvent) {
+      if (!isDrawing.current) return;
+      const end = pos(e);
 
             const shape: Extract<CanvasShape, { type: "line" }> = {
                 id: crypto.randomUUID(),
@@ -78,5 +76,5 @@ export function useDrawLine(
             canvas.removeEventListener("mouseup", handleMouseUp);
         }
                 
-    }, [enabled, canvasRef, onCommit, onPreview]);
+  }, [enabled, canvasRef, onCommit, onPreview, getWorldPoint]);
 }

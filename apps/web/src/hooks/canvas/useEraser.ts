@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { CanvasShape } from "@repo/shared/types";
 import { getBoundingBox } from "@/lib/canvas/selection/getBoundingBox";
+import type { GetWorldPoint } from "./useSelection";
 
 const HIT_PADDING = 6;
 
@@ -41,7 +42,8 @@ export function useEraser(
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
   shapes: CanvasShape[],
   setShapes: React.Dispatch<React.SetStateAction<Map<string, CanvasShape>>>,
-  wsRef: React.RefObject<WebSocket | null>
+  wsRef: React.RefObject<WebSocket | null>,
+  getWorldPoint: GetWorldPoint
 ) {
   const shapesRef = useRef<CanvasShape[]>(shapes);
   const isErasingRef = useRef(false);
@@ -56,23 +58,15 @@ export function useEraser(
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const pos = (e: MouseEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      return {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      };
-    };
-
     function handleMouseDown(e: MouseEvent) {
       isErasingRef.current = true;
-      const { x, y } = pos(e);
+      const { x, y } = getWorldPoint(e);
       eraseAtPoint(shapesRef.current, x, y, setShapes, wsRef);
     }
 
     function handleMouseMove(e: MouseEvent) {
       if (!isErasingRef.current) return;
-      const { x, y } = pos(e);
+      const { x, y } = getWorldPoint(e);
       eraseAtPoint(shapesRef.current, x, y, setShapes, wsRef);
     }
 
@@ -93,5 +87,5 @@ export function useEraser(
       canvas.removeEventListener("mouseleave", handleMouseUp);
       window.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [enabled, canvasRef, setShapes, wsRef]);
+  }, [enabled, canvasRef, setShapes, wsRef, getWorldPoint]);
 }

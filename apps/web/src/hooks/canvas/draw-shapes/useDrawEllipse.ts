@@ -1,5 +1,6 @@
 import { normalizeShapes } from "@/lib/canvas/normalize-shapes";
 import { CanvasShape } from "@repo/shared/types";
+import type { GetWorldPoint } from "../useSelection";
 import { useEffect, useRef } from "react";
 
 export function useDrawEllipse(
@@ -7,6 +8,7 @@ export function useDrawEllipse(
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
   onCommit: (shape: CanvasShape) => void,
   onPreview: (shape: CanvasShape | null) => void,
+  getWorldPoint?: GetWorldPoint
 ) {
   const isDrawing = useRef(false);
   const start = useRef({ x: 0, y: 0 });
@@ -18,13 +20,10 @@ export function useDrawEllipse(
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const pos = (e: MouseEvent) => {
+    const pos: GetWorldPoint = getWorldPoint ?? ((e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
-      return {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      };
-    };
+      return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    });
 
     function handleMouseDown(e: MouseEvent) {
       isDrawing.current = true;
@@ -33,7 +32,6 @@ export function useDrawEllipse(
 
     function handleMouseMove(e: MouseEvent) {
       if (!isDrawing.current) return;
-
       const { x, y } = pos(e);
 
       const shape: Extract<CanvasShape, { type: "ellipse" }> = {
@@ -76,5 +74,5 @@ export function useDrawEllipse(
       canvas.removeEventListener("mousemove", handleMouseMove);
       canvas.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [enabled, canvasRef, onCommit, onPreview]);
+  }, [enabled, canvasRef, onCommit, onPreview, getWorldPoint]);
 }

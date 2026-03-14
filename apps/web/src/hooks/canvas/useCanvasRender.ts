@@ -4,6 +4,7 @@ import { renderShapes } from "@/lib/canvas";
 import { ToolType } from "@/types/tool";
 import { selection } from "@/lib/canvas/selection";
 import type { CanvasTheme } from "@/lib/canvas/theme";
+import type { CanvasTransform } from "./useCanvasZoom";
 
 export function useCanvasRender(
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
@@ -12,26 +13,35 @@ export function useCanvasRender(
   previewShape: CanvasShape | null,
   tool: ToolType | null,
   selectedIds: Set<string>,
-  theme: CanvasTheme
+  theme: CanvasTheme,
+  transform: CanvasTransform
 ) {
   useEffect(() => {
     if (!canvasRef.current || !ctxRef.current) return;
 
     const canvas = canvasRef.current;
     const ctx = ctxRef.current;
+    const { scale, panX, panY } = transform;
 
-    // 1️⃣ Render shapes + preview (clears and fills background with theme)
-    renderShapes(shapes, ctx, canvas, previewShape, theme);
+    ctx.save();
 
-    // 2️⃣ Render selection overlay (theme ring color)
+    ctx.fillStyle = theme.background;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.translate(panX, panY);
+    ctx.scale(scale, scale);
+
+    renderShapes(shapes, ctx, canvas, previewShape, theme, { skipClear: true });
+
     if (selectedIds.size > 0) {
       const selectedShapes = shapes.filter((s) => s.id && selectedIds.has(s.id));
       const bounds = selection.getBounds(selectedShapes);
-
       if (bounds) {
         selection.renderBounds(ctx, bounds, theme);
         selection.renderHandles(ctx, bounds, theme);
       }
     }
-  }, [shapes, previewShape, selectedIds, canvasRef, ctxRef, theme]);
+
+    ctx.restore();
+  }, [shapes, previewShape, selectedIds, canvasRef, ctxRef, theme, transform]);
 }
