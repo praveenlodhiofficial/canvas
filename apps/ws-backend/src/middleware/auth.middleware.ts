@@ -1,6 +1,7 @@
 import { prisma } from "@repo/database";
 import type { AuthenticatedRequest } from "@repo/shared/types";
 
+import { config } from "../lib/config";
 import { authenticateRequest } from "../utils/authenticateRequest";
 
 export type WsAuthResult =
@@ -11,6 +12,8 @@ export async function authMiddleware(req: Request): Promise<WsAuthResult> {
   const payload = authenticateRequest(req);
 
   if (!payload) {
+    if (config.nodeEnv === "development")
+      console.warn("[WS] Auth: unauthorized (no/invalid token)");
     return {
       ok: false,
       response: Response.json({ message: "Unauthorized" }, { status: 401 }),
@@ -24,6 +27,8 @@ export async function authMiddleware(req: Request): Promise<WsAuthResult> {
   });
 
   if (!user) {
+    if (config.nodeEnv === "development")
+      console.warn("[WS] Auth: session expired (user not in DB)");
     return {
       ok: false,
       response: Response.json({ message: "Session expired" }, { status: 401 }),

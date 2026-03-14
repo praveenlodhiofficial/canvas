@@ -68,12 +68,12 @@ This starts:
 
 - **Web:** [http://localhost:3000](http://localhost:3000)
 - **HTTP API:** [http://localhost:3001](http://localhost:3001)
-- **WebSocket server:** [ws://localhost:3002](ws://localhost:3002)
+- **WebSocket server:** [ws://localhost:8080](ws://localhost:8080)
 
 Optional env for the web app (e.g. in `apps/web/.env.local`):
 
 - `HTTP_BACKEND_URL` — default `http://localhost:3001`
-- `WEBSOCKET_BACKEND_URL` — default `ws://localhost:3002`
+- `WEBSOCKET_BACKEND_URL` — default `ws://localhost:8080`
 
 ### 5. Run a single app
 

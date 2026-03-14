@@ -1,6 +1,7 @@
 import { prisma, ShapeType } from "@repo/database";
 import { CanvasShape } from "@repo/shared/types";
 
+import { config } from "../lib/config";
 import { RoomState } from "../rooms/room.state";
 import { mapCanvasShapeToDbType } from "./shapeType.mapper";
 
@@ -40,10 +41,6 @@ function shapeToDbRow(shape: CanvasShape, roomId: string) {
 export async function snapshotRoom(room: RoomState) {
   const shapes = Array.from(room.shapes.values());
 
-  console.log(
-    `[SNAPSHOT] Shapes to save: ${shapes.length} || room: ${room.roomId}`
-  );
-
   await prisma.shape.deleteMany({
     where: { roomId: room.roomId },
   });
@@ -55,7 +52,9 @@ export async function snapshotRoom(room: RoomState) {
     await prisma.shape.createMany({ data: rows });
   }
 
-  console.log(
-    `[SNAPSHOT] Snapshot saved: ${shapes.length} shapes || room: ${room.roomId}`
-  );
+  if (config.nodeEnv === "development") {
+    console.log(
+      `[SNAPSHOT] Saved ${shapes.length} shapes for room: ${room.roomId}`
+    );
+  }
 }

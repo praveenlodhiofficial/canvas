@@ -1,10 +1,11 @@
 import { prisma } from "@repo/database";
 
 import { Router } from "@/core/router";
+import { config } from "@/lib/config";
 import { authMiddleware } from "@/middleware/auth.middleware";
 
 export function registerRoomMemberRoutes(router: Router) {
-  // --------------------------------------------> FIND ROOM MEMBERS <--------------------------------------------
+  /* ====================================== FIND ROOM MEMBERS ====================================== */
 
   router.get("/api/v1/room-members/:roomId", async (req, { roomId }) => {
     try {
@@ -44,7 +45,8 @@ export function registerRoomMemberRoutes(router: Router) {
         { status: 200 }
       );
     } catch (error) {
-      console.error("Error finding room members:", error);
+      if (config.nodeEnv === "development")
+        console.error("Error finding room members:", error);
 
       return Response.json(
         { message: "Internal server error" },

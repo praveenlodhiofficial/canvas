@@ -5,6 +5,7 @@ import { RoomSchema } from "@repo/shared/schema";
 import type { AuthenticatedRequest } from "@repo/shared/types";
 
 import { Router } from "@/core/router";
+import { config } from "@/lib/config";
 import { authMiddleware } from "@/middleware/auth.middleware";
 import { roomAccessWhere } from "@/utils/permissions/room-access";
 
@@ -85,7 +86,8 @@ export function registerRoomRoutes(router: Router) {
         { status: 201 }
       );
     } catch (error) {
-      console.error("Error creating room:", error);
+      if (config.nodeEnv === "development")
+        console.error("Error creating room:", error);
       return Response.json(
         { message: "Internal server error" },
         { status: 500 }
@@ -164,7 +166,8 @@ export function registerRoomRoutes(router: Router) {
         { status: 200 }
       );
     } catch (error) {
-      console.error("Error updating room:", error);
+      if (config.nodeEnv === "development")
+        console.error("Error updating room:", error);
       return Response.json(
         { message: "Internal server error" },
         { status: 500 }
@@ -210,7 +213,8 @@ export function registerRoomRoutes(router: Router) {
         { status: 200 }
       );
     } catch (error) {
-      console.error("Error deleting room:", error);
+      if (config.nodeEnv === "development")
+        console.error("Error deleting room:", error);
       return Response.json(
         { message: "Internal server error" },
         { status: 500 }
@@ -236,7 +240,8 @@ export function registerRoomRoutes(router: Router) {
         { status: 200 }
       );
     } catch (error) {
-      console.error("Error deleting all rooms:", error);
+      if (config.nodeEnv === "development")
+        console.error("Error deleting all rooms:", error);
       return Response.json(
         { message: "Internal server error" },
         { status: 500 }
@@ -296,7 +301,8 @@ export function registerRoomRoutes(router: Router) {
         { status: 200 }
       );
     } catch (error) {
-      console.error("Error fetching rooms:", error);
+      if (config.nodeEnv === "development")
+        console.error("Error fetching rooms:", error);
       return Response.json(
         { message: "Internal server error" },
         { status: 500 }
@@ -340,7 +346,8 @@ export function registerRoomRoutes(router: Router) {
         { status: 200 }
       );
     } catch (error) {
-      console.error("Error fetching member rooms:", error);
+      if (config.nodeEnv === "development")
+        console.error("Error fetching member rooms:", error);
       return Response.json(
         { message: "Internal server error" },
         { status: 500 }
@@ -399,7 +406,8 @@ export function registerRoomRoutes(router: Router) {
         { status: 200 }
       );
     } catch (error) {
-      console.error("Error fetching room:", error);
+      if (config.nodeEnv === "development")
+        console.error("Error fetching room:", error);
       return Response.json(
         { message: "Internal server error" },
         { status: 500 }
@@ -486,7 +494,8 @@ export function registerRoomRoutes(router: Router) {
         { status: 200 }
       );
     } catch (error) {
-      console.error("Error renaming room:", error);
+      if (config.nodeEnv === "development")
+        console.error("Error renaming room:", error);
       return Response.json(
         { message: "Internal server error" },
         { status: 500 }
@@ -546,7 +555,8 @@ export function registerRoomRoutes(router: Router) {
         { status: 200 }
       );
     } catch (error) {
-      console.error("Error sharing room:", error);
+      if (config.nodeEnv === "development")
+        console.error("Error sharing room:", error);
       return Response.json(
         { message: "Internal server error" },
         { status: 500 }
@@ -638,7 +648,8 @@ export function registerRoomRoutes(router: Router) {
         { status: 201 }
       );
     } catch (error) {
-      console.error("Error joining room:", error);
+      if (config.nodeEnv === "development")
+        console.error("Error joining room:", error);
       return Response.json(
         { message: "Internal server error" },
         { status: 500 }

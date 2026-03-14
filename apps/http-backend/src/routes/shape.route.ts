@@ -5,6 +5,7 @@ import { CreateShapeSchema } from "@repo/shared/schema";
 import { AuthenticatedRequest } from "@repo/shared/types";
 
 import { Router } from "@/core/router";
+import { config } from "@/lib/config";
 import { authMiddleware } from "@/middleware/auth.middleware";
 import { roomAccessWhere } from "@/utils/permissions/room-access";
 
@@ -66,7 +67,8 @@ export function registerShapeRoutes(router: Router) {
         { status: 201 }
       );
     } catch (error) {
-      console.error("Error saving shape:", error);
+      if (config.nodeEnv === "development")
+        console.error("Error saving shape:", error);
       return Response.json(
         { message: "Internal server error" },
         { status: 500 }
@@ -127,7 +129,8 @@ export function registerShapeRoutes(router: Router) {
         { status: 200 }
       );
     } catch (error) {
-      console.error("Error getting shapes:", error);
+      if (config.nodeEnv === "development")
+        console.error("Error getting shapes:", error);
       return Response.json(
         { message: "Internal server error" },
         { status: 500 }

@@ -25,12 +25,18 @@ const server = Bun.serve<WsData>({
     }
 
     const auth = await authMiddleware(req);
-    if (!auth.ok) return auth.response;
+    if (!auth.ok) {
+      if (config.nodeEnv === "development")
+        console.warn("[WS] Connection rejected: auth failed");
+      return auth.response;
+    }
 
     const url = new URL(req.url);
     const roomId = url.searchParams.get("room");
 
     if (!roomId) {
+      if (config.nodeEnv === "development")
+        console.warn("[WS] Connection rejected: room query missing");
       return new Response("Room is required", { status: 400 });
     }
 
@@ -40,6 +46,8 @@ const server = Bun.serve<WsData>({
     });
 
     if (!room) {
+      if (config.nodeEnv === "development")
+        console.warn("[WS] Connection rejected: room not found", roomId);
       return new Response("Room not found", { status: 404 });
     }
 
@@ -51,6 +59,8 @@ const server = Bun.serve<WsData>({
     });
 
     if (success) return;
+    if (config.nodeEnv === "development")
+      console.warn("[WS] Connection rejected: upgrade failed");
     return new Response("Upgrade failed", { status: 500 });
   },
 
@@ -67,6 +77,14 @@ const server = Bun.serve<WsData>({
 
       // Join room + get initial snapshot
       const shapes = await joinRoom(roomId, userId);
+      if (shapes === null && config.nodeEnv === "development") {
+        console.warn(
+          "[WS] joinRoom returned null for room:",
+          roomId,
+          "user:",
+          userId
+        );
+      }
 
       ws.send(
         JSON.stringify({
@@ -82,7 +100,8 @@ const server = Bun.serve<WsData>({
       try {
         msg = JSON.parse(rawMessage.toString());
       } catch {
-        console.warn("[WS] Invalid message");
+        if (config.nodeEnv === "development")
+          console.warn("[WS] Invalid message");
         return;
       }
 
@@ -149,7 +168,14 @@ const server = Bun.serve<WsData>({
       const userId = ws.data.user.id;
 
       const room = await leaveRoom(roomId, userId);
-      if (!room) return;
+      if (!room) {
+        if (config.nodeEnv === "development")
+          console.warn("[WS] leaveRoom returned null, skipping snapshot", {
+            roomId,
+            userId,
+          });
+        return;
+      }
 
       // Take a snapshot of the room before disconnecting
       await snapshotRoom(room);
@@ -162,4 +188,6 @@ const server = Bun.serve<WsData>({
 /* ---------------- REGISTER BUN SERVER FOR BROADCAST HELPER ---------------- */
 registerServer(server);
 
-console.log(`[WS] WebSocket server running on ${server.url}`);
+if (config.nodeEnv === "development") {
+  console.log(`[WS] WebSocket server running on ${server.url}`);
+}

@@ -1,0 +1,25 @@
+# Dependencies and build outputs (reinstalled in image)
+node_modules
+**/node_modules
+**/dist
+**/.next
+**/.turbo
+
+# Git and IDE
+.git
+.gitignore
+.cursor
+.vscode
+*.log
+
+# Env (Railway injects at runtime)
+.env
+.env.*
+!.env.example
+
+# Tests and docs (not needed for ws-backend runtime)
+**/*.test.ts
+**/*.spec.ts
+**/__tests__
+README.md
+*.md

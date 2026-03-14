@@ -1,16 +1,14 @@
-const ALLOWED_ORIGIN = "http://localhost:3000";
+import { config } from "@/lib/config";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
-  "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
-
-  // TODO: NOT using Authorization header anymore (cookies instead). remove Authorization header later.
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  "Access-Control-Allow-Origin": config.corsOrigin,
+  "Access-Control-Allow-Methods": "GET,POST,PUT,PATCH,DELETE,OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, Accept, Origin",
   "Access-Control-Allow-Credentials": "true",
+  Vary: "Origin",
 };
 
 export async function corsMiddleware(req: Request): Promise<Response | null> {
-  // Preflight request
   if (req.method === "OPTIONS") {
     return new Response(null, {
       status: 204,
@@ -18,7 +16,6 @@ export async function corsMiddleware(req: Request): Promise<Response | null> {
     });
   }
 
-  // Let request continue, but headers will be added later
   return null;
 }
 

@@ -21,7 +21,7 @@ export function useRoomWebSocket(
   onRoomInitRef.current = options?.onRoomInit;
 
   useEffect(() => {
-    const ws = new WebSocket(`${config.websocketUrl}?room=${roomId}`);
+    const ws = new WebSocket(`${config.wsUrl}?room=${roomId}`);
     wsRef.current = ws;
 
     ws.onopen = () => setStatus("connected");

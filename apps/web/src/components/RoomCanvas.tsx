@@ -335,11 +335,21 @@ export default function RoomCanvas({
 
       {/* Connection overlay */}
       {status !== "connected" && (
-        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/10 backdrop-blur-sm">
-          <p className="text-sm font-medium">
-            {status === "connecting"
-              ? "Connecting to room…"
-              : "Connection failed"}
+        <div
+          className="absolute inset-0 z-20 flex items-center justify-center backdrop-blur-sm"
+          style={{
+            backgroundColor:
+              status === "connecting"
+                ? "rgba(0, 0, 0, 0.05)"
+                : "rgba(255, 0, 0, 0.05)",
+          }}
+        >
+          <p className="font-medium">
+            {status === "connecting" ? (
+              <span className="text-primary">Connecting to room…</span>
+            ) : (
+              <span className="text-destructive">Connection failed</span>
+            )}
           </p>
         </div>
       )}

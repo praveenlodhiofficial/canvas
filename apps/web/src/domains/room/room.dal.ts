@@ -5,7 +5,7 @@ import { config } from "@/lib/config";
 
 import { CreateRoomResult, UpdateRoomResult } from "./room.types";
 
-// --------------------------------------------> CREATE ROOM <--------------------------------------------
+/* ====================================== CREATE ROOM ====================================== */
 export const createRoom = async (
   room: Pick<RoomInput, "name" | "description" | "visibility">
 ): Promise<CreateRoomResult> => {
@@ -13,7 +13,7 @@ export const createRoom = async (
     const data = await authFetch<{
       message: string;
       room: Room;
-    }>(`${config.backendUrl}/api/v1/rooms`, {
+    }>(`${config.httpUrl}/api/v1/rooms`, {
       method: "POST",
       body: JSON.stringify(room),
     });
@@ -29,7 +29,7 @@ export const createRoom = async (
   }
 };
 
-// --------------------------------------------> CREATE ROOM <--------------------------------------------
+/* ====================================== UPDATE ROOM ====================================== */
 export const updateRoom = async (
   id: string,
   room: Pick<RoomInput, "name" | "description" | "visibility">
@@ -38,7 +38,7 @@ export const updateRoom = async (
     const data = await authFetch<{
       success: boolean;
       message: string;
-    }>(`${config.backendUrl}/api/v1/rooms/${id}`, {
+    }>(`${config.httpUrl}/api/v1/rooms/${id}`, {
       method: "PUT",
       body: JSON.stringify(room),
     });
@@ -52,23 +52,23 @@ export const updateRoom = async (
   }
 };
 
-// --------------------------------------------> GET ALL ROOMS <--------------------------------------------
+/* ====================================== GET ALL ROOMS ====================================== */
 export const getAllRooms = async (): Promise<Room[]> => {
   const data = await authFetch<{
     message: string;
     rooms: Room[];
-  }>(`${config.backendUrl}/api/v1/rooms`);
+  }>(`${config.httpUrl}/api/v1/rooms`);
 
   return data.rooms;
 };
 
-// --------------------------------------------> GET ROOM BY ID <--------------------------------------------
+/* ====================================== GET ROOM BY ID ====================================== */
 export const getRoomById = async (id: string): Promise<Room | null> => {
   try {
     const data = await authFetch<{
       message: string;
       room: Room;
-    }>(`${config.backendUrl}/api/v1/rooms/${id}`);
+    }>(`${config.httpUrl}/api/v1/rooms/${id}`);
 
     return data.room;
   } catch (error) {
@@ -77,7 +77,7 @@ export const getRoomById = async (id: string): Promise<Room | null> => {
   }
 };
 
-// --------------------------------------------> DELETE ROOM <--------------------------------------------
+/* ====================================== DELETE ROOM ====================================== */
 export const deleteRoom = async (
   id: RoomInput["id"]
 ): Promise<
@@ -86,7 +86,7 @@ export const deleteRoom = async (
   try {
     const data = await authFetch<{
       message: string;
-    }>(`${config.backendUrl}/api/v1/rooms/${id}`, {
+    }>(`${config.httpUrl}/api/v1/rooms/${id}`, {
       method: "DELETE",
     });
 
@@ -97,7 +97,7 @@ export const deleteRoom = async (
   }
 };
 
-// --------------------------------------------> RENAME ROOM <--------------------------------------------
+/* ====================================== RENAME ROOM ====================================== */
 export const renameRoom = async (
   room: Pick<RoomInput, "id" | "name">
 ): Promise<
@@ -109,7 +109,7 @@ export const renameRoom = async (
       message: string;
       name: string;
       previousName: string;
-    }>(`${config.backendUrl}/api/v1/rooms/${room.id}/rename`, {
+    }>(`${config.httpUrl}/api/v1/rooms/${room.id}/rename`, {
       method: "POST",
       body: JSON.stringify(room),
     });
@@ -126,7 +126,7 @@ export const renameRoom = async (
   }
 };
 
-// --------------------------------------------> SHARE ROOM <--------------------------------------------
+/* ====================================== SHARE ROOM ====================================== */
 export const shareRoom = async (
   roomId: string
 ): Promise<
@@ -137,7 +137,7 @@ export const shareRoom = async (
     const data = await authFetch<{
       message: string;
       room: Room;
-    }>(`${config.backendUrl}/api/v1/rooms/${roomId}/share`, {
+    }>(`${config.httpUrl}/api/v1/rooms/${roomId}/share`, {
       method: "POST",
     });
 
@@ -152,7 +152,7 @@ export const shareRoom = async (
   }
 };
 
-// --------------------------------------------> JOIN ROOM <--------------------------------------------
+/* ====================================== JOIN ROOM ====================================== */
 export const joinRoom = async (
   roomId: string
 ): Promise<
@@ -164,7 +164,7 @@ export const joinRoom = async (
       message: string;
       member: RoomMember;
       roomId: string;
-    }>(`${config.backendUrl}/api/v1/rooms/${roomId}/join`, {
+    }>(`${config.httpUrl}/api/v1/rooms/${roomId}/join`, {
       method: "POST",
     });
 
@@ -179,7 +179,7 @@ export const joinRoom = async (
   }
 };
 
-// --------------------------------------------> FETCH MEMBER'S ROOMS <--------------------------------------------
+/* ====================================== FETCH MEMBER'S ROOMS ====================================== */
 export const getMemberRooms = async (): Promise<{
   rooms: Room[];
   message: string;
@@ -188,7 +188,7 @@ export const getMemberRooms = async (): Promise<{
     const data = await authFetch<{
       message: string;
       rooms: Room[];
-    }>(`${config.backendUrl}/api/v1/rooms/member`);
+    }>(`${config.httpUrl}/api/v1/rooms/member`);
 
     return { rooms: data.rooms, message: data.message };
   } catch {

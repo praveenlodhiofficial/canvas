@@ -25,7 +25,7 @@ export const getAllShapes = cache(async (roomId: string): Promise<Shape[]> => {
   if (!roomId) return [];
 
   const data = await authFetch<GetAllShapesResponse>(
-    `${config.backendUrl}/api/v1/rooms/${roomId}/shapes`
+    `${config.httpUrl}/api/v1/rooms/${roomId}/shapes`
   );
 
   if (!data || !Array.isArray(data.shapes)) {

@@ -39,7 +39,7 @@ export default function SignUpPage() {
   });
 
   async function onSubmit(data: SignUpInput) {
-    const response = await fetch(`${config.backendUrl}/api/v1/signup`, {
+    const response = await fetch(`${config.httpUrl}/api/v1/signup`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",

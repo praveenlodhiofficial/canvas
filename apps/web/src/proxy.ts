@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { config as appConfig } from "@/lib/config";
 
-const BACKEND_URL = appConfig.backendUrl;
+const BACKEND_URL = appConfig.httpUrl;
 
 const AUTH_PAGES = ["/sign-in", "/sign-up"];
 const PROTECTED_PAGES = ["/dashboard", "/rooms"];

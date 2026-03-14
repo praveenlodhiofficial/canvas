@@ -1,7 +1,9 @@
 {
   "name": "@repo/database",
-  "module": "index.ts",
   "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "scripts": {
     "build": "bun run db:generate",
     "check-types": "tsc --noEmit",
@@ -12,24 +14,20 @@
     "db:push": "prisma db push && prisma generate",
     "db:reset": "prisma migrate reset --force"
   },
-  "exports": {
-    ".": "./src/index.ts"
-  },
   "private": true,
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
     "@types/bun": "latest"
   },
   "peerDependencies": {
-    "typescript": "^5"
+    "typescript": "^5",
+    "prisma": "^7.5.0",
+    "@types/pg": "^8.15.6"
   },
   "dependencies": {
-    "@repo/shared": "workspace:*",
-    "@prisma/adapter-pg": "^7.1.0",
-    "@prisma/client": "^7.1.0",
-    "@types/pg": "^8.15.6",
+    "@prisma/adapter-pg": "^7.5.0",
+    "@prisma/client": "^7.5.0",
     "dotenv": "^17.2.3",
-    "pg": "^8.16.3",
-    "prisma": "^7.1.0"
+    "pg": "^8.16.3"
   }
 }

@@ -1,23 +1,21 @@
 import { z } from "zod";
 
 import { prisma } from "@repo/database";
-import { config } from "@repo/shared";
 import { SignInSchema, SignUpSchema } from "@repo/shared/schema";
 import { AuthenticatedRequest } from "@repo/shared/types";
 import { signJWT } from "@repo/shared/utils";
 
 import { Router } from "@/core/router";
+import { config } from "@/lib/config";
 import { authMiddleware } from "@/middleware/auth.middleware";
 
 export function registerAuthRoutes(router: Router) {
-  // --------------------------------------------> SIGN UP ROUTE <--------------------------------------------
+  /* ====================================== SIGN UP ROUTE ====================================== */
 
   router.post("/api/v1/signup", async (req) => {
     try {
       const body = await req.json();
       const parsed = SignUpSchema.safeParse(body);
-
-      console.log("databaseUrl:", config.env.databaseUrl);
 
       if (!parsed.success) {
         const errors = z.treeifyError(parsed.error);
@@ -59,7 +57,8 @@ export function registerAuthRoutes(router: Router) {
         { status: 201 }
       );
     } catch (error) {
-      console.error("Error during signup:", error);
+      if (config.nodeEnv === "development")
+        console.error("Error during signup:", error);
       return Response.json(
         { message: "Internal server error" },
         { status: 500 }
@@ -67,53 +66,8 @@ export function registerAuthRoutes(router: Router) {
     }
   });
 
-  // --------------------------------------------> SIGN IN ROUTE <--------------------------------------------
+  /* ====================================== SIGN IN ROUTE ====================================== */
 
-  // nextjs managing cookies for us
-  // router.post("/api/v1/signin", async (req) => {
-  //   const body = await req.json();
-  //   const parsed = SignInSchema.safeParse(body);
-
-  //   if (!parsed.success) {
-  //     return Response.json({ message: "Invalid input" }, { status: 400 });
-  //   }
-
-  //   const user = await prisma.user.findUnique({
-  //     where: { email: parsed.data.email },
-  //   });
-
-  //   if (!user) {
-  //     return Response.json({ message: "Invalid credentials" }, { status: 401 });
-  //   }
-
-  //   const valid = await Bun.password.verify(
-  //     parsed.data.password,
-  //     user.password,
-  //   );
-
-  //   if (!valid) {
-  //     return Response.json({ message: "Invalid credentials" }, { status: 401 });
-  //   }
-
-  //   const token = await signJWT({
-  //     id: user.id,
-  //     email: user.email,
-  //   });
-
-  //   return Response.json(
-  //     {
-  //       token,
-  //       user: {
-  //         id: user.id,
-  //         email: user.email,
-  //         name: user.name,
-  //       },
-  //     },
-  //     { status: 200 },
-  //   );
-  // });
-
-  // http backend managing cookies for us
   router.post("/api/v1/signin", async (req) => {
     const body = await req.json();
     const parsed = SignInSchema.safeParse(body);
@@ -169,13 +123,13 @@ export function registerAuthRoutes(router: Router) {
     );
   });
 
-  // --------------------------------------------> LOGOUT ROUTE <--------------------------------------------
+  /* ====================================== LOGOUT ROUTE ====================================== */
 
   router.post("/api/v1/logout", async () => {
     return Response.json({ success: true });
   });
 
-  // ---------------------------------------> GET USER DETAILS ROUTE <---------------------------------------
+  /* ====================================== GET USER DETAILS ====================================== */
   router.get("/api/v1/me", async (req) => {
     try {
       const authResult = await authMiddleware(req);
@@ -212,7 +166,8 @@ export function registerAuthRoutes(router: Router) {
         { status: 200 }
       );
     } catch (error) {
-      console.error("Error fetching user details:", error);
+      if (config.nodeEnv === "development")
+        console.error("Error fetching user details:", error);
       return Response.json(
         {
           success: false,

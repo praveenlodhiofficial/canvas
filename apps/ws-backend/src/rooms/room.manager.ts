@@ -1,6 +1,7 @@
 import { prisma } from "@repo/database";
 import { CanvasShape } from "@repo/shared/types";
 
+import { config } from "@/lib/config";
 import { mapDbShapeToCanvas } from "@/snapshot/dbShapeToCanvas";
 import { memoryStore } from "@/store/memory.store";
 
@@ -19,7 +20,9 @@ export async function joinRoom(roomId: string, userId: string) {
   });
   if (!roomDetails) return null;
 
-  console.log(`[WS] Joined Room: ${roomDetails.name} || User: ${user.name}`);
+  if (config.nodeEnv === "development") {
+    console.log(`[WS] Joined Room: ${roomDetails.name} || User: ${user.name}`);
+  }
 
   if (!room) {
     room = memoryStore.create(roomId);
@@ -53,7 +56,9 @@ export async function leaveRoom(roomId: string, userId: string) {
   });
   if (!roomDetails) return null;
 
-  console.log(`[WS] Left Room: ${roomDetails.name} || User: ${user.name}`);
+  if (config.nodeEnv === "development") {
+    console.log(`[WS] Left Room: ${roomDetails.name} || User: ${user.name}`);
+  }
 
   room.users.delete(userId);
   return room;

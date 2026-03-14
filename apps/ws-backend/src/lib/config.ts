@@ -1,8 +1,5 @@
 export const config = {
-  port: Number(process.env.PORT) || 3002,
+  port: Number(process.env.PORT) || 8080,
   nodeEnv: process.env.NODE_ENV || "development",
-  databaseUrl:
-    process.env.DATABASE_URL ||
-    "postgresql://postgres:postgres@localhost:5432/postgres",
   snapshotInterval: Number(process.env.SNAPSHOT_INTERVAL) || 30000,
 };

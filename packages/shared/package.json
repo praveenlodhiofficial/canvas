@@ -20,9 +20,6 @@
     },
     "./utils": {
       "import": "./src/utils/index.ts"
-    },
-    "./config": {
-      "import": "./src/utils/index.ts"
     }
   },
   "private": true,
