@@ -4,5 +4,5 @@ export const config = {
   databaseUrl:
     process.env.DATABASE_URL ||
     "postgresql://postgres:postgres@localhost:5432/postgres",
-  snapshotInterval: process.env.SNAPSHOT_INTERVAL || 30000,
+  snapshotInterval: Number(process.env.SNAPSHOT_INTERVAL) || 30000,
 };
