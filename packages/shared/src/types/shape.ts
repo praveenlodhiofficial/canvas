@@ -28,4 +28,10 @@ export type CanvasText = BaseShape & {
   height: number;
 };
 
-export type CanvasShape = CanvasBox | CanvasEllipse | CanvasLine | CanvasText;
+export type CanvasTriangle = BaseShape & {
+  type: "triangle";
+  width: number;
+  height: number;
+};
+
+export type CanvasShape = CanvasBox | CanvasEllipse | CanvasLine | CanvasText | CanvasTriangle;

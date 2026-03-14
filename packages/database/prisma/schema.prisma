@@ -30,6 +30,7 @@ enum ShapeType {
   LINE
   SELECTION
   TEXT
+  TRIANGLE
 }
 
 model User {

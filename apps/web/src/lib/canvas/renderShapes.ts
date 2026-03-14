@@ -13,6 +13,8 @@ function normalizeForRender(shape: CanvasShape): CanvasShape {
       return normalizeShapes.line(shape);
     case "text":
       return normalizeShapes.text(shape);
+    case "triangle":
+      return normalizeShapes.triangle(shape);
     default:
       return shape;
   }
@@ -65,6 +67,14 @@ export function renderShapes(
       ctx.stroke();
     } else if (shape.type === "text") {
       render(ctx, shape);
+    } else if (shape.type === "triangle") {
+      ctx.beginPath();
+      ctx.moveTo(shape.x + shape.width / 2, shape.y);
+      ctx.lineTo(shape.x + shape.width, shape.y + shape.height);
+      ctx.lineTo(shape.x, shape.y + shape.height);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
     } else {
       render(ctx, shape);
     }
@@ -95,6 +105,9 @@ function render(ctx: CanvasRenderingContext2D, shape: CanvasShape) {
       break;
     case "text":
       renderShape.text(ctx, shape);
+      break;
+    case "triangle":
+      renderShape.triangle(ctx, shape);
       break;
   }
 }

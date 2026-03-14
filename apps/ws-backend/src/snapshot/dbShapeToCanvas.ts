@@ -37,5 +37,8 @@ export function mapDbShapeToCanvas(shape: DbShape): CanvasShape {
   if (type === "line" && shape.points != null && Array.isArray(shape.points)) {
     return { ...base, type: "line", points: shape.points as { x: number; y: number }[] };
   }
+  if (type === "triangle" && shape.width != null && shape.height != null) {
+    return { ...base, type: "triangle", width: shape.width, height: shape.height };
+  }
   return { ...base, type: type ?? "box", width: shape.width ?? 0, height: shape.height ?? 0 } as CanvasShape;
 }

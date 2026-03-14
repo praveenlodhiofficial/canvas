@@ -14,5 +14,8 @@ export function mapCanvasShapeToDbType(shape: CanvasShape): ShapeType {
 
     case "text":
       return ShapeType.TEXT;
+
+    case "triangle":
+      return ShapeType.TRIANGLE;
   }
 }

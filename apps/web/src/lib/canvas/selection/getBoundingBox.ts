@@ -20,6 +20,7 @@ export function getBoundingBox(shape: CanvasShape) {
       });
 
     case "text":
+    case "triangle":
       return normalize({
         x: shape.x,
         y: shape.y,

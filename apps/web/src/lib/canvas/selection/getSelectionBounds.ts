@@ -32,6 +32,9 @@ export function getSelectionBounds(
         case "text":
           return normalizeShapes.text(s);
 
+        case "triangle":
+          return normalizeShapes.triangle(s);
+
         default:
           return assertNever(s);
       }
