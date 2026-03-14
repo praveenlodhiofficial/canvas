@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "bun run db:generate",
+    "check-types": "tsc --noEmit",
     "db:generate": "prisma generate",
     "db:studio": "prisma studio",
     "db:migrate": "prisma migrate dev",
