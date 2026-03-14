@@ -192,10 +192,13 @@ export default function RoomCanvas({
     tool,
     canvasRef,
     (shape: CanvasShape) => {
+      setPreview(null);
       setShapes((prev) => new Map(prev).set(shape.id, shape));
       wsRef.current?.send(
         JSON.stringify({ type: "shape:add", payload: shape })
       );
+      setSelectedIds(new Set([shape.id]));
+      setTool("selection");
     },
     setPreview,
     getTextFromUser,
@@ -217,6 +220,10 @@ export default function RoomCanvas({
 
   useEffect(() => {
     if (tool !== "eraser") setPendingEraseIds(new Set());
+  }, [tool]);
+
+  useEffect(() => {
+    if (tool === "selection" || tool === "eraser") setPreview(null);
   }, [tool]);
 
   /* ======================== ERASER ======================== */

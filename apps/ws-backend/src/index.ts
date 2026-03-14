@@ -143,7 +143,7 @@ const server = Bun.serve<WsData>({
       if (msg.type === "shape:add") {
         const shape = {
           ...msg.payload,
-          id: crypto.randomUUID(),
+          id: msg.payload.id ?? crypto.randomUUID(),
         };
     
         applyShape(roomId, shape);

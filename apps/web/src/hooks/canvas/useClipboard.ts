@@ -7,6 +7,7 @@ function cloneShapeForPaste(shape: CanvasShape, dx: number, dy: number): CanvasS
     id: crypto.randomUUID(),
     x: shape.x + dx,
     y: shape.y + dy,
+    rotation: (shape as { rotation?: number }).rotation ?? 0,
   };
   switch (shape.type) {
     case "box":

@@ -85,12 +85,13 @@ model Shape {
   id   String     @id @default(uuid())
   type ShapeType?
 
-  x      Float
-  y      Float
-  width  Float?
-  height Float?
-  points Json? // for freehand / pencil / line
-  text   String?  // for text shape content
+  x        Float
+  y        Float
+  width    Float?
+  height   Float?
+  points   Json?   // for freehand / pencil / line
+  text     String? // for text shape content
+  rotation Float?  @default(0) // degrees, applied around shape center
 
   roomId String
   room   Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)

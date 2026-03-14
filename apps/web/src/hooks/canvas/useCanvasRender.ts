@@ -39,10 +39,9 @@ export function useCanvasRender(
 
     if (selectedIds.size > 0) {
       const selectedShapes = shapes.filter((s) => s.id && selectedIds.has(s.id));
-      const bounds = selection.getBounds(selectedShapes);
-      if (bounds) {
-        selection.renderBounds(ctx, bounds, theme);
-        selection.renderHandles(ctx, bounds, theme);
+      for (const shape of selectedShapes) {
+        selection.renderBoundsForShape(ctx, shape, theme);
+        selection.renderHandlesForShape(ctx, shape, theme);
       }
     }
 

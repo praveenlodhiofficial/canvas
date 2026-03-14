@@ -2,6 +2,8 @@ export type BaseShape = {
   id: string;
   x: number;
   y: number;
+  /** Rotation in degrees (0–360), applied around the shape's center. Default 0. */
+  rotation?: number;
 };
 
 export type CanvasBox = BaseShape & {

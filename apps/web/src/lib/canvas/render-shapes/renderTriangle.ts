@@ -1,12 +1,11 @@
 import { CanvasShape } from "@repo/shared/types";
+import { applyRotation } from "@/lib/canvas/applyRotation";
 
-/**
- * Draws a triangle from bounding box: top-center, bottom-right, bottom-left.
- */
 export function renderTriangle(
   ctx: CanvasRenderingContext2D,
   shape: Extract<CanvasShape, { type: "triangle" }>
 ) {
+  const didApply = applyRotation(ctx, shape);
   const { x, y, width, height } = shape;
   ctx.beginPath();
   ctx.moveTo(x + width / 2, y);
@@ -14,4 +13,5 @@ export function renderTriangle(
   ctx.lineTo(x, y + height);
   ctx.closePath();
   ctx.stroke();
+  if (didApply) ctx.restore();
 }

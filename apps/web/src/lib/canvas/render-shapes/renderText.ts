@@ -1,4 +1,5 @@
 import { CanvasShape } from "@repo/shared/types";
+import { applyRotation } from "@/lib/canvas/applyRotation";
 
 const FONT = "14px sans-serif";
 
@@ -6,6 +7,7 @@ export function renderText(
   ctx: CanvasRenderingContext2D,
   shape: Extract<CanvasShape, { type: "text" }>
 ) {
+  const didApply = applyRotation(ctx, shape);
   ctx.font = FONT;
   ctx.textBaseline = "top";
   const lines = shape.text.split("\n");
@@ -16,4 +18,5 @@ export function renderText(
     ctx.fillText(line, shape.x + padding, y);
     y += lineHeight;
   }
+  if (didApply) ctx.restore();
 }
