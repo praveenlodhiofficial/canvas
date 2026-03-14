@@ -133,8 +133,23 @@
   }
 }
 
-/* Hand-drawn style utility */
-.sketch-border {
-  border: 2px solid currentColor;
-  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+/* ========================= HIDE SCROLLBAR BUT KEEP SCROLL WORKING ========================= */
+
+html,
+body {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
