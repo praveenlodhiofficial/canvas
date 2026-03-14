@@ -14,6 +14,9 @@
     "@repo/typescript-config": "workspace:*",
     "@types/bun": "latest"
   },
+  "engines": {
+    "node": ">=22"
+  },
   "peerDependencies": {
     "typescript": "^5"
   },

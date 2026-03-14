@@ -19,9 +19,9 @@ const server = Bun.serve<WsData>({
   port: config.port,
 
   async fetch(req, server) {
-    /* ---------------- ONLY WS UPGRADES ---------------- */
+    // Railway health check: respond to plain HTTP (non-WebSocket) requests
     if (req.headers.get("upgrade")?.toLowerCase() !== "websocket") {
-      return new Response("WS Backend Running", { status: 200 });
+      return new Response("WebSocket server running", { status: 200 });
     }
 
     const auth = await authMiddleware(req);
@@ -50,10 +50,8 @@ const server = Bun.serve<WsData>({
       },
     });
 
-    if (success)
-      return new Response("WebSocket upgrade successful", { status: 200 });
-
-    return new Response("Failed to upgrade to WebSocket", { status: 500 });
+    if (success) return;
+    return new Response("Upgrade failed", { status: 500 });
   },
 
   websocket: {
@@ -77,57 +75,6 @@ const server = Bun.serve<WsData>({
         })
       );
     },
-
-    /* ---------------- MESSAGE (canvas delta) ---------------- */
-    // message: async (ws, rawMessage) => {
-    //   let msg: ClientMessage;
-
-    //   try {
-    //     msg = JSON.parse(rawMessage.toString());
-    //   } catch {
-    //     console.warn("[WS] Invalid message received");
-    //     return;
-    //   }
-
-    //   const roomId = ws.data.room;
-
-    //   // TODO: Implement shape update later
-    //   if (msg.type === "shape:add") {
-    //     const shape = {
-    //       ...msg.payload,
-    //       id: crypto.randomUUID(),
-    //     };
-
-    //     applyShape(roomId, shape);
-    //     broadcastToRoom(roomId, { type: "shape:broadcast", payload: shape });
-    //   }
-
-    //   if (msg.type === "shape:delete") {
-    //     const ids: string[] = msg.payload;
-    //     const roomId = ws.data.room;
-
-    //     const room = memoryStore.get(roomId);
-    //     if (!room) return;
-
-    //     // 🔥 remove from memory
-    //     ids.forEach((id) => room.shapes.delete(id));
-    //     room.lastUpdated = Date.now();
-
-    //     // 🔥 remove from DB
-    //     await prisma.shape.deleteMany({
-    //       where: {
-    //         id: { in: ids },
-    //         roomId,
-    //       },
-    //     });
-
-    //     // 🔥 broadcast delete to others
-    //     broadcastToRoom(roomId, {
-    //       type: "shape:delete",
-    //       payload: ids,
-    //     });
-    //   }
-    // },
 
     message: async (ws, rawMessage) => {
       let msg: ClientMessage;
