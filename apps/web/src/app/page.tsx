@@ -29,7 +29,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 
-export default function LandingPage() {
+export default function HomePage() {
   return (
     <div className="bg-background text-foreground min-h-screen antialiased">
       {/* Gradient + grid background */}

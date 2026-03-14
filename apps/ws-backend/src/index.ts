@@ -3,6 +3,7 @@ import type { ServerWebSocket } from "bun";
 import { prisma } from "@repo/database";
 import type { WebSocketData } from "@repo/shared/types";
 
+import { config } from "./lib/config";
 import { authMiddleware } from "./middleware/auth.middleware";
 import { applyShape, joinRoom, leaveRoom } from "./rooms/room.manager";
 import type { ClientMessage } from "./rooms/room.types";
@@ -15,7 +16,7 @@ type WsData = WebSocketData & {
 };
 
 const server = Bun.serve<WsData>({
-  port: 3002,
+  port: config.port,
 
   async fetch(req, server) {
     /* ---------------- ONLY WS UPGRADES ---------------- */

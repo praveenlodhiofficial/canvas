@@ -4,7 +4,9 @@
     "": {
       "name": "canvas",
       "devDependencies": {
+        "@repo/eslint-config": "workspace:*",
         "@trivago/prettier-plugin-sort-imports": "^6.0.2",
+        "eslint": "^9.39.1",
         "husky": "^9.1.7",
         "lint-staged": "^16.3.3",
         "prettier": "^3.8.1",

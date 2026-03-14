@@ -1,10 +1,6 @@
 import { redirect } from "next/navigation";
 
-import type { UserType } from "@repo/shared/schema";
-
 import { getCurrentUserAction } from "@/actions/user.actions";
-import { Header } from "@/components/Header";
-import { UserMenu } from "@/components/UserMenu";
 
 export default async function DashboardLayout({
   children,
@@ -18,20 +14,5 @@ export default async function DashboardLayout({
     redirect("/sign-in");
   }
 
-  const user: UserType = result.user;
-
-  return (
-    // <div className="flex flex-col gap-10 py-5 px-12">
-    //   <div className="sticky top-5 z-5 flex justify-between items-center">
-    //     <UserMenu user={user} />
-    //   </div>
-
-    //   <p className="text-sm text-muted-foreground">
-    //     Welcome, <span className="font-semibold">{user.name}</span>
-    //   </p>
-
-    //   {children}
-    // </div>
-    <div>{children}</div>
-  );
+  return <div>{children}</div>;
 }

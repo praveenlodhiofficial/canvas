@@ -4,6 +4,7 @@ import { corsMiddleware } from "@/middleware/cors.middleware";
 import { registerAuthRoutes } from "@/routes/auth.route";
 import { registerRoomRoutes } from "@/routes/room.route";
 
+import { config } from "./lib/config";
 import { registerRoomMemberRoutes } from "./routes/roomMember.route";
 import { registerShapeRoutes } from "./routes/shape.route";
 
@@ -17,7 +18,7 @@ const app = new App(router);
 app.use(corsMiddleware);
 
 const server = Bun.serve({
-  port: 3001,
+  port: config.port,
   fetch: (req) => app.fetch(req),
 });
 

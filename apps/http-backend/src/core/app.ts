@@ -16,6 +16,10 @@ export class App {
   }
 
   async fetch(req: Request): Promise<Response> {
+    if (req.url.endsWith("/health")) {
+      return new Response("ok");
+    }
+
     for (const mw of this.middlewares) {
       const result = await mw(req);
       if (result) return result; // middleware blocked request
