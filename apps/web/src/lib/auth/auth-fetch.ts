@@ -6,7 +6,7 @@ type AuthFetchOptions = RequestInit & {
 
 export async function authFetch<T>(
   url: string,
-  options: AuthFetchOptions = {},
+  options: AuthFetchOptions = {}
 ): Promise<T> {
   const { forwardCookies = true, ...rest } = options;
 

@@ -1,13 +1,16 @@
-import { CanvasShape } from "@repo/shared/types";
-import { ToolType } from "@/types/tool";
 import { useEffect } from "react";
+
+import { CanvasShape } from "@repo/shared/types";
+
+import { ToolType } from "@/types/tool";
+
 import { drawShape } from "../draw-shapes";
 
 export function useToolController(
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
   tool: ToolType | null,
   onCommit: (shape: CanvasShape) => void,
-  onPreview: (shape: CanvasShape | null) => void,
+  onPreview: (shape: CanvasShape | null) => void
 ) {
   useEffect(() => {
     const canvas = canvasRef.current;

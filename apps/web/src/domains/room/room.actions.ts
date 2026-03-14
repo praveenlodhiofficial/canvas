@@ -1,28 +1,39 @@
 "use server";
 
 import {
+  CreateRoomSchema,
+  DeleteRoomSchema,
+  GetRoomByIdSchema,
+  JoinRoomSchema,
+  RenameRoomSchema,
+  RoomInput,
+  RoomMember,
+  ShareRoomSchema,
+  UpdateRoomSchema,
+} from "@repo/shared/schema";
+
+import {
   createRoom,
   deleteRoom,
   getAllRooms,
+  getMemberRooms,
   getRoomById,
   joinRoom,
-  shareRoom,
   renameRoom,
-  getMemberRooms,
+  shareRoom,
   updateRoom,
 } from "@/domains/room/room.dal";
+
 import {
-  CreateRoomSchema,
-  GetRoomByIdSchema,
-  DeleteRoomSchema,
-  RenameRoomSchema,
-  JoinRoomSchema,
-  ShareRoomSchema,
-  RoomMember,
-  RoomInput,
-  UpdateRoomSchema,
-} from "@repo/shared/schema";
-import { CreateRoomResult, GetAllRoomsResult, GetRoomByIdResult, RenameRoomResult, ShareRoomResult, GetMemberRoomsResult, DeleteRoomResult, UpdateRoomResult } from "./room.types";
+  CreateRoomResult,
+  DeleteRoomResult,
+  GetAllRoomsResult,
+  GetMemberRoomsResult,
+  GetRoomByIdResult,
+  RenameRoomResult,
+  ShareRoomResult,
+  UpdateRoomResult,
+} from "./room.types";
 
 // --------------------------------------------> CREATE ROOM ACTION <--------------------------------------------
 
@@ -57,7 +68,9 @@ export const updateRoomAction = async (
   input: Pick<RoomInput, "name" | "description" | "visibility">
 ): Promise<UpdateRoomResult> => {
   try {
-    const { name, description, visibility } = UpdateRoomSchema.parse(input as Pick<RoomInput, "name" | "description" | "visibility">);
+    const { name, description, visibility } = UpdateRoomSchema.parse(
+      input as Pick<RoomInput, "name" | "description" | "visibility">
+    );
     const result = await updateRoom(id, { name, description, visibility });
 
     if (!result.success) {
@@ -156,13 +169,13 @@ export const getRoomByIdAction = async (
 
 // --------------------------------------------> RENAME ROOM ACTION <--------------------------------------------
 
-
-
 export const renameRoomAction = async (
   input: Pick<RoomInput, "id" | "name">
 ): Promise<RenameRoomResult> => {
   try {
-    const { id, name } = RenameRoomSchema.parse(input as Pick<RoomInput, "id" | "name">);
+    const { id, name } = RenameRoomSchema.parse(
+      input as Pick<RoomInput, "id" | "name">
+    );
     const result = await renameRoom({ id, name });
 
     if (!result.success) {
@@ -251,7 +264,6 @@ export const joinRoomAction = async (
 };
 
 // --------------------------------------------> FETCH MEMBER'S ROOMS ACTION <--------------------------------------------
-
 
 export const getMemberRoomsAction = async (): Promise<GetMemberRoomsResult> => {
   try {

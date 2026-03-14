@@ -1,30 +1,32 @@
 "use client";
 
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+
 import { useRouter } from "next/navigation";
+
+import { zodResolver } from "@hookform/resolvers/zod";
 import { MoreVertical, Pencil, ShareIcon, TrashIcon } from "lucide-react";
 import { toast } from "sonner";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+
 import type { Room, RoomInput } from "@repo/shared/schema";
 import { RoomSchema } from "@repo/shared/schema";
-import { deleteRoomAction, renameRoomAction, shareRoomAction } from "@/domains/room/room.actions";
+
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
-  DialogTitle,
-  DialogHeader,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Form,
   FormControl,
@@ -33,6 +35,12 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  deleteRoomAction,
+  renameRoomAction,
+  shareRoomAction,
+} from "@/domains/room/room.actions";
 
 export default function RoomActionButton({ room }: { room: Room }) {
   const router = useRouter();
@@ -117,8 +125,8 @@ export default function RoomActionButton({ room }: { room: Room }) {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="relative">
-              <MoreVertical className="absolute top-50% left-50% -translate-x-1/2 -translate-y-1/2 h-4 w-4 transition-all group-hover:rotate-90" />
-              <MoreVertical className="absolute top-50% left-50% -translate-x-1/2 -translate-y-1/2 h-4 w-4 transition-all " />
+              <MoreVertical className="top-50% left-50% absolute h-4 w-4 -translate-x-1/2 -translate-y-1/2 transition-all group-hover:rotate-90" />
+              <MoreVertical className="top-50% left-50% absolute h-4 w-4 -translate-x-1/2 -translate-y-1/2 transition-all" />
             </div>
           </Button>
         </DropdownMenuTrigger>
@@ -127,10 +135,10 @@ export default function RoomActionButton({ room }: { room: Room }) {
           align="start"
           side="right"
           sideOffset={4}
-          className="w-48 p-2 sketch-border bg-transparent backdrop-blur-sm"
+          className="sketch-border w-48 bg-transparent p-2 backdrop-blur-sm"
         >
           <DropdownMenuItem
-            className="cursor-pointer focus:bg-brand/10 focus:text-brand"
+            className="focus:bg-brand/10 focus:text-brand cursor-pointer"
             onClick={() => setOpenRenameDialog(true)}
           >
             <Pencil className="mr-2 h-4 w-4" />
@@ -138,7 +146,7 @@ export default function RoomActionButton({ room }: { room: Room }) {
           </DropdownMenuItem>
 
           <DropdownMenuItem
-            className="cursor-pointer focus:bg-destructive/10 focus:text-destructive"
+            className="focus:bg-destructive/10 focus:text-destructive cursor-pointer"
             onClick={() => setOpenDeleteDialog(true)}
           >
             <TrashIcon className="mr-2 h-4 w-4" />
@@ -146,7 +154,7 @@ export default function RoomActionButton({ room }: { room: Room }) {
           </DropdownMenuItem>
 
           <DropdownMenuItem
-            className="cursor-pointer focus:bg-brand/10 focus:text-brand"
+            className="focus:bg-brand/10 focus:text-brand cursor-pointer"
             onClick={onShareRoomLink}
           >
             <ShareIcon className="mr-2 h-4 w-4" />
@@ -157,7 +165,7 @@ export default function RoomActionButton({ room }: { room: Room }) {
 
       {/* -------- DELETE DIALOG -------- */}
       <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
-        <DialogContent className="sketch-border bg-background/95 backdrop-blur-xl max-w-md">
+        <DialogContent className="sketch-border bg-background/95 max-w-md backdrop-blur-xl">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold">Delete Room</DialogTitle>
             <DialogDescription>
@@ -188,7 +196,7 @@ export default function RoomActionButton({ room }: { room: Room }) {
 
       {/* -------- RENAME DIALOG -------- */}
       <Dialog open={openRenameDialog} onOpenChange={setOpenRenameDialog}>
-        <DialogContent className="sketch-border bg-background/95 backdrop-blur-xl max-w-md">
+        <DialogContent className="sketch-border bg-background/95 max-w-md backdrop-blur-xl">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold">Rename Room</DialogTitle>
             <DialogDescription>
@@ -211,7 +219,7 @@ export default function RoomActionButton({ room }: { room: Room }) {
                       <Input
                         {...field}
                         placeholder="e.g. Design System Mockup"
-                        className="h-12 sketch-border"
+                        className="sketch-border h-12"
                       />
                     </FormControl>
                     <FormMessage />
@@ -221,7 +229,7 @@ export default function RoomActionButton({ room }: { room: Room }) {
 
               <Button
                 type="submit"
-                className="w-full h-12 bg-brand text-white font-bold"
+                className="bg-brand h-12 w-full font-bold text-white"
                 disabled={loading}
               >
                 {loading ? "Renaming..." : "Rename Room"}

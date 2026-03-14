@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
-import "@/styles/globals.css";
-import { Analytics } from "@vercel/analytics/next";
 import { Exo_2, Inter } from "next/font/google";
-import { Toaster } from "@/components/ui/sonner";
+
+import { Analytics } from "@vercel/analytics/next";
+
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { Toaster } from "@/components/ui/sonner";
+import "@/styles/globals.css";
 
 const inter = Inter({
   subsets: ["latin"],

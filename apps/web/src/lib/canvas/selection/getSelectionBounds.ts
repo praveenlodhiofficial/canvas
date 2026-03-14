@@ -1,4 +1,5 @@
 import { CanvasShape } from "@repo/shared/types";
+
 import { getBoundingBox } from "./getBoundingBox";
 
 export function getSelectionBounds(

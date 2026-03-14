@@ -1,5 +1,5 @@
-import { memoryStore } from "@/store/memory.store";
 import { snapshotRoom } from "@/snapshot/snapshot.service";
+import { memoryStore } from "@/store/memory.store";
 
 export function handleDisconnect(roomId: string, userId: string) {
   const room = memoryStore.get(roomId);

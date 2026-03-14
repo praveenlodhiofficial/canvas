@@ -1,7 +1,8 @@
-import { memoryStore } from "@/store/memory.store";
 import { prisma } from "@repo/database";
 import { CanvasShape } from "@repo/shared/types";
+
 import { mapDbShapeToCanvas } from "@/snapshot/dbShapeToCanvas";
+import { memoryStore } from "@/store/memory.store";
 
 export async function joinRoom(roomId: string, userId: string) {
   let room = memoryStore.get(roomId);

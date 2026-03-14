@@ -1,6 +1,7 @@
 import { CanvasShape } from "@repo/shared/types";
-import { renderShape } from "@/lib/canvas/render-shapes";
+
 import { normalizeShapes } from "@/lib/canvas/normalize-shapes";
+import { renderShape } from "@/lib/canvas/render-shapes";
 import type { CanvasTheme } from "@/lib/canvas/theme";
 
 function normalizeForRender(shape: CanvasShape): CanvasShape {
@@ -41,7 +42,9 @@ export function renderShapes(
     if (isPendingErase) {
       ctx.save();
       ctx.strokeStyle = theme.destructive;
-      ctx.fillStyle = theme.destructive.includes("/") ? theme.destructive : theme.destructive.replace(")", " / 0.2)");
+      ctx.fillStyle = theme.destructive.includes("/")
+        ? theme.destructive
+        : theme.destructive.replace(")", " / 0.2)");
       ctx.lineWidth = 2;
       ctx.setLineDash([6, 4]);
       render(ctx, shape);
@@ -65,7 +68,9 @@ export function renderShapes(
     ctx.setLineDash([6, 4]);
     ctx.lineWidth = 1.5;
     ctx.strokeStyle = theme.primary;
-    ctx.fillStyle = theme.primary.includes("/") ? theme.primary : theme.primary.replace(")", " / 0.12)");
+    ctx.fillStyle = theme.primary.includes("/")
+      ? theme.primary
+      : theme.primary.replace(")", " / 0.12)");
 
     if (shape.type === "box") {
       ctx.beginPath();
@@ -74,7 +79,15 @@ export function renderShapes(
       ctx.stroke();
     } else if (shape.type === "ellipse") {
       ctx.beginPath();
-      ctx.ellipse(shape.x + shape.width / 2, shape.y + shape.height / 2, shape.width / 2, shape.height / 2, 0, 0, Math.PI * 2);
+      ctx.ellipse(
+        shape.x + shape.width / 2,
+        shape.y + shape.height / 2,
+        shape.width / 2,
+        shape.height / 2,
+        0,
+        0,
+        Math.PI * 2
+      );
       ctx.fill();
       ctx.stroke();
     } else if (shape.type === "text") {
@@ -93,7 +106,9 @@ export function renderShapes(
 
     if (shape.type === "box" && shape.id === "selection") {
       ctx.strokeStyle = theme.ring;
-      ctx.fillStyle = theme.ring.includes("/") ? theme.ring : theme.ring.replace(")", " / 0.25)");
+      ctx.fillStyle = theme.ring.includes("/")
+        ? theme.ring
+        : theme.ring.replace(")", " / 0.25)");
       ctx.beginPath();
       ctx.rect(shape.x, shape.y, shape.width, shape.height);
       ctx.fill();

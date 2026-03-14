@@ -1,9 +1,11 @@
-import { authMiddleware } from "@/middleware/auth.middleware";
-import { AuthenticatedRequest } from "@repo/shared/types";
-import { Router } from "@/core/router";
+import { z } from "zod";
+
 import { prisma } from "@repo/database";
 import { CreateShapeSchema } from "@repo/shared/schema";
-import { z } from "zod";
+import { AuthenticatedRequest } from "@repo/shared/types";
+
+import { Router } from "@/core/router";
+import { authMiddleware } from "@/middleware/auth.middleware";
 import { roomAccessWhere } from "@/utils/permissions/room-access";
 
 export function registerShapeRoutes(router: Router) {

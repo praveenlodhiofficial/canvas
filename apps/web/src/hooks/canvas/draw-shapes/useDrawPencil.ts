@@ -1,7 +1,10 @@
-import { normalizeShapes } from "@/lib/canvas/normalize-shapes";
-import { CanvasShape } from "@repo/shared/types";
-import type { GetWorldPoint } from "../useSelection";
 import { useEffect, useRef } from "react";
+
+import { CanvasShape } from "@repo/shared/types";
+
+import { normalizeShapes } from "@/lib/canvas/normalize-shapes";
+
+import type { GetWorldPoint } from "../useSelection";
 
 /** Minimum distance between points to avoid huge point lists (smoothing). */
 const MIN_POINT_DISTANCE = 2;
@@ -68,7 +71,10 @@ export function useDrawPencil(
     function handleMouseUp() {
       if (!isDrawing.current || !previewRef.current) return;
       isDrawing.current = false;
-      const shape = previewRef.current as Extract<CanvasShape, { type: "line" }>;
+      const shape = previewRef.current as Extract<
+        CanvasShape,
+        { type: "line" }
+      >;
       previewRef.current = null;
       onPreview(null);
       if (shape.points.length < 2) return;

@@ -1,8 +1,10 @@
+import { redirect } from "next/navigation";
+
+import type { UserType } from "@repo/shared/schema";
+
+import { getCurrentUserAction } from "@/actions/user.actions";
 import { Header } from "@/components/Header";
 import { UserMenu } from "@/components/UserMenu";
-import { getCurrentUserAction } from "@/actions/user.actions";
-import { redirect } from "next/navigation";
-import type { UserType } from "@repo/shared/schema";
 
 export default async function DashboardLayout({
   children,
@@ -30,8 +32,6 @@ export default async function DashboardLayout({
 
     //   {children}
     // </div>
-    <div>
-      {children}
-    </div>
+    <div>{children}</div>
   );
 }

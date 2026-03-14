@@ -3,5 +3,9 @@ export default function RoomLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <div className="z-10 absolute inset-0 flex bg-white flex-col w-screen h-screen">{children}</div>;
+  return (
+    <div className="absolute inset-0 z-10 flex h-screen w-screen flex-col bg-white">
+      {children}
+    </div>
+  );
 }

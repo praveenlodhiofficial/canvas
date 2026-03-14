@@ -1,5 +1,7 @@
 import { CanvasShape } from "@repo/shared/types";
+
 import { ToolType } from "@/types/tool";
+
 import { drawShape } from "./draw-shapes";
 import type { GetWorldPoint } from "./useSelection";
 
@@ -12,9 +14,40 @@ export function useCanvasTools(
   getWorldPoint?: GetWorldPoint
 ) {
   drawShape.box(tool === "box", canvasRef, onCommit, onPreview, getWorldPoint);
-  drawShape.ellipse(tool === "ellipse", canvasRef, onCommit, onPreview, getWorldPoint);
-  drawShape.line(tool === "line", canvasRef, onCommit, onPreview, getWorldPoint);
-  drawShape.pencil(tool === "pencil", canvasRef, onCommit, onPreview, getWorldPoint);
-  drawShape.triangle(tool === "triangle", canvasRef, onCommit, onPreview, getWorldPoint);
-  drawShape.text(tool === "text", canvasRef, onCommit, onPreview, getTextFromUser, getWorldPoint);
+  drawShape.ellipse(
+    tool === "ellipse",
+    canvasRef,
+    onCommit,
+    onPreview,
+    getWorldPoint
+  );
+  drawShape.line(
+    tool === "line",
+    canvasRef,
+    onCommit,
+    onPreview,
+    getWorldPoint
+  );
+  drawShape.pencil(
+    tool === "pencil",
+    canvasRef,
+    onCommit,
+    onPreview,
+    getWorldPoint
+  );
+  drawShape.triangle(
+    tool === "triangle",
+    canvasRef,
+    onCommit,
+    onPreview,
+    getWorldPoint
+  );
+  drawShape.text(
+    tool === "text",
+    canvasRef,
+    onCommit,
+    onPreview,
+    getTextFromUser,
+    getWorldPoint
+  );
 }

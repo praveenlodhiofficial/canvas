@@ -1,5 +1,16 @@
 "use client";
 
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+
+import { useRouter } from "next/navigation";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Plus, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+
+import { type RoomInput, RoomSchema } from "@repo/shared/schema";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,12 +22,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Plus, Trash2 } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
-import { RoomSchema, type RoomInput } from "@repo/shared/schema";
 import {
   Form,
   FormControl,
@@ -25,13 +30,15 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { createRoomAction, deleteRoomAction, updateRoomAction } from "@/domains/room/room.actions";
-import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  createRoomAction,
+  deleteRoomAction,
+  updateRoomAction,
+} from "@/domains/room/room.actions";
 
 /* ============================================== ROOM DIALOG ============================================== */
 type RoomDialogProps =
@@ -55,7 +62,9 @@ export function RoomDialog(props: RoomDialogProps) {
     : { id: "", name: "", description: "", visibility: "PRIVATE" as const };
 
   const form = useForm<Pick<RoomInput, "name" | "description" | "visibility">>({
-    resolver: zodResolver(RoomSchema.pick({ name: true, description: true, visibility: true })),
+    resolver: zodResolver(
+      RoomSchema.pick({ name: true, description: true, visibility: true })
+    ),
     defaultValues: {
       name: room.name ?? "",
       description: room.description ?? "",
@@ -63,18 +72,20 @@ export function RoomDialog(props: RoomDialogProps) {
     },
   });
 
-  async function onSubmit(data: Pick<RoomInput, "name" | "description" | "visibility">) {
+  async function onSubmit(
+    data: Pick<RoomInput, "name" | "description" | "visibility">
+  ) {
     const response = isUpdate
       ? await updateRoomAction(room.id, data)
       : await createRoomAction(data);
-  
+
     if (!response.success) {
       toast.error(response.message);
       return;
     }
-  
+
     toast.success(response.message);
-  
+
     setIsOpen(false);
     form.reset();
     router.refresh();
@@ -86,7 +97,7 @@ export function RoomDialog(props: RoomDialogProps) {
         {!isUpdate ? (
           <Button
             size="lg"
-            className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
           >
             <Plus className="size-5" />
             Create Room
@@ -94,25 +105,28 @@ export function RoomDialog(props: RoomDialogProps) {
         ) : (
           <Button
             variant="ghost"
-            className="text-primary hover:text-primary/90 cursor-pointer justify-start px-2 py-1.5 h-fit w-full"
+            className="text-primary hover:text-primary/90 h-fit w-full cursor-pointer justify-start px-2 py-1.5"
           >
             Edit Room
           </Button>
         )}
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto border-border">
- 
-      <DialogHeader>
-          <DialogTitle>{!isUpdate ? "Create New Room" : "Edit Room"}</DialogTitle>
+      <DialogContent className="border-border max-h-[90vh] overflow-y-auto sm:max-w-[500px]">
+        <DialogHeader>
+          <DialogTitle>
+            {!isUpdate ? "Create New Room" : "Edit Room"}
+          </DialogTitle>
           <DialogDescription>
-            {!isUpdate ? "Set up a new collaborative canvas room for your team" : "Update your room details"}
+            {!isUpdate
+              ? "Set up a new collaborative canvas room for your team"
+              : "Update your room details"}
           </DialogDescription>
         </DialogHeader>
- 
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="py-4 space-y-6">
+            <div className="space-y-6 py-4">
               <FormField
                 control={form.control}
                 name="name"
@@ -165,20 +179,26 @@ export function RoomDialog(props: RoomDialogProps) {
                         value={field.value}
                         onValueChange={field.onChange}
                       >
-                        <div className="flex items-center space-x-2 p-3 rounded-lg border border-border hover:bg-muted/50 cursor-pointer">
+                        <div className="border-border hover:bg-muted/50 flex cursor-pointer items-center space-x-2 rounded-lg border p-3">
                           <RadioGroupItem value="PUBLIC" id="public" />
-                          <Label htmlFor="PUBLIC" className="flex-1 cursor-pointer">
+                          <Label
+                            htmlFor="PUBLIC"
+                            className="flex-1 cursor-pointer"
+                          >
                             <div className="font-medium">Public</div>
-                            <div className="text-sm text-muted-foreground">
+                            <div className="text-muted-foreground text-sm">
                               Anyone in your workspace can access
                             </div>
                           </Label>
                         </div>
-                        <div className="flex items-center space-x-2 p-3 rounded-lg border border-border hover:bg-muted/50 cursor-pointer">
+                        <div className="border-border hover:bg-muted/50 flex cursor-pointer items-center space-x-2 rounded-lg border p-3">
                           <RadioGroupItem value="PRIVATE" id="private" />
-                          <Label htmlFor="PRIVATE" className="flex-1 cursor-pointer">
+                          <Label
+                            htmlFor="PRIVATE"
+                            className="flex-1 cursor-pointer"
+                          >
                             <div className="font-medium">Private</div>
-                            <div className="text-sm text-muted-foreground">
+                            <div className="text-muted-foreground text-sm">
                               Only invited members can access
                             </div>
                           </Label>
@@ -191,7 +211,7 @@ export function RoomDialog(props: RoomDialogProps) {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3 justify-end border-border">
+            <div className="border-border grid grid-cols-2 justify-end gap-3">
               <DialogClose asChild>
                 <Button
                   type="button"
@@ -238,8 +258,12 @@ export function RoomDeleteDialog({ id }: { id: string }) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="destructive" className="w-full justify-start bg-destructive text-red-50 hover:bg-destructive/90 hover:text-destructive-foreground/90" size="sm">
-          <Trash2 className="size-4 mr-2" />
+        <Button
+          variant="destructive"
+          className="bg-destructive hover:bg-destructive/90 hover:text-destructive-foreground/90 w-full justify-start text-red-50"
+          size="sm"
+        >
+          <Trash2 className="mr-2 size-4" />
           Delete
         </Button>
       </DialogTrigger>
@@ -251,11 +275,15 @@ export function RoomDeleteDialog({ id }: { id: string }) {
             permanently removed.
           </DialogDescription>
         </DialogHeader>
-        <DialogFooter className="grid grid-cols-2 gap-3 justify-end border-border">
+        <DialogFooter className="border-border grid grid-cols-2 justify-end gap-3">
           <DialogClose asChild>
-            <Button variant="outline" className="w-full">Cancel</Button>
+            <Button variant="outline" className="w-full">
+              Cancel
+            </Button>
           </DialogClose>
-          <Button variant="destructive" className="w-full" onClick={onDelete}>Delete</Button>
+          <Button variant="destructive" className="w-full" onClick={onDelete}>
+            Delete
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

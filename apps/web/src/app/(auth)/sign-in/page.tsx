@@ -1,10 +1,19 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { SignInInput, SignInSchema } from "@repo/shared/schema";
-import Link from "next/link";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
+
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Eye, EyeOff, Github, Mail } from "lucide-react";
+import { toast } from "sonner";
+
+import { SignInInput, SignInSchema } from "@repo/shared/schema";
+
+import { AuthPageShell } from "@/components/auth/AuthPageShell";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -14,11 +23,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Github, Mail } from "lucide-react";
-import { useState } from "react";
-import { AuthPageShell } from "@/components/auth/AuthPageShell";
 
 export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -54,10 +58,13 @@ export default function SignInPage() {
       title="Welcome back"
       subtitle="Pick up where you left off."
       footer={
-        <p className="text-center text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-center text-sm">
           Don&apos;t have an account?{" "}
           <Link href="/sign-up">
-            <Button variant="link" className="px-0 h-auto font-medium text-primary">
+            <Button
+              variant="link"
+              className="text-primary h-auto px-0 font-medium"
+            >
               Sign up now
             </Button>
           </Link>
@@ -71,13 +78,15 @@ export default function SignInPage() {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium">Email Address</FormLabel>
+                <FormLabel className="text-sm font-medium">
+                  Email Address
+                </FormLabel>
                 <FormControl>
                   <Input
                     type="email"
                     placeholder="name@example.com"
                     autoComplete="email"
-                    className="h-11 bg-background border-border"
+                    className="bg-background border-border h-11"
                     {...field}
                   />
                 </FormControl>
@@ -91,11 +100,13 @@ export default function SignInPage() {
             render={({ field }) => (
               <FormItem>
                 <div className="flex items-center justify-between">
-                  <FormLabel className="text-sm font-medium">Password</FormLabel>
+                  <FormLabel className="text-sm font-medium">
+                    Password
+                  </FormLabel>
                   <Button
                     type="button"
                     variant="link"
-                    className="px-0 h-auto text-xs font-medium text-primary"
+                    className="text-primary h-auto px-0 text-xs font-medium"
                   >
                     Forgot password?
                   </Button>
@@ -106,20 +117,20 @@ export default function SignInPage() {
                       type={showPassword ? "text" : "password"}
                       placeholder="••••••••"
                       autoComplete="current-password"
-                      className="h-11 bg-background border-border pr-10"
+                      className="bg-background border-border h-11 pr-10"
                       {...field}
                     />
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 px-0 text-muted-foreground hover:text-foreground"
+                      className="text-muted-foreground hover:text-foreground absolute top-1/2 right-1 h-8 w-8 -translate-y-1/2 px-0"
                       onClick={() => setShowPassword(!showPassword)}
                     >
                       {showPassword ? (
-                        <EyeOff className="w-4 h-4" />
+                        <EyeOff className="h-4 w-4" />
                       ) : (
-                        <Eye className="w-4 h-4" />
+                        <Eye className="h-4 w-4" />
                       )}
                     </Button>
                   </div>
@@ -128,7 +139,7 @@ export default function SignInPage() {
               </FormItem>
             )}
           />
-          <Button type="submit" className="w-full h-11 font-medium">
+          <Button type="submit" className="h-11 w-full font-medium">
             Sign In
           </Button>
         </form>
@@ -136,10 +147,10 @@ export default function SignInPage() {
 
       <div className="relative my-6">
         <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t border-dashed border-border" />
+          <span className="border-border w-full border-t border-dashed" />
         </div>
         <div className="relative flex justify-center text-xs">
-          <span className="bg-card px-2 text-muted-foreground font-medium uppercase tracking-wider">
+          <span className="bg-card text-muted-foreground px-2 font-medium tracking-wider uppercase">
             Or continue with
           </span>
         </div>
@@ -149,17 +160,17 @@ export default function SignInPage() {
         <Button
           type="button"
           variant="outline"
-          className="h-11 font-medium border-dashed border-border bg-transparent hover:bg-accent"
+          className="border-border hover:bg-accent h-11 border-dashed bg-transparent font-medium"
         >
-          <Github className="w-4 h-4 mr-2" />
+          <Github className="mr-2 h-4 w-4" />
           GitHub
         </Button>
         <Button
           type="button"
           variant="outline"
-          className="h-11 font-medium border-dashed border-border bg-transparent hover:bg-accent"
+          className="border-border hover:bg-accent h-11 border-dashed bg-transparent font-medium"
         >
-          <Mail className="w-4 h-4 mr-2" />
+          <Mail className="mr-2 h-4 w-4" />
           Google
         </Button>
       </div>

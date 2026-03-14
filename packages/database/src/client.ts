@@ -1,6 +1,8 @@
 import { PrismaPg } from "@prisma/adapter-pg";
-import { config } from "@repo/shared";
 import "dotenv/config";
+
+import { config } from "@repo/shared";
+
 import { PrismaClient } from "../generated/prisma/client";
 
 if (!config.env.databaseUrl) {

@@ -1,5 +1,6 @@
 // lib/canvas/containsShape.ts
 import { CanvasShape } from "@repo/shared/types";
+
 import { getBoundingBox } from "./getBoundingBox";
 
 export function containsShape(
@@ -10,19 +11,11 @@ export function containsShape(
   const shp = normalize(getBoundingBox(shape));
 
   return (
-    sel.x1 <= shp.x1 &&
-    sel.y1 <= shp.y1 &&
-    sel.x2 >= shp.x2 &&
-    sel.y2 >= shp.y2
+    sel.x1 <= shp.x1 && sel.y1 <= shp.y1 && sel.x2 >= shp.x2 && sel.y2 >= shp.y2
   );
 }
 
-function normalize(r: {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}) {
+function normalize(r: { x: number; y: number; width: number; height: number }) {
   const x1 = Math.min(r.x, r.x + r.width);
   const y1 = Math.min(r.y, r.y + r.height);
   const x2 = Math.max(r.x, r.x + r.width);

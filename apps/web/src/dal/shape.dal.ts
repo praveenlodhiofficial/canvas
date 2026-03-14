@@ -1,7 +1,9 @@
+import { cache } from "react";
+
+import type { Shape } from "@repo/shared/schema";
+
 import { authFetch } from "@/lib/auth/auth-fetch";
 import { config } from "@/lib/config";
-import { cache } from "react";
-import type { Shape } from "@repo/shared/schema";
 
 /**
  * DAL responsibility:
@@ -23,7 +25,7 @@ export const getAllShapes = cache(async (roomId: string): Promise<Shape[]> => {
   if (!roomId) return [];
 
   const data = await authFetch<GetAllShapesResponse>(
-    `${config.backendUrl}/api/v1/rooms/${roomId}/shapes`,
+    `${config.backendUrl}/api/v1/rooms/${roomId}/shapes`
   );
 
   if (!data || !Array.isArray(data.shapes)) {

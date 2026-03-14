@@ -1,11 +1,18 @@
 import { useEffect, useRef } from "react";
+
 import { CanvasShape } from "@repo/shared/types";
+
 import { getBoundingBox } from "@/lib/canvas/selection/getBoundingBox";
+
 import type { GetWorldPoint } from "./useSelection";
 
 const HIT_PADDING = 6;
 
-function shapeContainsPoint(shape: CanvasShape, px: number, py: number): boolean {
+function shapeContainsPoint(
+  shape: CanvasShape,
+  px: number,
+  py: number
+): boolean {
   const b = getBoundingBox(shape);
   return (
     px >= b.x - HIT_PADDING &&

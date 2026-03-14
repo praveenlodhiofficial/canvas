@@ -1,11 +1,13 @@
+import { z } from "zod";
+
 import { prisma } from "@repo/database";
 import { config } from "@repo/shared";
 import { SignInSchema, SignUpSchema } from "@repo/shared/schema";
+import { AuthenticatedRequest } from "@repo/shared/types";
 import { signJWT } from "@repo/shared/utils";
-import { z } from "zod";
+
 import { Router } from "@/core/router";
 import { authMiddleware } from "@/middleware/auth.middleware";
-import { AuthenticatedRequest } from "@repo/shared/types";
 
 export function registerAuthRoutes(router: Router) {
   // --------------------------------------------> SIGN UP ROUTE <--------------------------------------------
@@ -21,7 +23,7 @@ export function registerAuthRoutes(router: Router) {
         const errors = z.treeifyError(parsed.error);
         return Response.json(
           { message: "validation failed", errors },
-          { status: 400 },
+          { status: 400 }
         );
       }
 
@@ -34,7 +36,7 @@ export function registerAuthRoutes(router: Router) {
       if (doesUserExist) {
         return Response.json(
           { message: "User already exists" },
-          { status: 400 },
+          { status: 400 }
         );
       }
 
@@ -54,13 +56,13 @@ export function registerAuthRoutes(router: Router) {
           name: user.name,
           email: user.email,
         },
-        { status: 201 },
+        { status: 201 }
       );
     } catch (error) {
       console.error("Error during signup:", error);
       return Response.json(
         { message: "Internal server error" },
-        { status: 500 },
+        { status: 500 }
       );
     }
   });
@@ -130,7 +132,7 @@ export function registerAuthRoutes(router: Router) {
 
     const valid = await Bun.password.verify(
       parsed.data.password,
-      user.password,
+      user.password
     );
 
     if (!valid) {
@@ -149,7 +151,7 @@ export function registerAuthRoutes(router: Router) {
       "Set-Cookie",
       `session=${token}; HttpOnly; Path=/; SameSite=Lax${
         process.env.NODE_ENV === "production" ? "; Secure" : ""
-      }`,
+      }`
     );
 
     return new Response(
@@ -163,7 +165,7 @@ export function registerAuthRoutes(router: Router) {
       {
         status: 200,
         headers,
-      },
+      }
     );
   });
 
@@ -196,7 +198,7 @@ export function registerAuthRoutes(router: Router) {
             success: false,
             message: "User not found",
           },
-          { status: 404 },
+          { status: 404 }
         );
       }
 
@@ -207,7 +209,7 @@ export function registerAuthRoutes(router: Router) {
           message: "User details fetched successfully",
           user: currentUser,
         },
-        { status: 200 },
+        { status: 200 }
       );
     } catch (error) {
       console.error("Error fetching user details:", error);
@@ -216,7 +218,7 @@ export function registerAuthRoutes(router: Router) {
           success: false,
           message: "Internal server error",
         },
-        { status: 500 },
+        { status: 500 }
       );
     }
   });

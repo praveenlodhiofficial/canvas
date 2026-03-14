@@ -1,7 +1,8 @@
 "use server";
 
-import { getCurrentUser } from "@/dal/user.dal";
 import { UserType } from "@repo/shared/schema";
+
+import { getCurrentUser } from "@/dal/user.dal";
 
 // --------------------------------------------> GET CURRENT USER ACTION <--------------------------------------------
 

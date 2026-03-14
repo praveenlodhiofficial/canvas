@@ -1,5 +1,7 @@
-import type { CanvasTheme } from "@/lib/canvas/theme";
 import type { CanvasShape } from "@repo/shared/types";
+
+import type { CanvasTheme } from "@/lib/canvas/theme";
+
 import { getHandlePositionsForShape } from "./getHandlePositions";
 
 const HANDLE_SIZE = 8;
@@ -25,10 +27,21 @@ export function renderSelectionHandles(
   ctx.fillStyle = theme.ring;
   for (const [x, y] of points) {
     if (x === undefined || y === undefined) continue;
-    ctx.fillRect(x - HANDLE_SIZE / 2, y - HANDLE_SIZE / 2, HANDLE_SIZE, HANDLE_SIZE);
+    ctx.fillRect(
+      x - HANDLE_SIZE / 2,
+      y - HANDLE_SIZE / 2,
+      HANDLE_SIZE,
+      HANDLE_SIZE
+    );
   }
   ctx.beginPath();
-  ctx.arc(bounds.x + bounds.width / 2, bounds.y - 24, ROTATE_HANDLE_RADIUS, 0, Math.PI * 2);
+  ctx.arc(
+    bounds.x + bounds.width / 2,
+    bounds.y - 24,
+    ROTATE_HANDLE_RADIUS,
+    0,
+    Math.PI * 2
+  );
   ctx.fill();
   ctx.restore();
 }
@@ -43,7 +56,12 @@ export function renderSelectionHandlesForShape(
   ctx.save();
   ctx.fillStyle = theme.ring;
   for (const [x, y] of resizeHandles) {
-    ctx.fillRect(x - HANDLE_SIZE / 2, y - HANDLE_SIZE / 2, HANDLE_SIZE, HANDLE_SIZE);
+    ctx.fillRect(
+      x - HANDLE_SIZE / 2,
+      y - HANDLE_SIZE / 2,
+      HANDLE_SIZE,
+      HANDLE_SIZE
+    );
   }
   ctx.beginPath();
   ctx.arc(rotateHandle.x, rotateHandle.y, ROTATE_HANDLE_RADIUS, 0, Math.PI * 2);

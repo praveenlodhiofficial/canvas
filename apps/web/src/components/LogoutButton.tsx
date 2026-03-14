@@ -1,10 +1,13 @@
 "use client";
 
-import { LogOutIcon } from "lucide-react";
-import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { useRouter } from "next/navigation";
 import { startTransition } from "react";
+
+import { useRouter } from "next/navigation";
+
+import { LogOutIcon } from "lucide-react";
+
 import { logoutUserAction } from "@/actions/auth.actions";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 export function LogoutButton() {
   const router = useRouter();
@@ -25,9 +28,9 @@ export function LogoutButton() {
     <DropdownMenuItem
       onClick={handleLogout}
       variant="destructive"
-      className="flex items-center gap-3 cursor-pointer py-3 px-3 focus:bg-destructive/10 focus:text-destructive"
+      className="focus:bg-destructive/10 focus:text-destructive flex cursor-pointer items-center gap-3 px-3 py-3"
     >
-      <LogOutIcon className="w-4 h-4" />
+      <LogOutIcon className="h-4 w-4" />
       <span className="text-sm font-medium">Log Out</span>
     </DropdownMenuItem>
   );

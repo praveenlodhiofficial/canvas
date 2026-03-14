@@ -4,7 +4,7 @@ export function slugify(
     lower?: boolean;
     maxLength?: number;
     fallback?: string;
-  },
+  }
 ) {
   const { lower = true, maxLength, fallback = "item" } = opts;
   if (!input) return fallback;
@@ -28,7 +28,7 @@ export async function uniqueSlugify(
     maxLength?: number;
     fallback?: string;
     maxAttempts?: number;
-  },
+  }
 ): Promise<string> {
   const {
     lower = true,

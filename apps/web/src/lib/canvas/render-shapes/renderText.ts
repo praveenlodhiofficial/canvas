@@ -1,4 +1,5 @@
 import { CanvasShape } from "@repo/shared/types";
+
 import { applyRotation } from "@/lib/canvas/applyRotation";
 
 const FONT = "14px sans-serif";

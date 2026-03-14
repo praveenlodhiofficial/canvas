@@ -1,7 +1,10 @@
-import { normalizeShapes } from "@/lib/canvas/normalize-shapes";
-import { CanvasShape } from "@repo/shared/types";
-import type { GetWorldPoint } from "../useSelection";
 import React, { useEffect, useRef } from "react";
+
+import { CanvasShape } from "@repo/shared/types";
+
+import { normalizeShapes } from "@/lib/canvas/normalize-shapes";
+
+import type { GetWorldPoint } from "../useSelection";
 
 export function useDrawTriangle(
   enabled: boolean,
@@ -20,10 +23,12 @@ export function useDrawTriangle(
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const pos: GetWorldPoint = getWorldPoint ?? ((e: MouseEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      return { x: e.clientX - rect.left, y: e.clientY - rect.top };
-    });
+    const pos: GetWorldPoint =
+      getWorldPoint ??
+      ((e: MouseEvent) => {
+        const rect = canvas.getBoundingClientRect();
+        return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      });
 
     function handleMouseDown(e: MouseEvent) {
       isDrawing.current = true;

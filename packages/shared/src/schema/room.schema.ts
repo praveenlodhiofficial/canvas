@@ -1,4 +1,5 @@
 import { z } from "zod";
+
 import { RoomMember } from "./roomMember.schema";
 
 /* -------------------------------- ENUM --------------------------------- */
@@ -29,7 +30,12 @@ export const CreateRoomSchema = RoomSchema.pick({
   description: true,
 });
 
-export const UpdateRoomSchema = RoomSchema.pick({ id: true, name: true, description: true, visibility: true });
+export const UpdateRoomSchema = RoomSchema.pick({
+  id: true,
+  name: true,
+  description: true,
+  visibility: true,
+});
 
 export const GetRoomByIdSchema = RoomSchema.pick({ id: true });
 export const RenameRoomSchema = RoomSchema.pick({ id: true, name: true });

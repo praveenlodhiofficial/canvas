@@ -1,9 +1,12 @@
 import { useEffect } from "react";
+
 import { CanvasShape } from "@repo/shared/types";
+
 import { renderShapes } from "@/lib/canvas";
-import { ToolType } from "@/types/tool";
 import { selection } from "@/lib/canvas/selection";
 import type { CanvasTheme } from "@/lib/canvas/theme";
+import { ToolType } from "@/types/tool";
+
 import type { CanvasTransform } from "./useCanvasZoom";
 
 export function useCanvasRender(
@@ -38,7 +41,9 @@ export function useCanvasRender(
     });
 
     if (selectedIds.size > 0) {
-      const selectedShapes = shapes.filter((s) => s.id && selectedIds.has(s.id));
+      const selectedShapes = shapes.filter(
+        (s) => s.id && selectedIds.has(s.id)
+      );
       for (const shape of selectedShapes) {
         selection.renderBoundsForShape(ctx, shape, theme);
         selection.renderHandlesForShape(ctx, shape, theme);
@@ -46,5 +51,14 @@ export function useCanvasRender(
     }
 
     ctx.restore();
-  }, [shapes, previewShape, selectedIds, pendingEraseIds, canvasRef, ctxRef, theme, transform]);
+  }, [
+    shapes,
+    previewShape,
+    selectedIds,
+    pendingEraseIds,
+    canvasRef,
+    ctxRef,
+    theme,
+    transform,
+  ]);
 }

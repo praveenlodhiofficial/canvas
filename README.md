@@ -1,6 +1,6 @@
 # Canvas (sketch.io)
 
-A **collaborative whiteboard** where users sign up, create or join rooms, and draw on a shared canvas with **real-time sync** via WebSockets. Supports shapes (rectangle, ellipse, line, triangle), freehand pencil, text, selection with drag-to-move, eraser, zoom (wheel/trackpad), **undo/redo** (keyboard), **cut/copy/paste**, **keyboard shortcuts for all tools**, and theme-aware UI (light/dark).
+A **collaborative whiteboard** where users sign up, create or join rooms, and draw on a shared canvas with **real-time sync** via WebSockets. Supports shapes (rectangle, ellipse, line, triangle), freehand pencil, text, **selection with drag-to-move and rotate handle**, eraser, **zoom (pinch/Ctrl+wheel) and trackpad pan (two-finger scroll)**, **undo/redo** (keyboard), **cut/copy/paste**, **keyboard shortcuts for all tools**, and theme-aware UI (light/dark).
 
 ---
 
@@ -8,16 +8,16 @@ A **collaborative whiteboard** where users sign up, create or join rooms, and dr
 
 This is a [Turborepo](https://turbo.build/repo) monorepo. All packages are TypeScript.
 
-| Package / App        | Description |
-|----------------------|-------------|
-| **`apps/web`**       | Next.js 16 frontend — auth, dashboard, rooms list, canvas UI (React 19, Tailwind) |
-| **`apps/http-backend`** | Bun REST API — sign up/sign in/logout, rooms CRUD, shapes; JWT in cookies |
-| **`apps/ws-backend`**  | Bun WebSocket server — per-room presence, shape add/delete, broadcast |
-| **`packages/database`** | Prisma + PostgreSQL — User, Room, RoomMember, Shape |
-| **`packages/shared`**  | Zod schemas, types, JWT utils, config — used by both backends and web |
-| **`packages/ui`**      | Shared React components (Radix-style exports) |
-| **`@repo/eslint-config`** | Shared ESLint config |
-| **`@repo/typescript-config`** | Shared `tsconfig` base |
+| Package / App                 | Description                                                                       |
+| ----------------------------- | --------------------------------------------------------------------------------- |
+| **`apps/web`**                | Next.js 16 frontend — auth, dashboard, rooms list, canvas UI (React 19, Tailwind) |
+| **`apps/http-backend`**       | Bun REST API — sign up/sign in/logout, rooms CRUD, shapes; JWT in cookies         |
+| **`apps/ws-backend`**         | Bun WebSocket server — per-room presence, shape add/delete, broadcast             |
+| **`packages/database`**       | Prisma + PostgreSQL — User, Room, RoomMember, Shape                               |
+| **`packages/shared`**         | Zod schemas, types, JWT utils, config — used by both backends and web             |
+| **`packages/ui`**             | Shared React components (Radix-style exports)                                     |
+| **`@repo/eslint-config`**     | Shared ESLint config                                                              |
+| **`@repo/typescript-config`** | Shared `tsconfig` base                                                            |
 
 ---
 
@@ -87,15 +87,15 @@ turbo dev --filter=ws-backend
 
 ## Scripts
 
-| Command | Description |
-|--------|-------------|
-| `bun run dev` | Run all apps in dev mode |
-| `bun run build` | Build all apps and packages |
-| `bun run lint` | Lint all packages |
-| `bun run format` | Format with Prettier |
-| `bun run check-types` | Type-check all packages |
-| `bun run docker:up` | Start PostgreSQL with Docker Compose |
-| `bun run docker:down` | Stop Docker Compose |
+| Command               | Description                          |
+| --------------------- | ------------------------------------ |
+| `bun run dev`         | Run all apps in dev mode             |
+| `bun run build`       | Build all apps and packages          |
+| `bun run lint`        | Lint all packages                    |
+| `bun run format`      | Format with Prettier                 |
+| `bun run check-types` | Type-check all packages              |
+| `bun run docker:up`   | Start PostgreSQL with Docker Compose |
+| `bun run docker:down` | Stop Docker Compose                  |
 
 ---
 
@@ -111,8 +111,8 @@ turbo dev --filter=ws-backend
 ### Rooms
 
 - **Create / join** — Create rooms from dashboard; join via room link or list
-- **CRUD** — Get one, get all (admin), get member rooms; rename, share, delete (single + bulk)
-- **Room card** — Shows name, member count; share link (copy to clipboard)
+- **CRUD** — Create, get one, get all (admin), get member rooms; **update** (name, description, visibility), rename, share, delete (single + bulk)
+- **Room card** — Shows name, description, visibility; edit and delete from card; share link (copy to clipboard)
 
 ### Canvas (whiteboard)
 
@@ -121,63 +121,57 @@ turbo dev --filter=ws-backend
 
 #### Drawing tools (toolbar)
 
-| Tool | Shortcut | Description |
-|------|----------|-------------|
-| **Select** | `1` | Draw a selection box; only shapes **fully inside** the box are selected. Drag inside the selection to move all selected shapes. Dashed bounds and resize handles. |
-| **Rectangle** | `2` | Click and drag to draw a rectangle (box). |
-| **Ellipse** | `3` | Click and drag to draw an ellipse. |
-| **Line** | `4` | Click and drag to draw a straight line. |
-| **Triangle** | `5` | Click and drag to draw a triangle. |
-| **Draw (pencil)** | `6` | Freehand drawing (pencil). |
-| **Eraser** | `7` | Drag over shapes; they are highlighted in a destructive color. Shapes are **removed only when you release** the mouse/trackpad. Cursor: crosshair. |
-| **Text** | `8` | Click on canvas to place text; type in an inline input (no prompt). Enter or click outside to commit. |
+| Tool              | Shortcut | Description                                                                                                                                                                                                                                                                                                                           |
+| ----------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Select**        | `1`      | Draw a selection box; only shapes **fully inside** the box are selected. Drag inside the selection to move shapes; use the **rotate handle** (top of selection) to rotate. Cursor: **move** when a shape is selected, **grab** over the rotate handle, **grabbing** while rotating. Dashed bounds, resize handles, and rotate handle. |
+| **Rectangle**     | `2`      | Click and drag to draw a rectangle (box).                                                                                                                                                                                                                                                                                             |
+| **Ellipse**       | `3`      | Click and drag to draw an ellipse.                                                                                                                                                                                                                                                                                                    |
+| **Line**          | `4`      | Click and drag to draw a straight line.                                                                                                                                                                                                                                                                                               |
+| **Triangle**      | `5`      | Click and drag to draw a triangle.                                                                                                                                                                                                                                                                                                    |
+| **Draw (pencil)** | `6`      | Freehand drawing (pencil).                                                                                                                                                                                                                                                                                                            |
+| **Eraser**        | `7`      | Drag over shapes; they are highlighted in a destructive color. Shapes are **removed only when you release** the mouse/trackpad. Cursor: crosshair.                                                                                                                                                                                    |
+| **Text**          | `8`      | Click on canvas to place text; type in an inline input (no prompt). Enter or click outside to commit.                                                                                                                                                                                                                                 |
 
 - **Tool shortcuts** — Press **`1`–`8`** to switch tools (no modifier). Shortcuts are ignored when focus is in an input (e.g. while typing text on the canvas).
 - **Undo / Redo** — **Ctrl+Z** (or **⌘Z**) to undo, **Ctrl+Y** or **Ctrl+Shift+Z** (or **⌘Y** / **⌘⇧Z**) to redo. Keyboard only; history is local and resets when the room loads.
 - **Cut, Copy, Paste** — **Ctrl+C** / **Ctrl+X** / **Ctrl+V** (or **⌘** on Mac). Copy or cut selected shapes; paste places the group **centered on the cursor**. Pasted shapes get new IDs and sync to the room. Shortcuts are skipped when focus is in an input or textarea.
 - **Delete** — With shapes selected, **Backspace** or **Delete** removes them and syncs to the room.
-- **Zoom** — **Mouse wheel** or **trackpad** pinch/scroll on the canvas zooms in and out (zoom is centered on the cursor). Scale range: 0.25× to 4×. Pan is adjusted automatically so the point under the cursor stays fixed.
+- **Zoom** — **Pinch** on trackpad or **Ctrl+wheel** (⌃+scroll) zooms in/out, centered on the cursor. Scale range: 0.25× to 4×.
+- **Pan** — **Two-finger scroll** on trackpad (or mouse wheel without Ctrl) pans the canvas: scroll right → left side comes into view, scroll down → top comes into view (natural “grab and drag” direction).
 - **Coordinates** — All tools use **world coordinates** (logical canvas space); screen-to-world conversion respects current zoom and pan so drawing, selection, move, and eraser work correctly when zoomed.
 
 #### Keyboard shortcuts (canvas)
 
-| Action | Shortcut |
-|--------|----------|
-| Undo | Ctrl+Z (⌘Z) |
-| Redo | Ctrl+Y or Ctrl+Shift+Z (⌘Y / ⌘⇧Z) |
-| Copy | Ctrl+C (⌘C) |
-| Cut | Ctrl+X (⌘X) |
-| Paste | Ctrl+V (⌘V) |
-| Delete selected | Backspace / Delete |
-| Select tool | `1` |
-| Rectangle | `2` |
-| Ellipse | `3` |
-| Line | `4` |
-| Triangle | `5` |
-| Pencil | `6` |
-| Eraser | `7` |
-| Text | `8` |
+| Action          | Shortcut                          |
+| --------------- | --------------------------------- |
+| Undo            | Ctrl+Z (⌘Z)                       |
+| Redo            | Ctrl+Y or Ctrl+Shift+Z (⌘Y / ⌘⇧Z) |
+| Copy            | Ctrl+C (⌘C)                       |
+| Cut             | Ctrl+X (⌘X)                       |
+| Paste           | Ctrl+V (⌘V)                       |
+| Delete selected | Backspace / Delete                |
+| Select tool     | `1`                               |
+| Rectangle       | `2`                               |
+| Ellipse         | `3`                               |
+| Line            | `4`                               |
+| Triangle        | `5`                               |
+| Pencil          | `6`                               |
+| Eraser          | `7`                               |
+| Text            | `8`                               |
 
 #### Shape types
 
-- **Box** — Rectangle with `x, y, width, height`
-- **Ellipse** — Ellipse with bounding rect
+- **Box** — Rectangle with `x, y, width, height` (optional `rotation`)
+- **Ellipse** — Ellipse with bounding rect (optional `rotation`)
 - **Line** — Line with `x, y` and `points[]` (relative)
-- **Text** — Text with `x, y, text, width, height` (stored in DB; rendered with theme foreground)
+- **Triangle** — Triangle with bounding rect (optional `rotation`)
+- **Text** — Text with `x, y, text, width, height` (optional `rotation`; stored in DB; rendered with theme foreground)
 
 ### Persistence
 
 - **In-memory** — Each room keeps a `Map` of shapes in the WebSocket server
 - **Snapshot** — When the last user leaves a room, state is written to PostgreSQL (Shape table: BOX, ELLIPSE, LINE, TEXT, TRIANGLE)
 - **On join** — First user to join a room loads shapes from DB into memory and receives `room:init` with current shapes
-
-### To do
-
-- [ ] Share room link in a clear, consistent way
-- [ ] Invite users to a room
-- [ ] Remove users from a room
-
----
 
 ## Logout flow (reference)
 

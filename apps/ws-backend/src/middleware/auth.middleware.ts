@@ -1,5 +1,6 @@
 import { prisma } from "@repo/database";
 import type { AuthenticatedRequest } from "@repo/shared/types";
+
 import { authenticateRequest } from "../utils/authenticateRequest";
 
 export type WsAuthResult =

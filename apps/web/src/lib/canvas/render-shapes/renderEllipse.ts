@@ -1,9 +1,10 @@
 import { CanvasShape } from "@repo/shared/types";
+
 import { applyRotation } from "@/lib/canvas/applyRotation";
 
 export function renderEllipse(
   ctx: CanvasRenderingContext2D,
-  shape: Extract<CanvasShape, { type: "ellipse" }>,
+  shape: Extract<CanvasShape, { type: "ellipse" }>
 ) {
   const didApply = applyRotation(ctx, shape);
   const cx = shape.x + shape.width / 2;

@@ -1,8 +1,10 @@
-import RoomCanvas from "@/components/RoomCanvas";
 import { redirect } from "next/navigation";
+
 import { CanvasShape } from "@repo/shared/types";
-import { getRoomByIdAction } from "@/domains/room/room.actions";
+
 import { getRoomShapesAction } from "@/actions/shape.actions";
+import RoomCanvas from "@/components/RoomCanvas";
+import { getRoomByIdAction } from "@/domains/room/room.actions";
 
 export default async function RoomPage({
   params,
@@ -20,8 +22,8 @@ export default async function RoomPage({
   const shapes = await getRoomShapesAction(room.id!);
 
   return (
-    <div className=" flex flex-col w-full items-center justify-center">
-      <div className="absolute inset-0 overflow-hidden w-full h-screen flex justify-center items-center">
+    <div className="flex w-full flex-col items-center justify-center">
+      <div className="absolute inset-0 flex h-screen w-full items-center justify-center overflow-hidden">
         <RoomCanvas
           roomName={room.name!}
           roomId={room.id!}

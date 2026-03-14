@@ -1,6 +1,8 @@
-import { CanvasShape } from "@repo/shared/types";
-import type { GetWorldPoint } from "../useSelection";
 import { useEffect } from "react";
+
+import { CanvasShape } from "@repo/shared/types";
+
+import type { GetWorldPoint } from "../useSelection";
 
 export const DEFAULT_FONT = "14px sans-serif";
 export const TEXT_PADDING = 8;
@@ -39,10 +41,12 @@ export function useDrawText(
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const pos: GetWorldPoint = getWorldPoint ?? ((e: MouseEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      return { x: e.clientX - rect.left, y: e.clientY - rect.top };
-    });
+    const pos: GetWorldPoint =
+      getWorldPoint ??
+      ((e: MouseEvent) => {
+        const rect = canvas.getBoundingClientRect();
+        return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      });
 
     function handleMouseDown(e: MouseEvent) {
       const { x, y } = pos(e);

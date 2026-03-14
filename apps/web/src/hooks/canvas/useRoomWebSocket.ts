@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+
 import { CanvasShape } from "@repo/shared/types";
+
 import { config } from "@/lib/config";
 
 type RoomWebSocketOptions = {
@@ -12,9 +14,9 @@ export function useRoomWebSocket(
   options?: RoomWebSocketOptions
 ) {
   const wsRef = useRef<WebSocket | null>(null);
-  const [status, setStatus] = useState<
-    "connecting" | "connected" | "error"
-  >("connecting");
+  const [status, setStatus] = useState<"connecting" | "connected" | "error">(
+    "connecting"
+  );
   const onRoomInitRef = useRef(options?.onRoomInit);
   onRoomInitRef.current = options?.onRoomInit;
 

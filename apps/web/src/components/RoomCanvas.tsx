@@ -1,31 +1,37 @@
 "use client";
 
-import { useRef, useState, useMemo, useCallback, useEffect } from "react";
-import { CanvasShape } from "@repo/shared/types";
-import { ToolType } from "@/types/tool";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { useTheme } from "next-themes";
+import Link from "next/link";
+
+import { ArrowLeft } from "lucide-react";
+
+import { CanvasShape } from "@repo/shared/types";
+
+import { TOOL_BY_SHORTCUT, ToolBar } from "@/components/ToolBar";
 import { useCanvasInit } from "@/hooks/canvas/useCanvasInit";
 import { useCanvasRender } from "@/hooks/canvas/useCanvasRender";
-import { useCanvasZoom, screenToWorld, type CanvasTransform } from "@/hooks/canvas/useCanvasZoom";
-
-import { useRoomWebSocket } from "@/hooks/canvas/useRoomWebSocket";
-import { useUndoRedo } from "@/hooks/canvas/useUndoRedo";
-import { useKeyboardDelete } from "@/hooks/canvas/useKeyboardDelete";
-import { useClipboard } from "@/hooks/canvas/useClipboard";
 import { useCanvasTools } from "@/hooks/canvas/useCanvasTools";
-import { useSelection } from "@/hooks/canvas/useSelection";
+import {
+  type CanvasTransform,
+  screenToWorld,
+  useCanvasZoom,
+} from "@/hooks/canvas/useCanvasZoom";
+import { useClipboard } from "@/hooks/canvas/useClipboard";
 import { useEraser } from "@/hooks/canvas/useEraser";
-
-import { ToolBar, TOOL_BY_SHORTCUT } from "@/components/ToolBar";
-import { useTheme } from "next-themes";
+import { useKeyboardDelete } from "@/hooks/canvas/useKeyboardDelete";
+import { useRoomWebSocket } from "@/hooks/canvas/useRoomWebSocket";
+import { useSelection } from "@/hooks/canvas/useSelection";
+import { useUndoRedo } from "@/hooks/canvas/useUndoRedo";
 import { getCanvasTheme } from "@/lib/canvas/theme";
-import Link from "next/link";
+import { ToolType } from "@/types/tool";
+
 import { Button } from "./ui/button";
-import { ArrowLeft } from "lucide-react";
 
 /**
  * ======================== ROOM CANVAS ORCHESTRATES ========================
- * 
+ *
  * - Canvas lifecycle
  * - Shape state
  * - WebSocket sync
@@ -54,18 +60,14 @@ export default function RoomCanvas({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: use initial snapshot only on mount
     []
   );
-  const {
-    shapes,
-    setShapes,
-    setShapesDirect,
-    undo,
-    redo,
-    resetHistory,
-  } = useUndoRedo(initialMap);
+  const { shapes, setShapes, setShapesDirect, undo, redo, resetHistory } =
+    useUndoRedo(initialMap);
   const shapesRef = useRef<Map<string, CanvasShape>>(shapes);
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [pendingEraseIds, setPendingEraseIds] = useState<Set<string>>(new Set());
+  const [pendingEraseIds, setPendingEraseIds] = useState<Set<string>>(
+    new Set()
+  );
   const [preview, setPreview] = useState<CanvasShape | null>(null);
   const [tool, setTool] = useState<ToolType>("box");
   const [transform, setTransform] = useState<CanvasTransform>({
@@ -73,14 +75,22 @@ export default function RoomCanvas({
     panX: 0,
     panY: 0,
   });
-  const [textInputAt, setTextInputAt] = useState<{ x: number; y: number } | null>(null);
-  const textInputResolveRef = useRef<((value: string | null) => void) | null>(null);
+  const [textInputAt, setTextInputAt] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
+  const textInputResolveRef = useRef<((value: string | null) => void) | null>(
+    null
+  );
   const textInputRef = useRef<HTMLInputElement>(null);
   const textInputSubmittedRef = useRef(false);
   const lastWorldPointRef = useRef({ x: 0, y: 0 });
 
   const { theme } = useTheme();
-  const canvasTheme = useMemo(() => getCanvasTheme(theme ?? undefined), [theme]);
+  const canvasTheme = useMemo(
+    () => getCanvasTheme(theme ?? undefined),
+    [theme]
+  );
 
   const getTextFromUser = useCallback((x: number, y: number) => {
     return new Promise<string | null>((resolve) => {
@@ -194,7 +204,14 @@ export default function RoomCanvas({
   );
 
   /* ======================== CUT / COPY / PASTE ======================== */
-  useClipboard(selectedIds, shapesRef, setShapes, setSelectedIds, wsRef, getPastePosition);
+  useClipboard(
+    selectedIds,
+    shapesRef,
+    setShapes,
+    setSelectedIds,
+    wsRef,
+    getPastePosition
+  );
 
   /* ======================== DRAW TOOLS ======================== */
   useCanvasTools(
@@ -261,11 +278,11 @@ export default function RoomCanvas({
 
   /* ======================== CANVAS UI ======================== */
   return (
-    <div className="relative w-full h-full bg-background">
+    <div className="bg-background relative h-full w-full">
       {/* Canvas: rotating = grabbing, over rotate handle = grab, selection with shape = move, eraser = crosshair, text = text cursor */}
       <canvas
         ref={canvasRef}
-        className="w-full h-full z-10"
+        className="z-10 h-full w-full"
         style={{
           cursor: isRotating
             ? "grabbing"
@@ -284,13 +301,13 @@ export default function RoomCanvas({
       {/* Inline text input on canvas (replaces prompt) */}
       {textInputAt && (
         <div
-          className="absolute z-30 left-0 top-0 w-full h-full pointer-events-none"
+          className="pointer-events-none absolute top-0 left-0 z-30 h-full w-full"
           style={{ pointerEvents: "none" }}
         >
           <input
             ref={textInputRef}
             type="text"
-            className="absolute min-w-[120px] max-w-[280px] px-2 py-1 text-sm bg-card border border-border rounded shadow-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            className="bg-card border-border text-foreground placeholder:text-muted-foreground focus:ring-ring absolute max-w-[280px] min-w-[120px] rounded border px-2 py-1 text-sm shadow-lg focus:ring-2 focus:outline-none"
             placeholder="Type text..."
             style={{
               left: textInputAt.x,
@@ -318,7 +335,7 @@ export default function RoomCanvas({
 
       {/* Connection overlay */}
       {status !== "connected" && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/10 backdrop-blur-sm z-20">
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/10 backdrop-blur-sm">
           <p className="text-sm font-medium">
             {status === "connecting"
               ? "Connecting to room…"
@@ -327,22 +344,30 @@ export default function RoomCanvas({
         </div>
       )}
 
-      <div className="absolute left-1/2 top-4 z-50 flex w-full  -translate-x-1/2 items-center justify-between gap-4 px-4 pointer-events-none">
+      <div className="pointer-events-none absolute top-4 left-1/2 z-50 flex w-full -translate-x-1/2 items-center justify-between gap-4 px-4">
         <div className="pointer-events-auto flex items-center gap-2">
           <Link href="/dashboard">
-            <Button variant="ghost" size="icon-lg" className="rounded-xl border border-border bg-card/95 p-6 shadow-lg shadow-black/5 backdrop-blur-md dark:bg-card/90 dark:shadow-black/20 pointer-events-auto">
-              <ArrowLeft className="w-5 h-5" />
+            <Button
+              variant="ghost"
+              size="icon-lg"
+              className="border-border bg-card/95 dark:bg-card/90 pointer-events-auto rounded-xl border p-6 shadow-lg shadow-black/5 backdrop-blur-md dark:shadow-black/20"
+            >
+              <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
-          <div className="min-w-xs rounded-xl border border-border bg-card/95 px-4 py-2.5 shadow-lg shadow-black/5 backdrop-blur-md dark:bg-card/90 dark:shadow-black/20 pointer-events-auto">
-            <h1 className="text-lg font-medium capitalize text-foreground">{roomName}</h1>
+          <div className="border-border bg-card/95 dark:bg-card/90 pointer-events-auto min-w-xs rounded-xl border px-4 py-2.5 shadow-lg shadow-black/5 backdrop-blur-md dark:shadow-black/20">
+            <h1 className="text-foreground text-lg font-medium capitalize">
+              {roomName}
+            </h1>
           </div>
         </div>
-        <div className="absolute left-1/2 -translate-x-1/2 pointer-events-auto">
+        <div className="pointer-events-auto absolute left-1/2 -translate-x-1/2">
           <ToolBar tool={tool} setTool={setTool} />
         </div>
-        <div className="rounded-xl border border-border bg-card/95 px-4 py-2.5 shadow-lg shadow-black/5 backdrop-blur-md dark:bg-card/90 dark:shadow-black/20 pointer-events-auto">
-          <span className="text-sm text-muted-foreground">{totalMembers} member{totalMembers !== 1 ? "s" : ""}</span>
+        <div className="border-border bg-card/95 dark:bg-card/90 pointer-events-auto rounded-xl border px-4 py-2.5 shadow-lg shadow-black/5 backdrop-blur-md dark:shadow-black/20">
+          <span className="text-muted-foreground text-sm">
+            {totalMembers} member{totalMembers !== 1 ? "s" : ""}
+          </span>
         </div>
       </div>
     </div>

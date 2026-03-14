@@ -39,18 +39,33 @@ export function getBoundingBox(shape: CanvasShape) {
     case "box":
       return rot !== 0
         ? rotatedRectAABB(shape.x, shape.y, shape.width, shape.height, rot)
-        : normalize({ x: shape.x, y: shape.y, width: shape.width, height: shape.height });
+        : normalize({
+            x: shape.x,
+            y: shape.y,
+            width: shape.width,
+            height: shape.height,
+          });
 
     case "ellipse":
       return rot !== 0
         ? rotatedRectAABB(shape.x, shape.y, shape.width, shape.height, rot)
-        : normalize({ x: shape.x, y: shape.y, width: shape.width, height: shape.height });
+        : normalize({
+            x: shape.x,
+            y: shape.y,
+            width: shape.width,
+            height: shape.height,
+          });
 
     case "text":
     case "triangle":
       return rot !== 0
         ? rotatedRectAABB(shape.x, shape.y, shape.width, shape.height, rot)
-        : normalize({ x: shape.x, y: shape.y, width: shape.width, height: shape.height });
+        : normalize({
+            x: shape.x,
+            y: shape.y,
+            width: shape.width,
+            height: shape.height,
+          });
 
     case "line": {
       // 🔴 FIX: use points, not width/height
@@ -81,12 +96,7 @@ export function getBoundingBox(shape: CanvasShape) {
   }
 }
 
-function normalize(r: {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}) {
+function normalize(r: { x: number; y: number; width: number; height: number }) {
   const x1 = Math.min(r.x, r.x + r.width);
   const y1 = Math.min(r.y, r.y + r.height);
   const x2 = Math.max(r.x, r.x + r.width);

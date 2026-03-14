@@ -1,4 +1,5 @@
 import type { CanvasShape } from "@repo/shared/types";
+
 import { getBoundingBox } from "./getBoundingBox";
 
 export const ROTATE_HANDLE_OFFSET = 24;
@@ -27,7 +28,9 @@ function rotatePoint(
  * Returns world-space positions for the 8 resize handles and 1 rotate handle
  * so they follow the shape's rotation (drawn on the rotated bounding box).
  */
-export function getHandlePositionsForShape(shape: CanvasShape): HandlePositions {
+export function getHandlePositionsForShape(
+  shape: CanvasShape
+): HandlePositions {
   const rotation = (shape as { rotation?: number }).rotation ?? 0;
   const angleRad = (rotation * Math.PI) / 180;
 

@@ -1,13 +1,16 @@
+import React, { useEffect, useRef, useState } from "react";
+
+import { CanvasShape } from "@repo/shared/types";
+
 import { normalizeShapes } from "@/lib/canvas/normalize-shapes";
-import { getSelectionBounds } from "@/lib/canvas/selection/getSelectionBounds";
 import {
   getHandlePositionsForShape,
   ROTATE_HANDLE_HIT_RADIUS,
 } from "@/lib/canvas/selection/getHandlePositions";
+import { getSelectionBounds } from "@/lib/canvas/selection/getSelectionBounds";
+
 import { getTopmostShapeAtPoint, rectContainsShape } from "../intersects";
-import { CanvasShape } from "@repo/shared/types";
 import type { GetWorldPoint } from "../useSelection";
-import React, { useEffect, useRef, useState } from "react";
 
 function pointInRect(
   bounds: { x: number; y: number; width: number; height: number },
@@ -54,7 +57,9 @@ export function useSelectShapes(
   const lastMovePos = useRef({ x: 0, y: 0 });
   const previewRef = useRef<CanvasShape | null>(null);
   const shapesRef = useRef<CanvasShape[]>(shapes);
-  const dragInitialPositions = useRef<Map<string, { x: number; y: number }>>(new Map());
+  const dragInitialPositions = useRef<Map<string, { x: number; y: number }>>(
+    new Map()
+  );
   const rotateCenter = useRef({ x: 0, y: 0 });
   const rotateInitialAngle = useRef(0);
   const rotateInitialRotations = useRef<Map<string, number>>(new Map());
@@ -73,10 +78,16 @@ export function useSelectShapes(
     function handleMouseDown(e: MouseEvent) {
       const point = getWorldPoint(e);
 
-      const selectedShapes = shapesRef.current.filter((s) => s.id && selectedIds.has(s.id));
-      const bounds = selectedShapes.length > 0 ? getSelectionBounds(selectedShapes) : null;
+      const selectedShapes = shapesRef.current.filter(
+        (s) => s.id && selectedIds.has(s.id)
+      );
+      const bounds =
+        selectedShapes.length > 0 ? getSelectionBounds(selectedShapes) : null;
 
-      if (selectedShapes.length > 0 && pointInAnyRotateHandle(selectedShapes, point)) {
+      if (
+        selectedShapes.length > 0 &&
+        pointInAnyRotateHandle(selectedShapes, point)
+      ) {
         const rotateBounds = getSelectionBounds(selectedShapes);
         isRotatingRef.current = true;
         setIsRotating(true);
@@ -94,7 +105,10 @@ export function useSelectShapes(
           point.x - rotateCenter.current.x
         );
         rotateInitialRotations.current = new Map(
-          selectedShapes.map((s) => [s.id!, (s as { rotation?: number }).rotation ?? 0])
+          selectedShapes.map((s) => [
+            s.id!,
+            (s as { rotation?: number }).rotation ?? 0,
+          ])
         );
         return;
       }
@@ -111,7 +125,11 @@ export function useSelectShapes(
         return;
       }
 
-      const hitShape = getTopmostShapeAtPoint(shapesRef.current, point.x, point.y);
+      const hitShape = getTopmostShapeAtPoint(
+        shapesRef.current,
+        point.x,
+        point.y
+      );
       if (hitShape?.id) {
         if (e.shiftKey) {
           const next = new Set(selectedIds);
@@ -213,7 +231,8 @@ export function useSelectShapes(
       if (isRotatingRef.current) {
         const mapToSend = latestShapesMapRef.current;
         for (const id of selectedIds) {
-          const shape = mapToSend?.get(id) ?? shapesRef.current.find((s) => s.id === id);
+          const shape =
+            mapToSend?.get(id) ?? shapesRef.current.find((s) => s.id === id);
           if (shape) {
             wsRef.current?.send(
               JSON.stringify({ type: "shape:update", payload: { ...shape } })
@@ -235,7 +254,11 @@ export function useSelectShapes(
           const shape = current.find((s) => s.id === id);
           const init = initial.get(id);
           if (shape && init) {
-            const updated = { ...shape, x: init.x + deltaX, y: init.y + deltaY };
+            const updated = {
+              ...shape,
+              x: init.x + deltaX,
+              y: init.y + deltaY,
+            };
             wsRef.current?.send(
               JSON.stringify({ type: "shape:update", payload: updated })
             );
@@ -274,7 +297,16 @@ export function useSelectShapes(
       canvas.removeEventListener("mouseup", handleMouseUp);
       window.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [enabled, canvasRef, selectedIds, onSelect, onPreview, setShapes, wsRef, getWorldPoint]);
+  }, [
+    enabled,
+    canvasRef,
+    selectedIds,
+    onSelect,
+    onPreview,
+    setShapes,
+    wsRef,
+    getWorldPoint,
+  ]);
 
   return { isOverRotateHandle, isRotating };
 }

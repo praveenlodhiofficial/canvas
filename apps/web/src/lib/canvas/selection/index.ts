@@ -1,7 +1,17 @@
-import { renderSelectionBounds, renderSelectionBoundsForShape } from "./renderSelectionBounds";
-import { renderSelectionHandles, renderSelectionHandlesForShape } from "./renderSelectionHandles";
+import {
+  getHandlePositionsForShape,
+  ROTATE_HANDLE_HIT_RADIUS,
+  ROTATE_HANDLE_OFFSET,
+} from "./getHandlePositions";
 import { getSelectionBounds } from "./getSelectionBounds";
-import { getHandlePositionsForShape, ROTATE_HANDLE_OFFSET, ROTATE_HANDLE_HIT_RADIUS } from "./getHandlePositions";
+import {
+  renderSelectionBounds,
+  renderSelectionBoundsForShape,
+} from "./renderSelectionBounds";
+import {
+  renderSelectionHandles,
+  renderSelectionHandlesForShape,
+} from "./renderSelectionHandles";
 
 export const selection = {
   renderBounds: renderSelectionBounds,

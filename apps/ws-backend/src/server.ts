@@ -1,4 +1,5 @@
 import type { Server } from "bun";
+
 import type { WebSocketData } from "@repo/shared/types";
 
 let bunServer: Server<WebSocketData>;

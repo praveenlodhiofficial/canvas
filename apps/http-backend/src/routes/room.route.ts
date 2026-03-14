@@ -1,7 +1,9 @@
+import { z } from "zod";
+
 import { prisma } from "@repo/database";
 import { RoomSchema } from "@repo/shared/schema";
 import type { AuthenticatedRequest } from "@repo/shared/types";
-import { z } from "zod";
+
 import { Router } from "@/core/router";
 import { authMiddleware } from "@/middleware/auth.middleware";
 import { roomAccessWhere } from "@/utils/permissions/room-access";

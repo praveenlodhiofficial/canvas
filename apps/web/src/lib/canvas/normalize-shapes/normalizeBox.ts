@@ -3,7 +3,6 @@
  * 1. Fixing the origin if user dragged left/up
  * 2. Normalizing the width and height to positive values
  */
-
 import { CanvasShape } from "@repo/shared/types";
 
 export function normalizeBox(shape: Extract<CanvasShape, { type: "box" }>) {

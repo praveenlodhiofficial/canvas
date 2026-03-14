@@ -14,14 +14,13 @@ export function AuthPageShell({
   footer,
 }: AuthPageShellProps) {
   return (
-    <div className="h-screen bg-background text-foreground flex items-center justify-center p-4">
-      <div className="w-full max-w-5xl animate-in fade-in duration-300">
-
-        <div className="rounded-xl border border-dashed border-border overflow-hidden bg-card shadow-lg flex flex-col md:flex-row max-h-[calc(100vh-200px)]">
+    <div className="bg-background text-foreground flex h-screen items-center justify-center p-4">
+      <div className="animate-in fade-in w-full max-w-5xl duration-300">
+        <div className="border-border bg-card flex max-h-[calc(100vh-200px)] flex-col overflow-hidden rounded-xl border border-dashed shadow-lg md:flex-row">
           {/* Left: image / branding placeholder (~2/3) */}
-          <div className="flex-1 min-h-[240px] md:min-h-0 flex items-center justify-center bg-muted/50 border-b border-r border-dashed border-border md:border-b-0">
+          <div className="bg-muted/50 border-border flex min-h-[240px] flex-1 items-center justify-center border-r border-b border-dashed md:min-h-0 md:border-b-0">
             <span
-              className="text-muted-foreground font-medium text-lg select-none -rotate-12"
+              className="text-muted-foreground -rotate-12 text-lg font-medium select-none"
               aria-hidden
             >
               Image
@@ -29,17 +28,17 @@ export function AuthPageShell({
           </div>
 
           {/* Right: form (~1/3) */}
-          <div className="shrink-0 w-full md:w-[450px] flex flex-col p-8 md:p-10 hide-scrollbar overflow-y-auto">
+          <div className="hide-scrollbar flex w-full shrink-0 flex-col overflow-y-auto p-8 md:w-[450px] md:p-10">
             <div className="mb-6">
-              <h1 className="text-2xl font-bold text-foreground tracking-tight">
+              <h1 className="text-foreground text-2xl font-bold tracking-tight">
                 {title}
               </h1>
-              <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>
+              <p className="text-muted-foreground mt-1 text-sm">{subtitle}</p>
             </div>
 
             {children}
 
-            <div className="mt-6 pt-6 border-t border-dashed border-border">
+            <div className="border-border mt-6 border-t border-dashed pt-6">
               {footer}
             </div>
           </div>

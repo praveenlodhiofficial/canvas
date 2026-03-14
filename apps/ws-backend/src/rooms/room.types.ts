@@ -34,10 +34,6 @@ export type ServerMessage =
       payload: string[];
     };
 
-
-
-
-
 // import { CanvasShape } from "@repo/shared/types";
 
 // export type ClientMessage =

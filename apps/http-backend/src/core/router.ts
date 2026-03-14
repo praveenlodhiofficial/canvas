@@ -1,6 +1,6 @@
 type Handler = (
   req: Request,
-  params: Record<string, string>,
+  params: Record<string, string>
 ) => Promise<Response> | Response;
 
 type Route = {

@@ -1,3 +1,7 @@
+import { SettingsIcon } from "lucide-react";
+
+import type { UserType } from "@repo/shared/schema";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -6,10 +10,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "./ui/button";
-import { SettingsIcon } from "lucide-react";
+
 import { LogoutButton } from "./LogoutButton";
-import type { UserType } from "@repo/shared/schema";
+import { Button } from "./ui/button";
 
 export function UserMenu({ user }: { user: UserType }) {
   const initials = user.name
@@ -18,13 +21,13 @@ export function UserMenu({ user }: { user: UserType }) {
     .join("");
 
   return (
-    <div className="right-9 top-20 sticky">
+    <div className="sticky top-20 right-9">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
             variant="outline"
             size="icon"
-            className="w-10 h-10 rounded-full flex items-center justify-center text-md sketch-border hover:bg-brand/10 hover:text-brand transition-colors border-2 bg-transparent"
+            className="text-md sketch-border hover:bg-brand/10 hover:text-brand flex h-10 w-10 items-center justify-center rounded-full border-2 bg-transparent transition-colors"
           >
             {initials}
           </Button>
@@ -32,22 +35,22 @@ export function UserMenu({ user }: { user: UserType }) {
 
         <DropdownMenuContent
           align="end"
-          className="w-xs sketch-border border-2 bg-background/95 backdrop-blur-sm"
+          className="sketch-border bg-background/95 w-xs border-2 backdrop-blur-sm"
         >
           <DropdownMenuLabel className="flex items-center gap-3 p-3">
-            <div className="w-10 h-10 bg-brand text-white rounded-full flex items-center justify-center text-md font-bold sketch-border">
+            <div className="bg-brand text-md sketch-border flex h-10 w-10 items-center justify-center rounded-full font-bold text-white">
               {initials}
             </div>
             <div className="flex flex-col">
-              <p className="text-sm font-bold leading-none">{user.name}</p>
-              <p className="text-xs text-muted-foreground mt-1">{user.email}</p>
+              <p className="text-sm leading-none font-bold">{user.name}</p>
+              <p className="text-muted-foreground mt-1 text-xs">{user.email}</p>
             </div>
           </DropdownMenuLabel>
 
           <DropdownMenuSeparator className="bg-muted" />
 
-          <DropdownMenuItem className="flex items-center gap-3 cursor-pointer py-3 px-3 focus:bg-brand/10 focus:text-brand">
-            <SettingsIcon className="w-4 h-4" />
+          <DropdownMenuItem className="focus:bg-brand/10 focus:text-brand flex cursor-pointer items-center gap-3 px-3 py-3">
+            <SettingsIcon className="h-4 w-4" />
             <span className="text-sm font-medium">Manage Account</span>
           </DropdownMenuItem>
 

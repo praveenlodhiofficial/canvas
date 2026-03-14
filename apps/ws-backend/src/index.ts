@@ -1,12 +1,13 @@
 import type { ServerWebSocket } from "bun";
-import type { WebSocketData } from "@repo/shared/types";
-import { authMiddleware } from "./middleware/auth.middleware";
-import { prisma } from "@repo/database";
 
-import { registerServer, broadcastToRoom } from "./server";
-import { joinRoom, leaveRoom, applyShape } from "./rooms/room.manager";
-import { snapshotRoom } from "./snapshot/snapshot.service";
+import { prisma } from "@repo/database";
+import type { WebSocketData } from "@repo/shared/types";
+
+import { authMiddleware } from "./middleware/auth.middleware";
+import { applyShape, joinRoom, leaveRoom } from "./rooms/room.manager";
 import type { ClientMessage } from "./rooms/room.types";
+import { broadcastToRoom, registerServer } from "./server";
+import { snapshotRoom } from "./snapshot/snapshot.service";
 import { memoryStore } from "./store/memory.store";
 
 type WsData = WebSocketData & {
@@ -72,7 +73,7 @@ const server = Bun.serve<WsData>({
         JSON.stringify({
           type: "room:init",
           payload: shapes,
-        }),
+        })
       );
     },
 
@@ -103,14 +104,14 @@ const server = Bun.serve<WsData>({
     //   if (msg.type === "shape:delete") {
     //     const ids: string[] = msg.payload;
     //     const roomId = ws.data.room;
-      
+
     //     const room = memoryStore.get(roomId);
     //     if (!room) return;
-      
+
     //     // 🔥 remove from memory
     //     ids.forEach((id) => room.shapes.delete(id));
     //     room.lastUpdated = Date.now();
-      
+
     //     // 🔥 remove from DB
     //     await prisma.shape.deleteMany({
     //       where: {
@@ -118,7 +119,7 @@ const server = Bun.serve<WsData>({
     //         roomId,
     //       },
     //     });
-      
+
     //     // 🔥 broadcast delete to others
     //     broadcastToRoom(roomId, {
     //       type: "shape:delete",
@@ -129,31 +130,31 @@ const server = Bun.serve<WsData>({
 
     message: async (ws, rawMessage) => {
       let msg: ClientMessage;
-    
+
       try {
         msg = JSON.parse(rawMessage.toString());
       } catch {
         console.warn("[WS] Invalid message");
         return;
       }
-    
+
       const roomId = ws.data.room;
-    
+
       /* ---------- ADD SHAPE ---------- */
       if (msg.type === "shape:add") {
         const shape = {
           ...msg.payload,
           id: msg.payload.id ?? crypto.randomUUID(),
         };
-    
+
         applyShape(roomId, shape);
-    
+
         broadcastToRoom(roomId, {
           type: "shape:created",
           payload: shape,
         });
       }
-    
+
       /* ---------- UPDATE SHAPE (e.g. move) ---------- */
       if (msg.type === "shape:update") {
         const shape = msg.payload;
@@ -171,14 +172,14 @@ const server = Bun.serve<WsData>({
       /* ---------- DELETE SHAPES ---------- */
       if (msg.type === "shape:delete") {
         const ids = msg.payload;
-    
+
         const room = memoryStore.get(roomId);
         if (!room) return;
-    
+
         // remove from memory
         ids.forEach((id) => room.shapes.delete(id));
         room.lastUpdated = Date.now();
-    
+
         // remove from DB
         await prisma.shape.deleteMany({
           where: {
@@ -186,14 +187,14 @@ const server = Bun.serve<WsData>({
             roomId,
           },
         });
-    
+
         broadcastToRoom(roomId, {
           type: "shape:deleted",
           payload: ids,
         });
       }
     },
-    
+
     /* ---------------- CLOSE WS CONNECTION ---------------- */
     close: async (ws: ServerWebSocket<WsData>) => {
       const roomId = ws.data.room;

@@ -36,4 +36,9 @@ export type CanvasTriangle = BaseShape & {
   height: number;
 };
 
-export type CanvasShape = CanvasBox | CanvasEllipse | CanvasLine | CanvasText | CanvasTriangle;
+export type CanvasShape =
+  | CanvasBox
+  | CanvasEllipse
+  | CanvasLine
+  | CanvasText
+  | CanvasTriangle;

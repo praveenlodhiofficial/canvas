@@ -1,6 +1,7 @@
 // src/proxy.ts
-import { config as appConfig } from "@/lib/config";
 import { NextRequest, NextResponse } from "next/server";
+
+import { config as appConfig } from "@/lib/config";
 
 const BACKEND_URL = appConfig.backendUrl;
 

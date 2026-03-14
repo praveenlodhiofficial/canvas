@@ -1,8 +1,14 @@
 import { useEffect, useRef } from "react";
+
 import { CanvasShape } from "@repo/shared/types";
+
 import { getBoundingBox } from "@/lib/canvas/selection/getBoundingBox";
 
-function cloneShapeForPaste(shape: CanvasShape, dx: number, dy: number): CanvasShape {
+function cloneShapeForPaste(
+  shape: CanvasShape,
+  dx: number,
+  dy: number
+): CanvasShape {
   const base = {
     id: crypto.randomUUID(),
     x: shape.x + dx,
@@ -13,7 +19,12 @@ function cloneShapeForPaste(shape: CanvasShape, dx: number, dy: number): CanvasS
     case "box":
       return { ...base, type: "box", width: shape.width, height: shape.height };
     case "ellipse":
-      return { ...base, type: "ellipse", width: shape.width, height: shape.height };
+      return {
+        ...base,
+        type: "ellipse",
+        width: shape.width,
+        height: shape.height,
+      };
     case "line":
       return {
         ...base,
@@ -29,13 +40,21 @@ function cloneShapeForPaste(shape: CanvasShape, dx: number, dy: number): CanvasS
         height: shape.height,
       };
     case "triangle":
-      return { ...base, type: "triangle", width: shape.width, height: shape.height };
+      return {
+        ...base,
+        type: "triangle",
+        width: shape.width,
+        height: shape.height,
+      };
     default:
       return { ...base, type: "box", width: 100, height: 100 };
   }
 }
 
-function getClipboardCenter(clipboard: CanvasShape[]): { x: number; y: number } {
+function getClipboardCenter(clipboard: CanvasShape[]): {
+  x: number;
+  y: number;
+} {
   if (clipboard.length === 0) return { x: 0, y: 0 };
   let minX = Infinity;
   let minY = Infinity;
@@ -67,11 +86,11 @@ export function useClipboard(
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       const target = e.target as Node;
-      const isInput = target && (
-        target instanceof HTMLInputElement ||
-        target instanceof HTMLTextAreaElement ||
-        (target instanceof HTMLElement && target.isContentEditable)
-      );
+      const isInput =
+        target &&
+        (target instanceof HTMLInputElement ||
+          target instanceof HTMLTextAreaElement ||
+          (target instanceof HTMLElement && target.isContentEditable));
       if (isInput) return;
 
       const isCopy = (e.ctrlKey || e.metaKey) && e.key === "c";
@@ -100,7 +119,10 @@ export function useClipboard(
             return next;
           });
           wsRef.current?.send(
-            JSON.stringify({ type: "shape:delete", payload: Array.from(selectedIds) })
+            JSON.stringify({
+              type: "shape:delete",
+              payload: Array.from(selectedIds),
+            })
           );
           setSelectedIds(new Set());
         }
@@ -135,5 +157,12 @@ export function useClipboard(
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedIds, shapesRef, setShapes, setSelectedIds, wsRef, getPastePosition]);
+  }, [
+    selectedIds,
+    shapesRef,
+    setShapes,
+    setSelectedIds,
+    wsRef,
+    getPastePosition,
+  ]);
 }

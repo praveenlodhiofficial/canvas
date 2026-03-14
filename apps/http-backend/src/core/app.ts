@@ -1,5 +1,5 @@
-import { withCors } from "@/middleware/cors.middleware";
 import { Router } from "@/core/router";
+import { withCors } from "@/middleware/cors.middleware";
 
 type Middleware = (req: Request) => Promise<Response | null>;
 

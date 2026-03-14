@@ -1,6 +1,7 @@
+import { UserType } from "@repo/shared/schema";
+
 import { authFetch } from "@/lib/auth/auth-fetch";
 import { config } from "@/lib/config";
-import { UserType } from "@repo/shared/schema";
 
 /* ----------------------> GET CURRENT USER DAL FUNCTION <-------------------------- */
 export const getCurrentUser = async () => {

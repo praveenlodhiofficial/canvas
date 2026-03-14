@@ -1,8 +1,9 @@
 import { useEffect, useRef } from "react";
+
 import { initCanvas } from "@/lib/canvas";
 
 export function useCanvasInit(
-  canvasRef: React.RefObject<HTMLCanvasElement | null>,
+  canvasRef: React.RefObject<HTMLCanvasElement | null>
 ) {
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
 

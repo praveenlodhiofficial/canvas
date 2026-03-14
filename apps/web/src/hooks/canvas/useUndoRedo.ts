@@ -1,4 +1,5 @@
-import { useState, useRef, useCallback } from "react";
+import { useCallback, useRef, useState } from "react";
+
 import { CanvasShape } from "@repo/shared/types";
 
 const MAX_HISTORY = 100;
@@ -10,14 +11,21 @@ function cloneShape(shape: CanvasShape): CanvasShape {
   return { ...shape };
 }
 
-function cloneShapesMap(map: Map<string, CanvasShape>): Map<string, CanvasShape> {
-  return new Map(Array.from(map.entries()).map(([id, s]) => [id, cloneShape(s)]));
+function cloneShapesMap(
+  map: Map<string, CanvasShape>
+): Map<string, CanvasShape> {
+  return new Map(
+    Array.from(map.entries()).map(([id, s]) => [id, cloneShape(s)])
+  );
 }
 
 export function useUndoRedo(initialShapes: Map<string, CanvasShape>) {
-  const [shapes, setShapesState] = useState<Map<string, CanvasShape>>(initialShapes);
+  const [shapes, setShapesState] =
+    useState<Map<string, CanvasShape>>(initialShapes);
 
-  const historyRef = useRef<Map<string, CanvasShape>[]>([cloneShapesMap(initialShapes)]);
+  const historyRef = useRef<Map<string, CanvasShape>[]>([
+    cloneShapesMap(initialShapes),
+  ]);
   const historyIndexRef = useRef(0);
   const isRestoringRef = useRef(false);
   const [, setVersion] = useState(0);

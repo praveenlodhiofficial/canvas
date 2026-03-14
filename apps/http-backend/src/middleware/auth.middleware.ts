@@ -1,6 +1,7 @@
-import { AuthenticatedRequest } from "@repo/shared/types";
-import { authenticateRequest } from "@/utils/authenticateRequest";
 import { prisma } from "@repo/database";
+import { AuthenticatedRequest } from "@repo/shared/types";
+
+import { authenticateRequest } from "@/utils/authenticateRequest";
 
 export async function authMiddleware(req: Request) {
   const payload = authenticateRequest(req);

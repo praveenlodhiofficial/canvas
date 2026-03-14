@@ -1,10 +1,11 @@
 import { App } from "@/core/app";
 import { Router } from "@/core/router";
+import { corsMiddleware } from "@/middleware/cors.middleware";
 import { registerAuthRoutes } from "@/routes/auth.route";
 import { registerRoomRoutes } from "@/routes/room.route";
-import { corsMiddleware } from "@/middleware/cors.middleware";
-import { registerShapeRoutes } from "./routes/shape.route";
+
 import { registerRoomMemberRoutes } from "./routes/roomMember.route";
+import { registerShapeRoutes } from "./routes/shape.route";
 
 const router = new Router();
 registerAuthRoutes(router);

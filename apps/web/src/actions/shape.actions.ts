@@ -1,5 +1,6 @@
-import { getAllShapes } from "@/dal/shape.dal";
 import type { Shape } from "@repo/shared/schema";
+
+import { getAllShapes } from "@/dal/shape.dal";
 
 /**
  * Server Action

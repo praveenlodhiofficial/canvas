@@ -1,4 +1,5 @@
 import { CanvasShape } from "@repo/shared/types";
+
 import { getBoundingBox } from "@/lib/canvas/selection/getBoundingBox";
 
 /** Hit padding so clicking on the border (or just outside) still selects the shape. */

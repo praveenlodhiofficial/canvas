@@ -1,5 +1,7 @@
-import type { CanvasTheme } from "@/lib/canvas/theme";
 import type { CanvasShape } from "@repo/shared/types";
+
+import type { CanvasTheme } from "@/lib/canvas/theme";
+
 import { getBoundingBox } from "./getBoundingBox";
 
 export function renderSelectionBounds(
@@ -51,4 +53,3 @@ export function renderSelectionBoundsForShape(
 
   ctx.restore();
 }
-  

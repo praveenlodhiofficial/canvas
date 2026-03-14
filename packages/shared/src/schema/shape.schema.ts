@@ -1,7 +1,14 @@
 import { z } from "zod";
 
 // --------------------------------------------> SHAPE ENUM <--------------------------------------------
-export const ShapeTypeSchema = z.enum(["BOX", "ELLIPSE", "LINE", "SELECTION", "TEXT", "TRIANGLE"]);
+export const ShapeTypeSchema = z.enum([
+  "BOX",
+  "ELLIPSE",
+  "LINE",
+  "SELECTION",
+  "TEXT",
+  "TRIANGLE",
+]);
 
 // --------------------------------------------> BASE SHAPE SCHEMA <--------------------------------------------
 export const ShapeSchema = z.object({
@@ -21,7 +28,7 @@ export const ShapeSchema = z.object({
       z.object({
         x: z.number(),
         y: z.number(),
-      }),
+      })
     )
     .min(2)
     .optional(),
@@ -47,7 +54,7 @@ export const UpdateShapeSchema = ShapeSchema.pick({ id: true }).extend(
     roomId: true,
     createdAt: true,
     updatedAt: true,
-  }).partial().shape,
+  }).partial().shape
 );
 
 // --------------------------------------------> SHAPE INPUT AND OUTPUT <--------------------------------------------
