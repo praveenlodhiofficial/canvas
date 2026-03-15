@@ -1,15 +1,38 @@
-# shared-types
+## `@repo/shared` – shared schemas, types, and utils
 
-To install dependencies:
+Internal package that centralizes:
 
-```bash
-bun install
+- **Runtime validation** with Zod (request/response schemas)
+- **Type-only definitions** shared between web, HTTP backend, and WS backend
+- **Utility functions** (e.g. auth, configuration helpers)
+
+Exports:
+
+- `@repo/shared` – main barrel (`src/index.ts`)
+- `@repo/shared/schema` – Zod schemas for API contracts and entities
+- `@repo/shared/types` – TypeScript types/interfaces
+- `@repo/shared/utils` – small cross-cutting utilities
+
+---
+
+## Usage
+
+In other workspaces:
+
+```ts
+// HTTP or WS backend
+import { roomSchema } from "@repo/shared/schema";
+import type { CanvasShape } from "@repo/shared/types";
+// Web app
+import { CanvasShape } from "@repo/shared/types";
 ```
 
-To run:
+---
+
+## Scripts
 
 ```bash
-bun run index.ts
+bun run build  # tsc -b, compiles TypeScript to dist/
 ```
 
-This project was created using `bun init` in bun v1.2.9. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+This package is internal-only (`"private": true`) and is not published to npm. It is intended to be consumed via `workspace:*` references in the monorepo.
