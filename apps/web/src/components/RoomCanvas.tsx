@@ -6,6 +6,7 @@ import { useTheme } from "next-themes";
 import Link from "next/link";
 
 import { ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
 
 import { CanvasShape } from "@repo/shared/types";
 
@@ -43,12 +44,13 @@ export default function RoomCanvas({
   initialShapes,
   roomId,
   roomName,
-  totalMembers,
+  currentUserId = null,
 }: {
   initialShapes: CanvasShape[];
   roomId: string;
   roomName: string;
-  totalMembers: number;
+  /** Used to avoid showing "X joined" toast for the current user. */
+  currentUserId?: string | null;
 }) {
   /* ======================== CANVAS REFERENCES ======================== */
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -193,10 +195,16 @@ export default function RoomCanvas({
   useCanvasZoom(canvasRef, setTransform);
 
   /* ======================== WEBSOCKET ======================== */
-  const { wsRef, status } = useRoomWebSocket(roomId, setShapesDirect, {
-    onRoomInit: (payload) =>
-      resetHistory(new Map(payload.map((s: CanvasShape) => [s.id, s]))),
-  });
+  const { wsRef, status, presentCount } = useRoomWebSocket(
+    roomId,
+    setShapesDirect,
+    {
+      onRoomInit: (payload) =>
+        resetHistory(new Map(payload.map((s: CanvasShape) => [s.id, s]))),
+      onUserJoined: (userName) => toast.success(`${userName} joined the room`),
+      currentUserId,
+    }
+  );
 
   /* ======================== KEYBOARD DELETE ======================== */
   useKeyboardDelete(selectedIds, setShapes, wsRef, () =>
@@ -376,7 +384,11 @@ export default function RoomCanvas({
         </div>
         <div className="border-border bg-card/95 dark:bg-card/90 pointer-events-auto rounded-xl border px-4 py-2.5 shadow-lg shadow-black/5 backdrop-blur-md dark:shadow-black/20">
           <span className="text-muted-foreground text-sm">
-            {totalMembers} member{totalMembers !== 1 ? "s" : ""}
+            {presentCount === null
+              ? "—"
+              : presentCount === 0
+                ? "No one in room"
+                : `${presentCount} member${presentCount !== 1 ? "s" : ""} currently in room`}
           </span>
         </div>
       </div>

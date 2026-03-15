@@ -38,7 +38,12 @@ export function registerAuthRoutes(router: Router) {
         );
       }
 
-      const hashedPassword = await Bun.password.hash(parsed.data.password);
+      // Use explicit argon2id so hashes are stable across Bun versions/restarts (fixes sign-in after hours)
+      const hashedPassword = await Bun.password.hash(parsed.data.password, {
+        algorithm: "argon2id",
+        memoryCost: 65536,
+        timeCost: 2,
+      });
 
       const user = await prisma.user.create({
         data: {
@@ -81,6 +86,12 @@ export function registerAuthRoutes(router: Router) {
     });
 
     if (!user) {
+      if (config.nodeEnv === "development") {
+        console.warn(
+          "Sign-in failed: no user found for email:",
+          parsed.data.email
+        );
+      }
       return Response.json({ message: "Invalid credentials" }, { status: 401 });
     }
 
@@ -90,6 +101,9 @@ export function registerAuthRoutes(router: Router) {
     );
 
     if (!valid) {
+      if (config.nodeEnv === "development") {
+        console.warn("Sign-in failed: password mismatch for user id:", user.id);
+      }
       return Response.json({ message: "Invalid credentials" }, { status: 401 });
     }
 

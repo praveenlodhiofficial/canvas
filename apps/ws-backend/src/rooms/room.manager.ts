@@ -2,10 +2,18 @@ import { prisma } from "@repo/database";
 import { CanvasShape } from "@repo/shared/types";
 
 import { config } from "@/lib/config";
+import type { RoomState } from "@/rooms/room.state";
 import { mapDbShapeToCanvas } from "@/snapshot/dbShapeToCanvas";
 import { memoryStore } from "@/store/memory.store";
 
-export async function joinRoom(roomId: string, userId: string) {
+export async function joinRoom(
+  roomId: string,
+  userId: string
+): Promise<{
+  shapes: CanvasShape[];
+  userName: string;
+  presentCount: number;
+} | null> {
   let room = memoryStore.get(roomId);
 
   const user = await prisma.user.findUnique({
@@ -37,10 +45,18 @@ export async function joinRoom(roomId: string, userId: string) {
     }
   }
   room.users.add(userId);
-  return Array.from(room.shapes.values());
+  const shapes = Array.from(room.shapes.values());
+  return {
+    shapes,
+    userName: user.name,
+    presentCount: room.users.size,
+  };
 }
 
-export async function leaveRoom(roomId: string, userId: string) {
+export async function leaveRoom(
+  roomId: string,
+  userId: string
+): Promise<{ room: RoomState; userName: string } | null> {
   const room = memoryStore.get(roomId);
   if (!room) return null;
 
@@ -61,7 +77,7 @@ export async function leaveRoom(roomId: string, userId: string) {
   }
 
   room.users.delete(userId);
-  return room;
+  return { room, userName: user.name };
 }
 
 export function applyShape(roomId: string, shape: CanvasShape) {

@@ -76,8 +76,8 @@ const server = Bun.serve<WsData>({
       ws.subscribe(channel);
 
       // Join room + get initial snapshot
-      const shapes = await joinRoom(roomId, userId);
-      if (shapes === null && config.nodeEnv === "development") {
+      const joinResult = await joinRoom(roomId, userId);
+      if (joinResult === null && config.nodeEnv === "development") {
         console.warn(
           "[WS] joinRoom returned null for room:",
           roomId,
@@ -86,12 +86,23 @@ const server = Bun.serve<WsData>({
         );
       }
 
-      ws.send(
-        JSON.stringify({
-          type: "room:init",
-          payload: shapes,
-        })
-      );
+      if (joinResult) {
+        ws.send(
+          JSON.stringify({
+            type: "room:init",
+            payload: joinResult.shapes,
+            presentCount: joinResult.presentCount,
+          })
+        );
+        broadcastToRoom(roomId, {
+          type: "room:user_joined",
+          payload: {
+            userId,
+            userName: joinResult.userName,
+            presentCount: joinResult.presentCount,
+          },
+        });
+      }
     },
 
     message: async (ws, rawMessage) => {
@@ -167,8 +178,8 @@ const server = Bun.serve<WsData>({
       const roomId = ws.data.room;
       const userId = ws.data.user.id;
 
-      const room = await leaveRoom(roomId, userId);
-      if (!room) {
+      const leaveResult = await leaveRoom(roomId, userId);
+      if (!leaveResult) {
         if (config.nodeEnv === "development")
           console.warn("[WS] leaveRoom returned null, skipping snapshot", {
             roomId,
@@ -177,10 +188,19 @@ const server = Bun.serve<WsData>({
         return;
       }
 
+      const { room, userName } = leaveResult;
+
       // Take a snapshot of the room before disconnecting
       await snapshotRoom(room);
 
-      // TODO: Cleanup handled inside room.manager
+      broadcastToRoom(roomId, {
+        type: "room:user_left",
+        payload: {
+          userId,
+          userName,
+          presentCount: room.users.size,
+        },
+      });
     },
   },
 });

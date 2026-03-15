@@ -610,22 +610,31 @@ export function registerRoomRoutes(router: Router) {
         );
       }
 
-      // prevent duplicate membership
+      // already a member: allow re-join (e.g. after leaving the room page)
       const existingMember = await prisma.roomMember.findFirst({
         where: {
           roomId,
           userId: user.id,
         },
+        select: {
+          id: true,
+          role: true,
+          joinedAt: true,
+        },
       });
 
       if (existingMember) {
         return Response.json(
-          { message: "User already joined this room" },
-          { status: 400 }
+          {
+            message: "Opening room",
+            roomId: room.id,
+            member: existingMember,
+          },
+          { status: 200 }
         );
       }
 
-      // create membership
+      // create new membership
       const member = await prisma.roomMember.create({
         data: {
           roomId,

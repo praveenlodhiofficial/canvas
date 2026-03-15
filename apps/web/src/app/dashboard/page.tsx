@@ -1,4 +1,5 @@
 import { Header } from "@/components/Header";
+import { JoinRoomAction } from "@/components/JoinRoomAction";
 import { RoomCard } from "@/components/RoomCard";
 import { RoomDialog } from "@/components/RoomDialog";
 import { Empty } from "@/components/ui/empty";
@@ -41,7 +42,10 @@ export default async function RoomsDashboard() {
                 Create and manage collaborative canvas rooms for your team
               </p>
             </div>
-            <RoomDialog type="create" />
+            <div className="flex flex-wrap items-center gap-3">
+              <JoinRoomAction />
+              <RoomDialog type="create" />
+            </div>
           </div>
 
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
