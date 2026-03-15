@@ -1,19 +1,11 @@
-import type { ServerWebSocket } from "bun";
-
 import { prisma } from "@repo/database";
-import type { WebSocketData } from "@repo/shared/types";
 
+import { handleConnection, type WsData } from "./handlers/connection.handler";
+import { handleDisconnect } from "./handlers/disconnect.handler";
+import { handleMessage } from "./handlers/message.handler";
 import { config } from "./lib/config";
 import { authMiddleware } from "./middleware/auth.middleware";
-import { applyShape, joinRoom, leaveRoom } from "./rooms/room.manager";
-import type { ClientMessage } from "./rooms/room.types";
-import { broadcastToRoom, registerServer } from "./server";
-import { snapshotRoom } from "./snapshot/snapshot.service";
-import { memoryStore } from "./store/memory.store";
-
-type WsData = WebSocketData & {
-  room: string;
-};
+import { registerServer } from "./server";
 
 const server = Bun.serve<WsData>({
   port: config.port,
@@ -68,140 +60,13 @@ const server = Bun.serve<WsData>({
     data: {} as WsData,
 
     /* ---------------- OPEN WS CONNECTION ---------------- */
-    open: async (ws: ServerWebSocket<WsData>) => {
-      const roomId = ws.data.room;
-      const userId = ws.data.user.id;
-      const channel = `room:${roomId}`;
+    open: handleConnection,
 
-      ws.subscribe(channel);
-
-      // Join room + get initial snapshot
-      const joinResult = await joinRoom(roomId, userId);
-      if (joinResult === null && config.nodeEnv === "development") {
-        console.warn(
-          "[WS] joinRoom returned null for room:",
-          roomId,
-          "user:",
-          userId
-        );
-      }
-
-      if (joinResult) {
-        ws.send(
-          JSON.stringify({
-            type: "room:init",
-            payload: joinResult.shapes,
-            presentCount: joinResult.presentCount,
-          })
-        );
-        broadcastToRoom(roomId, {
-          type: "room:user_joined",
-          payload: {
-            userId,
-            userName: joinResult.userName,
-            presentCount: joinResult.presentCount,
-          },
-        });
-      }
-    },
-
-    message: async (ws, rawMessage) => {
-      let msg: ClientMessage;
-
-      try {
-        msg = JSON.parse(rawMessage.toString());
-      } catch {
-        if (config.nodeEnv === "development")
-          console.warn("[WS] Invalid message");
-        return;
-      }
-
-      const roomId = ws.data.room;
-
-      /* ---------- ADD SHAPE ---------- */
-      if (msg.type === "shape:add") {
-        const shape = {
-          ...msg.payload,
-          id: msg.payload.id ?? crypto.randomUUID(),
-        };
-
-        applyShape(roomId, shape);
-
-        broadcastToRoom(roomId, {
-          type: "shape:created",
-          payload: shape,
-        });
-      }
-
-      /* ---------- UPDATE SHAPE (e.g. move) ---------- */
-      if (msg.type === "shape:update") {
-        const shape = msg.payload;
-        const room = memoryStore.get(roomId);
-        if (room && room.shapes.has(shape.id)) {
-          room.shapes.set(shape.id, shape);
-          room.lastUpdated = Date.now();
-          broadcastToRoom(roomId, {
-            type: "shape:updated",
-            payload: shape,
-          });
-        }
-      }
-
-      /* ---------- DELETE SHAPES ---------- */
-      if (msg.type === "shape:delete") {
-        const ids = msg.payload;
-
-        const room = memoryStore.get(roomId);
-        if (!room) return;
-
-        // remove from memory
-        ids.forEach((id) => room.shapes.delete(id));
-        room.lastUpdated = Date.now();
-
-        // remove from DB
-        await prisma.shape.deleteMany({
-          where: {
-            id: { in: ids },
-            roomId,
-          },
-        });
-
-        broadcastToRoom(roomId, {
-          type: "shape:deleted",
-          payload: ids,
-        });
-      }
-    },
+    /* ---------------- INCOMING MESSAGES ---------------- */
+    message: (ws, rawMessage) => handleMessage(ws, rawMessage),
 
     /* ---------------- CLOSE WS CONNECTION ---------------- */
-    close: async (ws: ServerWebSocket<WsData>) => {
-      const roomId = ws.data.room;
-      const userId = ws.data.user.id;
-
-      const leaveResult = await leaveRoom(roomId, userId);
-      if (!leaveResult) {
-        if (config.nodeEnv === "development")
-          console.warn("[WS] leaveRoom returned null, skipping snapshot", {
-            roomId,
-            userId,
-          });
-        return;
-      }
-
-      const { room, userName } = leaveResult;
-
-      // Take a snapshot of the room before disconnecting
-      await snapshotRoom(room);
-
-      broadcastToRoom(roomId, {
-        type: "room:user_left",
-        payload: {
-          userId,
-          userName,
-          presentCount: room.users.size,
-        },
-      });
-    },
+    close: handleDisconnect,
   },
 });
 

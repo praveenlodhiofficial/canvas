@@ -75,11 +75,6 @@ export const TOOL_BY_SHORTCUT: Record<string, ToolType> = Object.fromEntries(
   TOOLS.map((t) => [t.shortcut, t.type])
 );
 
-/**
- * ToolBar
- * --------------------------------------------------
- * Pure UI component – controls active tool only.
- */
 export function ToolBar({
   tool,
   setTool,

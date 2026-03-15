@@ -27,6 +27,9 @@ export default async function RoomPage({
   const currentUserId = userResult.success
     ? (userResult.user?.id ?? null)
     : null;
+  const currentUserName = userResult.success
+    ? (userResult.user?.name ?? null)
+    : null;
 
   return (
     <div className="flex w-full flex-col items-center justify-center">
@@ -36,6 +39,7 @@ export default async function RoomPage({
           roomId={room.id!}
           initialShapes={shapes as unknown as CanvasShape[]}
           currentUserId={currentUserId}
+          currentUserName={currentUserName}
         />
       </div>
     </div>

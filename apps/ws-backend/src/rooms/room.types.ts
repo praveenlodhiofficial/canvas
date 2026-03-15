@@ -13,6 +13,15 @@ export type ClientMessage =
   | {
       type: "shape:delete";
       payload: string[]; // ids
+    }
+  | {
+      type: "cursor_move";
+      x: number;
+      y: number;
+    }
+  | {
+      type: "selection_change";
+      selectedShapeIds: string[];
     };
 
 /* ---------- SERVER → CLIENT ---------- */

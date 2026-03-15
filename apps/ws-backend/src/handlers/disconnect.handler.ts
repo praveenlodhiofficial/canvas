@@ -1,17 +1,41 @@
-import { snapshotRoom } from "@/snapshot/snapshot.service";
-import { memoryStore } from "@/store/memory.store";
+import type { ServerWebSocket } from "bun";
 
-export function handleDisconnect(roomId: string, userId: string) {
-  const room = memoryStore.get(roomId);
-  if (!room) return;
+import type { WebSocketData } from "@repo/shared/types";
 
-  room.users.delete(userId);
+import { leaveRoom } from "../rooms/room.manager";
+import { broadcastToRoom } from "../server";
+import { snapshotRoom } from "../snapshot/snapshot.service";
+import type { WsData } from "./connection.handler";
 
-  // ALWAYS snapshot on disconnect
-  snapshotRoom(room);
+/**
+ * Handle socket close:
+ * - updates room presence via `leaveRoom`
+ * - snapshots the room state
+ * - notifies remaining clients that a user left
+ */
+export async function handleDisconnect(ws: ServerWebSocket<WsData>) {
+  const roomId = ws.data.room;
+  const userId = ws.data.user.id;
 
-  // Cleanup when last user leaves
-  if (room.users.size === 0) {
-    memoryStore.delete(roomId);
+  const leaveResult = await leaveRoom(roomId, userId);
+  if (!leaveResult) {
+    console.warn("[WS] leaveRoom returned null, skipping snapshot", {
+      roomId,
+      userId,
+    });
+    return;
   }
+
+  const { room, userName } = leaveResult;
+
+  await snapshotRoom(room);
+
+  broadcastToRoom(roomId, {
+    type: "room:user_left",
+    payload: {
+      userId,
+      userName,
+      presentCount: room.users.size,
+    },
+  });
 }

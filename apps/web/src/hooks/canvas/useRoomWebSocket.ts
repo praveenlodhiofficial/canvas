@@ -6,7 +6,19 @@ import { config } from "@/lib/config";
 
 type RoomWebSocketOptions = {
   onRoomInit?: (shapes: CanvasShape[]) => void;
-  onUserJoined?: (userName: string) => void;
+  onUserJoined?: (userId: string, userName: string) => void;
+  onUserLeft?: (userId: string, userName: string) => void;
+  onCursorMove?: (payload: {
+    userId: string;
+    userName: string;
+    x: number;
+    y: number;
+  }) => void;
+  onSelectionChange?: (payload: {
+    userId: string;
+    userName: string;
+    selectedShapeIds: string[];
+  }) => void;
   /** If set, join toast is not shown for this user (avoids self-toast). */
   currentUserId?: string | null;
 };
@@ -23,9 +35,15 @@ export function useRoomWebSocket(
   const [presentCount, setPresentCount] = useState<number | null>(null);
   const onRoomInitRef = useRef(options?.onRoomInit);
   const onUserJoinedRef = useRef(options?.onUserJoined);
+  const onUserLeftRef = useRef(options?.onUserLeft);
+  const onCursorMoveRef = useRef(options?.onCursorMove);
+  const onSelectionChangeRef = useRef(options?.onSelectionChange);
   const currentUserId = options?.currentUserId ?? null;
   onRoomInitRef.current = options?.onRoomInit;
   onUserJoinedRef.current = options?.onUserJoined;
+  onUserLeftRef.current = options?.onUserLeft;
+  onCursorMoveRef.current = options?.onCursorMove;
+  onSelectionChangeRef.current = options?.onSelectionChange;
 
   useEffect(() => {
     const ws = new WebSocket(`${config.wsUrl}?room=${roomId}`);
@@ -54,14 +72,17 @@ export function useRoomWebSocket(
         const { presentCount: count, userName, userId } = msg.payload ?? {};
         if (typeof count === "number") setPresentCount(count);
         const isSelf = currentUserId != null && userId === currentUserId;
-        if (userName && onUserJoinedRef.current && !isSelf) {
-          onUserJoinedRef.current(userName);
+        if (userId && userName && onUserJoinedRef.current && !isSelf) {
+          onUserJoinedRef.current(userId, userName);
         }
       }
 
       if (msg.type === "room:user_left") {
-        const { presentCount: count } = msg.payload ?? {};
+        const { presentCount: count, userId, userName } = msg.payload ?? {};
         if (typeof count === "number") setPresentCount(count);
+        if (userId && userName && onUserLeftRef.current) {
+          onUserLeftRef.current(userId, userName);
+        }
       }
 
       if (msg.type === "shape:created") {
@@ -78,6 +99,22 @@ export function useRoomWebSocket(
           msg.payload.forEach((id: string) => next.delete(id));
           return next;
         });
+      }
+
+      if (
+        msg.type === "cursor_move" &&
+        msg.payload &&
+        onCursorMoveRef.current
+      ) {
+        onCursorMoveRef.current(msg.payload);
+      }
+
+      if (
+        msg.type === "selection_change" &&
+        msg.payload &&
+        onSelectionChangeRef.current
+      ) {
+        onSelectionChangeRef.current(msg.payload);
       }
     };
 

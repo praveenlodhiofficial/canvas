@@ -6,13 +6,13 @@ import { useTheme } from "next-themes";
 import Link from "next/link";
 
 import { ArrowLeft } from "lucide-react";
-import { toast } from "sonner";
 
 import { CanvasShape } from "@repo/shared/types";
 
-import { TOOL_BY_SHORTCUT, ToolBar } from "@/components/ToolBar";
+import { ToolBar } from "@/components/ToolBar";
 import { useCanvasInit } from "@/hooks/canvas/useCanvasInit";
 import { useCanvasRender } from "@/hooks/canvas/useCanvasRender";
+import { useCanvasShortcuts } from "@/hooks/canvas/useCanvasShortcuts";
 import { useCanvasTools } from "@/hooks/canvas/useCanvasTools";
 import {
   type CanvasTransform,
@@ -28,6 +28,7 @@ import { useUndoRedo } from "@/hooks/canvas/useUndoRedo";
 import { getCanvasTheme } from "@/lib/canvas/theme";
 import { ToolType } from "@/types/tool";
 
+import { type RemoteCursor, RemoteCursorOverlay } from "./RemoteCursorOverlay";
 import { Button } from "./ui/button";
 
 /**
@@ -45,12 +46,15 @@ export default function RoomCanvas({
   roomId,
   roomName,
   currentUserId = null,
+  currentUserName = null,
 }: {
   initialShapes: CanvasShape[];
   roomId: string;
   roomName: string;
   /** Used to avoid showing "X joined" toast for the current user. */
   currentUserId?: string | null;
+  /** Used to hide our own cursor name overlay when userId might differ. */
+  currentUserName?: string | null;
 }) {
   /* ======================== CANVAS REFERENCES ======================== */
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -87,6 +91,29 @@ export default function RoomCanvas({
   const textInputRef = useRef<HTMLInputElement>(null);
   const textInputSubmittedRef = useRef(false);
   const lastWorldPointRef = useRef({ x: 0, y: 0 });
+
+  type PresenceStatus = "active" | "idle" | "offline";
+
+  type RoomUser = {
+    userId: string;
+    userName: string;
+    status: PresenceStatus;
+    lastActive: number;
+  };
+
+  type RemoteSelection = {
+    userId: string;
+    userName: string;
+    shapeIds: string[];
+  };
+
+  const [users, setUsers] = useState<Map<string, RoomUser>>(() => new Map());
+  const [remoteCursors, setRemoteCursors] = useState<Map<string, RemoteCursor>>(
+    () => new Map()
+  );
+  const [, setRemoteSelections] = useState<Map<string, RemoteSelection>>(
+    () => new Map()
+  );
 
   const { theme } = useTheme();
   const canvasTheme = useMemo(
@@ -143,53 +170,7 @@ export default function RoomCanvas({
   const getPastePosition = useCallback(() => lastWorldPointRef.current, []);
 
   /* ======================== UNDO / REDO + TOOL SHORTCUTS ======================== */
-  useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      const target = e.target as Node;
-      const isInput =
-        target &&
-        (target instanceof HTMLInputElement ||
-          target instanceof HTMLTextAreaElement ||
-          (target instanceof HTMLElement && target.isContentEditable));
-      if (isInput) return;
-
-      const key = e.key.toLowerCase();
-
-      if (key === "escape") {
-        e.preventDefault();
-        e.stopPropagation();
-        setTool("selection");
-        setSelectedIds(new Set());
-        setPreview(null);
-        return;
-      }
-
-      if ((e.ctrlKey || e.metaKey) && key === "z") {
-        e.preventDefault();
-        e.stopPropagation();
-        if (e.shiftKey) redo();
-        else undo();
-        return;
-      }
-      if ((e.ctrlKey || e.metaKey) && key === "y") {
-        e.preventDefault();
-        e.stopPropagation();
-        redo();
-        return;
-      }
-
-      if (!e.ctrlKey && !e.metaKey && !e.altKey && key >= "1" && key <= "8") {
-        const tool = TOOL_BY_SHORTCUT[key];
-        if (tool) {
-          e.preventDefault();
-          e.stopPropagation();
-          setTool(tool);
-        }
-      }
-    };
-    window.addEventListener("keydown", onKeyDown, true);
-    return () => window.removeEventListener("keydown", onKeyDown, true);
-  }, [undo, redo, setTool, setSelectedIds]);
+  useCanvasShortcuts(setTool, setSelectedIds, setPreview, undo, redo);
 
   /* ======================== ZOOM ======================== */
   useCanvasZoom(canvasRef, setTransform);
@@ -201,7 +182,106 @@ export default function RoomCanvas({
     {
       onRoomInit: (payload) =>
         resetHistory(new Map(payload.map((s: CanvasShape) => [s.id, s]))),
-      onUserJoined: (userName) => toast.success(`${userName} joined the room`),
+      onUserJoined: (userId: string, userName: string) => {
+        setUsers((prev) => {
+          const next = new Map(prev);
+          next.set(userId, {
+            userId,
+            userName,
+            status: "active",
+            lastActive: Date.now(),
+          });
+          return next;
+        });
+      },
+      onUserLeft: (userId: string, userName: string) => {
+        setUsers((prev) => {
+          const next = new Map(prev);
+          const existing = next.get(userId);
+          if (existing) {
+            next.set(userId, { ...existing, status: "offline" });
+          } else {
+            next.set(userId, {
+              userId,
+              userName,
+              status: "offline",
+              lastActive: Date.now(),
+            });
+          }
+          return next;
+        });
+      },
+      onCursorMove: ({
+        userId,
+        userName,
+        x,
+        y,
+      }: {
+        userId: string;
+        userName: string;
+        x: number;
+        y: number;
+      }) => {
+        if (userId === currentUserId) return;
+
+        const now = Date.now();
+
+        setUsers((prev) => {
+          const next = new Map(prev);
+          const existing = next.get(userId);
+          if (existing) {
+            next.set(userId, {
+              ...existing,
+              status: "active",
+              lastActive: now,
+            });
+          } else {
+            next.set(userId, {
+              userId,
+              userName,
+              status: "active",
+              lastActive: now,
+            });
+          }
+          return next;
+        });
+
+        setRemoteCursors((prev) => {
+          const next = new Map(prev);
+          next.set(userId, {
+            userId,
+            userName,
+            x,
+            y,
+            lastSeen: now,
+          });
+          return next;
+        });
+      },
+      onSelectionChange: ({
+        userId,
+        userName,
+        selectedShapeIds,
+      }: {
+        userId: string;
+        userName: string;
+        selectedShapeIds: string[];
+      }) => {
+        if (userId === currentUserId) return;
+        setRemoteSelections((prev) => {
+          const next = new Map(prev);
+          if (!selectedShapeIds || selectedShapeIds.length === 0) {
+            next.delete(userId);
+          } else {
+            next.set(userId, {
+              userId,
+              userName,
+              shapeIds: selectedShapeIds,
+            });
+          }
+          return next;
+        });
+      },
       currentUserId,
     }
   );
@@ -251,6 +331,78 @@ export default function RoomCanvas({
     wsRef,
     getWorldPoint
   );
+
+  /* ======================== BROADCAST SELECTION CHANGES ======================== */
+  useEffect(() => {
+    if (!wsRef.current || !currentUserId) return;
+    const ids = Array.from(selectedIds);
+    wsRef.current.send(
+      JSON.stringify({
+        type: "selection_change",
+        selectedShapeIds: ids,
+      })
+    );
+  }, [selectedIds, wsRef, currentUserId]);
+
+  /* ======================== SEND LIVE CURSOR POSITIONS ======================== */
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    let lastSent = 0;
+    const fps = 20;
+    const minInterval = 1000 / fps;
+
+    const onMove = (e: MouseEvent) => {
+      const now = performance.now();
+      if (now - lastSent < minInterval) return;
+      lastSent = now;
+
+      const world = getWorldPoint(e);
+      wsRef.current?.send(
+        JSON.stringify({
+          type: "cursor_move",
+          x: world.x,
+          y: world.y,
+        })
+      );
+    };
+
+    canvas.addEventListener("mousemove", onMove);
+    return () => canvas.removeEventListener("mousemove", onMove);
+  }, [getWorldPoint, wsRef]);
+
+  /* ======================== PRESENCE IDLE / CURSOR GC ======================== */
+  useEffect(() => {
+    const IDLE_AFTER = 60_000;
+    const CURSOR_TTL = 30_000;
+
+    const interval = setInterval(() => {
+      const now = Date.now();
+
+      setUsers((prev) => {
+        const next = new Map(prev);
+        for (const [id, user] of next) {
+          if (user.status !== "offline" && now - user.lastActive > IDLE_AFTER) {
+            next.set(id, { ...user, status: "idle" });
+          }
+        }
+        return next;
+      });
+
+      setRemoteCursors((prev) => {
+        const next = new Map(prev);
+        for (const [id, cursor] of next) {
+          if (now - cursor.lastSeen > CURSOR_TTL) {
+            next.delete(id);
+          }
+        }
+        return next;
+      });
+    }, 10_000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     if (tool !== "eraser") setPendingEraseIds(new Set());
@@ -362,7 +514,8 @@ export default function RoomCanvas({
         </div>
       )}
 
-      <div className="pointer-events-none absolute top-4 left-1/2 z-50 flex w-full -translate-x-1/2 items-center justify-between gap-4 px-4">
+      {/* Top bar */}
+      <div className="pointer-events-none absolute top-4 left-1/2 z-50 flex w-full -translate-x-1/2 items-start justify-between gap-4 px-4">
         <div className="pointer-events-auto flex items-center gap-2">
           <Link href="/dashboard">
             <Button
@@ -373,25 +526,65 @@ export default function RoomCanvas({
               <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
-          <div className="border-border bg-card/95 dark:bg-card/90 pointer-events-auto min-w-xs rounded-xl border px-4 py-2.5 shadow-lg shadow-black/5 backdrop-blur-md dark:shadow-black/20">
+          <div className="border-border bg-card/95 dark:bg-card/90 pointer-events-auto max-w-xs rounded-xl border px-4 py-2.5 pr-20 shadow-lg shadow-black/5 backdrop-blur-md dark:shadow-black/20">
             <h1 className="text-foreground text-lg font-medium capitalize">
               {roomName}
             </h1>
           </div>
         </div>
+
+        {/* Tool bar */}
         <div className="pointer-events-auto absolute left-1/2 -translate-x-1/2">
           <ToolBar tool={tool} setTool={setTool} />
         </div>
-        <div className="border-border bg-card/95 dark:bg-card/90 pointer-events-auto rounded-xl border px-4 py-2.5 shadow-lg shadow-black/5 backdrop-blur-md dark:shadow-black/20">
-          <span className="text-muted-foreground text-sm">
-            {presentCount === null
-              ? "—"
-              : presentCount === 0
-                ? "No one in room"
-                : `${presentCount} member${presentCount !== 1 ? "s" : ""} currently in room`}
+
+        {/* Participants overlay */}
+        <div className="space-y-2">
+          <div className="border-border bg-card/95 dark:bg-card/90 pointer-events-auto w-fit max-w-[250px] min-w-[200px] rounded-xl border px-4 py-2.5 text-sm shadow-lg shadow-black/5 backdrop-blur-md dark:shadow-black/20">
+            {/* Participants list */}
+            <div className="flex flex-col gap-2 text-sm">
+              {Array.from(users.values())
+                .filter((u) => u.userId !== currentUserId)
+                .map((u) => (
+                  <div key={u.userId} className="flex items-center gap-2">
+                    <span
+                      className="inline-flex h-2 w-2 rounded-full"
+                      style={{
+                        backgroundColor:
+                          u.status === "active"
+                            ? "#22c55e"
+                            : u.status === "idle"
+                              ? "#eab308"
+                              : "#6b7280",
+                      }}
+                    />
+                    <span className="rounded px-2 py-0.5 text-sm">
+                      {u.userName} {u.status === "idle" ? " (idle)" : ""}
+                    </span>
+                  </div>
+                ))}
+            </div>
+          </div>
+
+          {/* Participants online count */}
+          <span className="text-muted-foreground block text-end text-xs">
+            {presentCount !== null && (
+              <span className="text-muted-foreground">
+                {presentCount} member
+                {presentCount !== 1 ? "s" : ""} Online
+              </span>
+            )}
           </span>
         </div>
       </div>
+
+      <RemoteCursorOverlay
+        cursors={remoteCursors}
+        currentUserId={currentUserId}
+        currentUserName={currentUserName}
+        canvasRef={canvasRef}
+        transform={transform}
+      />
     </div>
   );
 }

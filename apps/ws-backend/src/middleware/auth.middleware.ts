@@ -20,10 +20,10 @@ export async function authMiddleware(req: Request): Promise<WsAuthResult> {
     };
   }
 
-  // DB-level protection (deleted users, reset DB, etc.)
+  // DB-level protection (deleted users, reset DB, etc.) + load display name
   const user = await prisma.user.findUnique({
     where: { id: payload.id },
-    select: { id: true },
+    select: { id: true, name: true },
   });
 
   if (!user) {
@@ -37,6 +37,6 @@ export async function authMiddleware(req: Request): Promise<WsAuthResult> {
 
   return {
     ok: true,
-    payload,
+    payload: { ...payload, name: user.name },
   };
 }

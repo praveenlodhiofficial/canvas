@@ -4,7 +4,7 @@ import { CanvasShape } from "@repo/shared/types";
 
 import { ToolType } from "@/types/tool";
 
-import { drawShape } from "../draw-shapes";
+import { drawShape } from "./draw-shapes";
 
 export function useToolController(
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
