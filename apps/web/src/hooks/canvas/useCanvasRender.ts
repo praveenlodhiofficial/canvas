@@ -18,13 +18,7 @@ export function useCanvasRender(
   selectedIds: Set<string>,
   pendingEraseIds: Set<string>,
   theme: CanvasTheme,
-  transform: CanvasTransform,
-  remoteSelections: {
-    userId: string;
-    userName: string;
-    color: string;
-    shapeIds: string[];
-  }[] = []
+  transform: CanvasTransform
 ) {
   useEffect(() => {
     if (!canvasRef.current || !ctxRef.current) return;
@@ -56,40 +50,6 @@ export function useCanvasRender(
       }
     }
 
-    if (remoteSelections.length > 0) {
-      for (const sel of remoteSelections) {
-        const selectedShapes = shapes.filter((s) =>
-          sel.shapeIds.includes(s.id)
-        );
-        if (!selectedShapes.length) continue;
-        const bounds = selection.getSelectionBounds(selectedShapes);
-        if (!bounds) continue;
-
-        ctx.save();
-        ctx.strokeStyle = sel.color;
-        ctx.lineWidth = 2;
-        ctx.setLineDash([4, 4]);
-        ctx.strokeRect(bounds.x, bounds.y, bounds.width, bounds.height);
-
-        const label = `${sel.userName} selected`;
-        ctx.font = "12px system-ui";
-        const padding = 4;
-        const textWidth = ctx.measureText(label).width;
-        const w = textWidth + padding * 2;
-        const h = 18;
-
-        const labelX = bounds.x;
-        const labelY = bounds.y - h - 4;
-
-        ctx.fillStyle = "rgba(0,0,0,0.7)";
-        ctx.fillRect(labelX, labelY, w, h);
-        ctx.fillStyle = "#ffffff";
-        ctx.fillText(label, labelX + padding, labelY + h - 6);
-
-        ctx.restore();
-      }
-    }
-
     ctx.restore();
   }, [
     shapes,
@@ -100,6 +60,5 @@ export function useCanvasRender(
     ctxRef,
     theme,
     transform,
-    remoteSelections,
   ]);
 }

@@ -26,6 +26,20 @@ import { useRoomWebSocket } from "@/hooks/canvas/useRoomWebSocket";
 import { useSelection } from "@/hooks/canvas/useSelection";
 import { useUndoRedo } from "@/hooks/canvas/useUndoRedo";
 import { getCanvasTheme } from "@/lib/canvas/theme";
+import {
+  addOrUpdateUser,
+  CURSOR_BROADCAST_MIN_INTERVAL_MS,
+  CURSOR_TTL_MS,
+  evictStaleCursors,
+  getCanvasCursorStyle,
+  getParticipantStatusColor,
+  IDLE_AFTER_MS,
+  markUsersIdle,
+  PRESENCE_GC_INTERVAL_MS,
+  setRemoteCursor,
+  setUserOffline,
+} from "@/lib/roomCanvas";
+import type { RoomCanvasProps, RoomUser } from "@/types/roomCanvas";
 import { ToolType } from "@/types/tool";
 
 import { type RemoteCursor, RemoteCursorOverlay } from "./RemoteCursorOverlay";
@@ -47,15 +61,7 @@ export default function RoomCanvas({
   roomName,
   currentUserId = null,
   currentUserName = null,
-}: {
-  initialShapes: CanvasShape[];
-  roomId: string;
-  roomName: string;
-  /** Used to avoid showing "X joined" toast for the current user. */
-  currentUserId?: string | null;
-  /** Used to hide our own cursor name overlay when userId might differ. */
-  currentUserName?: string | null;
-}) {
+}: RoomCanvasProps) {
   /* ======================== CANVAS REFERENCES ======================== */
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useCanvasInit(canvasRef);
@@ -92,29 +98,10 @@ export default function RoomCanvas({
   const textInputSubmittedRef = useRef(false);
   const lastWorldPointRef = useRef({ x: 0, y: 0 });
 
-  type PresenceStatus = "active" | "idle" | "offline";
-
-  type RoomUser = {
-    userId: string;
-    userName: string;
-    status: PresenceStatus;
-    lastActive: number;
-  };
-
-  type RemoteSelection = {
-    userId: string;
-    userName: string;
-    shapeIds: string[];
-  };
-
   const [users, setUsers] = useState<Map<string, RoomUser>>(() => new Map());
   const [remoteCursors, setRemoteCursors] = useState<Map<string, RemoteCursor>>(
     () => new Map()
   );
-  const [, setRemoteSelections] = useState<Map<string, RemoteSelection>>(
-    () => new Map()
-  );
-
   const { theme } = useTheme();
   const canvasTheme = useMemo(
     () => getCanvasTheme(theme ?? undefined),
@@ -169,7 +156,7 @@ export default function RoomCanvas({
 
   const getPastePosition = useCallback(() => lastWorldPointRef.current, []);
 
-  /* ======================== UNDO / REDO + TOOL SHORTCUTS ======================== */
+  /* ================ UNDO / REDO + TOOL SHORTCUTS ================ */
   useCanvasShortcuts(setTool, setSelectedIds, setPreview, undo, redo);
 
   /* ======================== ZOOM ======================== */
@@ -183,33 +170,12 @@ export default function RoomCanvas({
       onRoomInit: (payload) =>
         resetHistory(new Map(payload.map((s: CanvasShape) => [s.id, s]))),
       onUserJoined: (userId: string, userName: string) => {
-        setUsers((prev) => {
-          const next = new Map(prev);
-          next.set(userId, {
-            userId,
-            userName,
-            status: "active",
-            lastActive: Date.now(),
-          });
-          return next;
-        });
+        setUsers((prev) =>
+          addOrUpdateUser(prev, userId, userName, "active", Date.now())
+        );
       },
       onUserLeft: (userId: string, userName: string) => {
-        setUsers((prev) => {
-          const next = new Map(prev);
-          const existing = next.get(userId);
-          if (existing) {
-            next.set(userId, { ...existing, status: "offline" });
-          } else {
-            next.set(userId, {
-              userId,
-              userName,
-              status: "offline",
-              lastActive: Date.now(),
-            });
-          }
-          return next;
-        });
+        setUsers((prev) => setUserOffline(prev, userId, userName));
       },
       onCursorMove: ({
         userId,
@@ -223,64 +189,22 @@ export default function RoomCanvas({
         y: number;
       }) => {
         if (userId === currentUserId) return;
-
         const now = Date.now();
-
-        setUsers((prev) => {
-          const next = new Map(prev);
-          const existing = next.get(userId);
-          if (existing) {
-            next.set(userId, {
-              ...existing,
-              status: "active",
-              lastActive: now,
-            });
-          } else {
-            next.set(userId, {
-              userId,
-              userName,
-              status: "active",
-              lastActive: now,
-            });
-          }
-          return next;
-        });
-
-        setRemoteCursors((prev) => {
-          const next = new Map(prev);
-          next.set(userId, {
-            userId,
-            userName,
-            x,
-            y,
-            lastSeen: now,
-          });
-          return next;
-        });
+        setUsers((prev) =>
+          addOrUpdateUser(prev, userId, userName, "active", now)
+        );
+        setRemoteCursors((prev) =>
+          setRemoteCursor(prev, userId, userName, x, y, now)
+        );
       },
       onSelectionChange: ({
         userId,
-        userName,
-        selectedShapeIds,
       }: {
         userId: string;
         userName: string;
         selectedShapeIds: string[];
       }) => {
         if (userId === currentUserId) return;
-        setRemoteSelections((prev) => {
-          const next = new Map(prev);
-          if (!selectedShapeIds || selectedShapeIds.length === 0) {
-            next.delete(userId);
-          } else {
-            next.set(userId, {
-              userId,
-              userName,
-              shapeIds: selectedShapeIds,
-            });
-          }
-          return next;
-        });
       },
       currentUserId,
     }
@@ -332,30 +256,15 @@ export default function RoomCanvas({
     getWorldPoint
   );
 
-  /* ======================== BROADCAST SELECTION CHANGES ======================== */
-  useEffect(() => {
-    if (!wsRef.current || !currentUserId) return;
-    const ids = Array.from(selectedIds);
-    wsRef.current.send(
-      JSON.stringify({
-        type: "selection_change",
-        selectedShapeIds: ids,
-      })
-    );
-  }, [selectedIds, wsRef, currentUserId]);
-
   /* ======================== SEND LIVE CURSOR POSITIONS ======================== */
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     let lastSent = 0;
-    const fps = 20;
-    const minInterval = 1000 / fps;
-
     const onMove = (e: MouseEvent) => {
       const now = performance.now();
-      if (now - lastSent < minInterval) return;
+      if (now - lastSent < CURSOR_BROADCAST_MIN_INTERVAL_MS) return;
       lastSent = now;
 
       const world = getWorldPoint(e);
@@ -374,32 +283,11 @@ export default function RoomCanvas({
 
   /* ======================== PRESENCE IDLE / CURSOR GC ======================== */
   useEffect(() => {
-    const IDLE_AFTER = 60_000;
-    const CURSOR_TTL = 30_000;
-
     const interval = setInterval(() => {
       const now = Date.now();
-
-      setUsers((prev) => {
-        const next = new Map(prev);
-        for (const [id, user] of next) {
-          if (user.status !== "offline" && now - user.lastActive > IDLE_AFTER) {
-            next.set(id, { ...user, status: "idle" });
-          }
-        }
-        return next;
-      });
-
-      setRemoteCursors((prev) => {
-        const next = new Map(prev);
-        for (const [id, cursor] of next) {
-          if (now - cursor.lastSeen > CURSOR_TTL) {
-            next.delete(id);
-          }
-        }
-        return next;
-      });
-    }, 10_000);
+      setUsers((prev) => markUsersIdle(prev, now, IDLE_AFTER_MS));
+      setRemoteCursors((prev) => evictStaleCursors(prev, now, CURSOR_TTL_MS));
+    }, PRESENCE_GC_INTERVAL_MS);
 
     return () => clearInterval(interval);
   }, []);
@@ -444,17 +332,12 @@ export default function RoomCanvas({
         ref={canvasRef}
         className="z-10 h-full w-full"
         style={{
-          cursor: isRotating
-            ? "grabbing"
-            : isOverRotateHandle
-              ? "grab"
-              : tool === "selection" && selectedIds.size > 0
-                ? "move"
-                : tool === "eraser"
-                  ? "crosshair"
-                  : tool === "text"
-                    ? "text"
-                    : undefined,
+          cursor: getCanvasCursorStyle({
+            isRotating,
+            isOverRotateHandle,
+            tool,
+            hasSelection: selectedIds.size > 0,
+          }),
         }}
       />
 
@@ -527,7 +410,7 @@ export default function RoomCanvas({
             </Button>
           </Link>
           <div className="border-border bg-card/95 dark:bg-card/90 pointer-events-auto max-w-xs rounded-xl border px-4 py-2.5 pr-20 shadow-lg shadow-black/5 backdrop-blur-md dark:shadow-black/20">
-            <h1 className="text-foreground text-lg font-medium capitalize">
+            <h1 className="text-foreground line-clamp-1 text-lg font-medium capitalize">
               {roomName}
             </h1>
           </div>
@@ -550,12 +433,7 @@ export default function RoomCanvas({
                     <span
                       className="inline-flex h-2 w-2 rounded-full"
                       style={{
-                        backgroundColor:
-                          u.status === "active"
-                            ? "#22c55e"
-                            : u.status === "idle"
-                              ? "#eab308"
-                              : "#6b7280",
+                        backgroundColor: getParticipantStatusColor(u.status),
                       }}
                     />
                     <span className="rounded px-2 py-0.5 text-sm">
