@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { useTheme } from "next-themes";
+import Link from "next/link";
 
 import { Bell, Moon, Search, Sun, User } from "lucide-react";
 
@@ -62,9 +63,12 @@ export function Header() {
           <Button
             variant="ghost"
             size="icon"
+            asChild
             className="bg-primary/10 text-primary hover:bg-primary/20 size-8 rounded-full"
           >
-            <User className="size-4" />
+            <Link href="/dashboard/account">
+              <User className="size-4" />
+            </Link>
           </Button>
         </div>
       </div>

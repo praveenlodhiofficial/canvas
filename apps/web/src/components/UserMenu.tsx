@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { SettingsIcon } from "lucide-react";
 
 import type { UserType } from "@repo/shared/schema";
@@ -49,9 +51,14 @@ export function UserMenu({ user }: { user: UserType }) {
 
           <DropdownMenuSeparator className="bg-muted" />
 
-          <DropdownMenuItem className="focus:bg-brand/10 focus:text-brand flex cursor-pointer items-center gap-3 px-3 py-3">
-            <SettingsIcon className="h-4 w-4" />
-            <span className="text-sm font-medium">Manage Account</span>
+          <DropdownMenuItem asChild>
+            <Link
+              href="/dashboard/account"
+              className="focus:bg-brand/10 focus:text-brand flex cursor-pointer items-center gap-3 px-3 py-3"
+            >
+              <SettingsIcon className="h-4 w-4" />
+              <span className="text-sm font-medium">Manage Account</span>
+            </Link>
           </DropdownMenuItem>
 
           <LogoutButton />

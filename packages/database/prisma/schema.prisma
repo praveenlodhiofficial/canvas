@@ -34,10 +34,19 @@ enum ShapeType {
 }
 
 model User {
-  id       String @id @default(uuid())
-  name     String
-  email    String @unique
-  password String
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+
+  avatarUrl String?
+  username  String?  @unique
+  bio       String?
+
+  theme     String?  @default("dark")
+
+  lastLoginAt    DateTime?
+  isEmailVerified Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

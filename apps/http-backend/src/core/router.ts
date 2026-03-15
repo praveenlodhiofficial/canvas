@@ -44,6 +44,10 @@ export class Router {
     this.register("PUT", path, handler);
   }
 
+  patch(path: string, handler: Handler) {
+    this.register("PATCH", path, handler);
+  }
+
   delete(path: string, handler: Handler) {
     this.register("DELETE", path, handler);
   }
