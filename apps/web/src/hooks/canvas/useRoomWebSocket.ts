@@ -38,12 +38,15 @@ export function useRoomWebSocket(
   const onUserLeftRef = useRef(options?.onUserLeft);
   const onCursorMoveRef = useRef(options?.onCursorMove);
   const onSelectionChangeRef = useRef(options?.onSelectionChange);
-  const currentUserId = options?.currentUserId ?? null;
+  const currentUserIdRef = useRef<string | null>(
+    options?.currentUserId ?? null
+  );
   onRoomInitRef.current = options?.onRoomInit;
   onUserJoinedRef.current = options?.onUserJoined;
   onUserLeftRef.current = options?.onUserLeft;
   onCursorMoveRef.current = options?.onCursorMove;
   onSelectionChangeRef.current = options?.onSelectionChange;
+  currentUserIdRef.current = options?.currentUserId ?? null;
 
   useEffect(() => {
     const ws = new WebSocket(`${config.wsUrl}?room=${roomId}`);
@@ -71,7 +74,9 @@ export function useRoomWebSocket(
       if (msg.type === "room:user_joined") {
         const { presentCount: count, userName, userId } = msg.payload ?? {};
         if (typeof count === "number") setPresentCount(count);
-        const isSelf = currentUserId != null && userId === currentUserId;
+        const isSelf =
+          currentUserIdRef.current != null &&
+          userId === currentUserIdRef.current;
         if (userId && userName && onUserJoinedRef.current && !isSelf) {
           onUserJoinedRef.current(userId, userName);
         }

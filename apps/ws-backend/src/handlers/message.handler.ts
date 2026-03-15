@@ -1,7 +1,6 @@
 import type { ServerWebSocket } from "bun";
 
 import { prisma } from "@repo/database";
-import type { WebSocketData } from "@repo/shared/types";
 
 import { applyShape } from "../rooms/room.manager";
 import type { ClientMessage } from "../rooms/room.types";

@@ -9,10 +9,9 @@ import { toast } from "sonner";
 
 import type { RoomMember } from "@repo/shared/schema";
 
-import { timeAgo } from "@/lib/time";
-
 import { RoomDeleteDialog, RoomDialog } from "./RoomDialog";
 import { Avatar, AvatarFallback } from "./ui/avatar";
+import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import {
@@ -30,6 +29,8 @@ interface RoomCardProps {
   visibility: "PUBLIC" | "PRIVATE";
   updatedAt: Date;
   members?: RoomMember[];
+  /** True if the current user created this room; false if they joined it */
+  isOwner?: boolean;
 }
 
 function getInitials(name: string | null | undefined): string {
@@ -48,8 +49,8 @@ export function RoomCard({
   name,
   description,
   visibility,
-  updatedAt,
   members = [],
+  isOwner = true,
 }: RoomCardProps) {
   const membersPreview = members.map((m) => ({
     initials: getInitials(m.user?.name ?? undefined),
@@ -57,7 +58,9 @@ export function RoomCard({
 
   const [loading, setLoading] = useState(false);
 
-  async function onShareRoomLink() {
+  async function onShareRoomLink(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
     try {
       setLoading(true);
       navigator.clipboard.writeText(id);
@@ -71,17 +74,44 @@ export function RoomCard({
   }
 
   return (
-    <Link href={`/dashboard/rooms/${id}`} target="_blank">
-      <Card className="group bg-card/50 hover:border-primary/30 relative flex cursor-pointer flex-col overflow-hidden border-none transition-all duration-300 hover:shadow-lg">
-        <div className="from-primary/5 to-accent/5 absolute inset-0 bg-linear-to-br opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+    <Link
+      href={`/dashboard/rooms/${id}`}
+      target="_blank"
+      className="block h-full"
+    >
+      <Card
+        className={
+          isOwner
+            ? "group border-border/80 bg-card/50 relative flex h-full min-h-0 cursor-pointer flex-col overflow-hidden rounded-xl border transition-all duration-300 hover:border-neutral-700 hover:bg-neutral-900/50 hover:shadow-lg"
+            : "group border-muted-foreground/25 bg-muted/20 relative flex h-full min-h-0 cursor-pointer flex-col overflow-hidden rounded-xl border border-dashed transition-all duration-300 hover:border-neutral-700 hover:bg-neutral-900/50 hover:shadow-lg"
+        }
+      >
+        <div
+          className={
+            isOwner
+              ? "from-primary/5 to-accent/5 absolute inset-0 bg-linear-to-br opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+              : "from-primary/5 to-accent/5 absolute inset-0 bg-linear-to-br opacity-[0.03] transition-opacity duration-300 group-hover:opacity-100"
+          }
+        />
 
-        <div className="relative flex h-full flex-col p-6">
-          <div className="mb-3 flex items-start justify-between">
-            <div className="flex-1">
-              <h3 className="text-foreground line-clamp-1 text-lg font-semibold">
+        <div className="relative flex min-h-0 flex-1 flex-col p-5">
+          <div className="mb-2 flex items-start justify-between gap-2">
+            <div className="min-w-0 flex-1">
+              <div className="mb-1 flex flex-wrap items-center gap-2">
+                <Badge
+                  className={`shrink-0 border-0 text-[10px] font-medium tracking-wide uppercase ${
+                    isOwner
+                      ? "bg-emerald-500/10 text-emerald-500"
+                      : "bg-sky-500/10 text-sky-500"
+                  }`}
+                >
+                  {isOwner ? "Created" : "Joined"}
+                </Badge>
+              </div>
+              <h3 className="text-foreground line-clamp-1 text-base font-semibold">
                 {name}
               </h3>
-              <p className="text-muted-foreground mt-1 line-clamp-2 text-sm">
+              <p className="mt-0.5 line-clamp-2 text-sm text-neutral-400">
                 {description}
               </p>
             </div>
@@ -90,7 +120,7 @@ export function RoomCard({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-muted-foreground -mr-2 size-8 opacity-0 transition-opacity group-hover:opacity-100"
+                  className="text-muted-foreground -mr-2 size-8 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
                 >
                   <MoreVertical className="size-4" />
                 </Button>
@@ -106,69 +136,68 @@ export function RoomCard({
                     "Share"
                   )}
                 </DropdownMenuItem>
-                <RoomDialog
-                  type="update"
-                  room={{
-                    id,
-                    name,
-                    description,
-                    visibility,
-                  }}
-                />
-                <DropdownMenuSeparator />
-                <RoomDeleteDialog id={id} />
+                {isOwner && (
+                  <>
+                    <RoomDialog
+                      type="update"
+                      room={{
+                        id,
+                        name,
+                        description,
+                        visibility,
+                      }}
+                    />
+                    <DropdownMenuSeparator />
+                    <RoomDeleteDialog id={id} />
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
 
-          <div className="flex-1" />
+          <div className="flex min-h-0 flex-1" />
 
-          <div className="border-border space-y-4 border-t pt-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                {membersPreview.length > 0 ? (
-                  <div className="flex -space-x-2">
-                    {membersPreview.slice(0, 3).map((member, idx) => (
-                      <Avatar key={idx} className="border-card size-6 border-2">
-                        <AvatarFallback className="bg-primary/20 text-primary text-xs">
-                          {member.initials}
-                        </AvatarFallback>
-                      </Avatar>
-                    ))}
-                    {membersPreview.length > 3 && (
-                      <Avatar className="border-card size-6 border-2">
-                        <AvatarFallback className="bg-muted text-muted-foreground text-xs">
-                          +{membersPreview.length - 3}
-                        </AvatarFallback>
-                      </Avatar>
-                    )}
-                  </div>
-                ) : (
-                  <span className="text-muted-foreground text-sm">
-                    No members
-                  </span>
-                )}
-              </div>
-              <span className="text-muted-foreground text-sm">
-                {members.length} member{members.length !== 1 ? "s" : ""}
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                {visibility === "PRIVATE" ? (
-                  <LockIcon className="text-muted-foreground size-4" />
-                ) : (
-                  <GlobeIcon className="text-muted-foreground size-4" />
-                )}
-                <span className="text-muted-foreground text-xs">
-                  {visibility === "PRIVATE" ? "Private" : "Public"}
+          <div className="space-y-3 pt-3">
+            <div className="flex items-center justify-between gap-2">
+              {membersPreview.length > 0 ? (
+                <div className="flex shrink-0 -space-x-2">
+                  {membersPreview.slice(0, 3).map((member, idx) => (
+                    <Avatar key={idx} className="border-card size-7 border-2">
+                      <AvatarFallback className="bg-primary/20 text-primary text-xs">
+                        {member.initials}
+                      </AvatarFallback>
+                    </Avatar>
+                  ))}
+                  {membersPreview.length > 3 && (
+                    <Avatar className="border-card size-7 border-2">
+                      <AvatarFallback className="bg-muted text-muted-foreground text-xs">
+                        +{membersPreview.length - 3}
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
+                </div>
+              ) : (
+                <span className="text-muted-foreground text-sm">
+                  No members
                 </span>
-              </div>
-              <span className="text-muted-foreground text-xs">
-                {timeAgo(updatedAt)}
-              </span>
+              )}
+              {visibility === "PRIVATE" ? (
+                <span className="flex items-center gap-1.5 text-sm text-neutral-300">
+                  <LockIcon className="size-3.5 shrink-0" />
+                  Private
+                </span>
+              ) : (
+                <span className="flex items-center gap-1.5 text-sm text-neutral-300">
+                  <GlobeIcon className="size-3.5 shrink-0" />
+                  Public
+                </span>
+              )}
             </div>
+            {/* <div className="text-muted-foreground  text-sm">
+              {members.length} member{members.length !== 1 ? "s" : ""}
+              <span className="text-muted-foreground/80"> · </span>
+              {timeAgo(updatedAt)}
+            </div> */}
           </div>
         </div>
       </Card>

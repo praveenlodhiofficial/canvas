@@ -1,7 +1,5 @@
 import type { ServerWebSocket } from "bun";
 
-import type { WebSocketData } from "@repo/shared/types";
-
 import { leaveRoom } from "../rooms/room.manager";
 import { broadcastToRoom } from "../server";
 import { snapshotRoom } from "../snapshot/snapshot.service";

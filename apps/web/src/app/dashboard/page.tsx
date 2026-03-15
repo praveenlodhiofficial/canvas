@@ -3,19 +3,15 @@ import { JoinRoomAction } from "@/components/JoinRoomAction";
 import { RoomCard } from "@/components/RoomCard";
 import { RoomDialog } from "@/components/RoomDialog";
 import { Empty } from "@/components/ui/empty";
-import { getAllRoomsAction } from "@/domains/room/room.actions";
+import { getMemberRoomsAction } from "@/domains/room/room.actions";
 import { findRoomMembers } from "@/domains/roomMember/roomMember.dal";
 
 export default async function RoomsDashboard() {
-  const res = await getAllRoomsAction();
+  const res = await getMemberRoomsAction();
   if (!res.success) {
     return <div>Error: {res.message}</div>;
   }
-  const rooms = res.rooms;
-
-  if (!rooms) {
-    return <div>No rooms found</div>;
-  }
+  const rooms = res.rooms ?? [];
 
   const roomMembers = await Promise.all(
     rooms.map(async (room) => {
@@ -61,10 +57,11 @@ export default async function RoomsDashboard() {
                   key={room.id!}
                   id={room.id!}
                   name={room.name}
-                  description={room.description!}
+                  description={room.description ?? ""}
                   visibility={room.visibility}
                   updatedAt={room.updatedAt!}
                   members={roomMembers[index] ?? []}
+                  isOwner={room.isOwner}
                 />
               ))}
             </div>

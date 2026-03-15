@@ -329,6 +329,7 @@ export function registerRoomRoutes(router: Router) {
         select: {
           id: true,
           name: true,
+          description: true,
           visibility: true,
           updatedAt: true,
           adminId: true,
@@ -341,7 +342,14 @@ export function registerRoomRoutes(router: Router) {
       return Response.json(
         {
           message: "Member rooms fetched successfully",
-          rooms,
+          rooms: rooms.map((room) => ({
+            id: room.id,
+            name: room.name,
+            description: room.description,
+            visibility: room.visibility,
+            updatedAt: room.updatedAt,
+            isOwner: room.adminId === user.id,
+          })),
         },
         { status: 200 }
       );

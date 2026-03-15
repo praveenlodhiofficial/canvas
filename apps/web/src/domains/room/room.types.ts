@@ -1,5 +1,7 @@
 import type { Room } from "@repo/shared/schema";
 
+export type MemberRoom = Room & { isOwner: boolean };
+
 export type CreateRoomResult =
   | { success: true; message: string; room: Room }
   | { success: false; message: string };
@@ -29,5 +31,5 @@ export type ShareRoomResult =
   | { success: false; message: string };
 
 export type GetMemberRoomsResult =
-  | { success: true; rooms: Room[]; message: string }
+  | { success: true; rooms: MemberRoom[]; message: string }
   | { success: false; message: string };

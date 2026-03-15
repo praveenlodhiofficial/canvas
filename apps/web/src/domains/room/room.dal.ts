@@ -3,6 +3,7 @@ import type { Room, RoomInput, RoomMember } from "@repo/shared/schema";
 import { authFetch } from "@/lib/auth/auth-fetch";
 import { config } from "@/lib/config";
 
+import type { MemberRoom } from "./room.types";
 import { CreateRoomResult, UpdateRoomResult } from "./room.types";
 
 /* ====================================== CREATE ROOM ====================================== */
@@ -181,13 +182,13 @@ export const joinRoom = async (
 
 /* ====================================== FETCH MEMBER'S ROOMS ====================================== */
 export const getMemberRooms = async (): Promise<{
-  rooms: Room[];
+  rooms: MemberRoom[];
   message: string;
 }> => {
   try {
     const data = await authFetch<{
       message: string;
-      rooms: Room[];
+      rooms: MemberRoom[];
     }>(`${config.httpUrl}/api/v1/rooms/member`);
 
     return { rooms: data.rooms, message: data.message };
