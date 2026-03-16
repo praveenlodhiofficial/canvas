@@ -21,7 +21,7 @@ export function Header() {
   if (!mounted) return null;
 
   return (
-    <header className="border-border bg-card/80 sticky top-0 z-50 border-b backdrop-blur-sm">
+    <header className="border-border bg-card/80 sticky top-0 border-b backdrop-blur-sm">
       <div className="container mx-auto flex items-center justify-between py-4">
         <Link href="/dashboard" className="flex items-center gap-8">
           <div className="flex items-center gap-2">

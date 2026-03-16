@@ -618,6 +618,16 @@ export function registerRoomRoutes(router: Router) {
         );
       }
 
+      // Load user display name for member response (matches User model: name required)
+      const userWithName = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: { id: true, name: true },
+      });
+      const userInfo =
+        userWithName != null
+          ? { id: userWithName.id, name: userWithName.name }
+          : { id: user.id, name: "Unknown" };
+
       // already a member: allow re-join (e.g. after leaving the room page)
       const existingMember = await prisma.roomMember.findFirst({
         where: {
@@ -636,7 +646,7 @@ export function registerRoomRoutes(router: Router) {
           {
             message: "Opening room",
             roomId: room.id,
-            member: existingMember,
+            member: { ...existingMember, user: userInfo },
           },
           { status: 200 }
         );
@@ -660,7 +670,7 @@ export function registerRoomRoutes(router: Router) {
         {
           message: "Joined room successfully",
           roomId: room.id,
-          member,
+          member: { ...member, user: userInfo },
         },
         { status: 201 }
       );

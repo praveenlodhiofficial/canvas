@@ -33,7 +33,7 @@ export default async function RoomsDashboard() {
             Create and manage collaborative canvas rooms for your team
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3 md:justify-end">
           <JoinRoomAction />
           <RoomDialog type="create" />
         </div>

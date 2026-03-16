@@ -210,6 +210,25 @@ export default function RoomCanvas({
     }
   );
 
+  /* Add current user to participants list when connected so names show (incl. when alone) */
+  useEffect(() => {
+    if (
+      status === "connected" &&
+      currentUserId != null &&
+      currentUserName != null
+    ) {
+      setUsers((prev) =>
+        addOrUpdateUser(
+          prev,
+          currentUserId,
+          currentUserName,
+          "active",
+          Date.now()
+        )
+      );
+    }
+  }, [status, currentUserId, currentUserName]);
+
   /* ======================== KEYBOARD DELETE ======================== */
   useKeyboardDelete(selectedIds, setShapes, wsRef, () =>
     setSelectedIds(new Set())
@@ -426,21 +445,26 @@ export default function RoomCanvas({
           <div className="border-border bg-card/95 dark:bg-card/90 pointer-events-auto w-fit max-w-[250px] min-w-[200px] rounded-xl border px-4 py-2.5 text-sm shadow-lg shadow-black/5 backdrop-blur-md dark:shadow-black/20">
             {/* Participants list */}
             <div className="flex flex-col gap-2 text-sm">
-              {Array.from(users.values())
-                .filter((u) => u.userId !== currentUserId)
-                .map((u) => (
-                  <div key={u.userId} className="flex items-center gap-2">
-                    <span
-                      className="inline-flex h-2 w-2 rounded-full"
-                      style={{
-                        backgroundColor: getParticipantStatusColor(u.status),
-                      }}
-                    />
-                    <span className="rounded px-2 py-0.5 text-sm">
-                      {u.userName} {u.status === "idle" ? " (idle)" : ""}
-                    </span>
-                  </div>
-                ))}
+              {Array.from(users.values()).map((u) => (
+                <div key={u.userId} className="flex items-center gap-2">
+                  <span
+                    className="inline-flex h-2 w-2 rounded-full"
+                    style={{
+                      backgroundColor: getParticipantStatusColor(u.status),
+                    }}
+                  />
+                  <span className="rounded px-2 py-0.5 text-sm">
+                    {u.userId === currentUserId ? (
+                      <>You{u.userName ? ` (${u.userName})` : ""}</>
+                    ) : (
+                      <>
+                        {u.userName ?? "Anonymous"}{" "}
+                        {u.status === "idle" ? " (idle)" : ""}
+                      </>
+                    )}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
 

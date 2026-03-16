@@ -18,9 +18,10 @@ export async function joinRoom(
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { name: true },
+    select: { name: true, email: true },
   });
   if (!user) return null;
+  const displayName = user.name ?? user.email ?? "Anonymous";
 
   const roomDetails = await prisma.room.findUnique({
     where: { id: roomId },
@@ -29,7 +30,9 @@ export async function joinRoom(
   if (!roomDetails) return null;
 
   if (config.nodeEnv === "development") {
-    console.log(`[WS] Joined Room: ${roomDetails.name} || User: ${user.name}`);
+    console.log(
+      `[WS] Joined Room: ${roomDetails.name} || User: ${displayName}`
+    );
   }
 
   if (!room) {
@@ -48,7 +51,7 @@ export async function joinRoom(
   const shapes = Array.from(room.shapes.values());
   return {
     shapes,
-    userName: user.name,
+    userName: displayName,
     presentCount: room.users.size,
   };
 }
@@ -62,9 +65,10 @@ export async function leaveRoom(
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { name: true },
+    select: { name: true, email: true },
   });
   if (!user) return null;
+  const displayName = user.name ?? user.email ?? "Anonymous";
 
   const roomDetails = await prisma.room.findUnique({
     where: { id: roomId },
@@ -73,11 +77,11 @@ export async function leaveRoom(
   if (!roomDetails) return null;
 
   if (config.nodeEnv === "development") {
-    console.log(`[WS] Left Room: ${roomDetails.name} || User: ${user.name}`);
+    console.log(`[WS] Left Room: ${roomDetails.name} || User: ${displayName}`);
   }
 
   room.users.delete(userId);
-  return { room, userName: user.name };
+  return { room, userName: displayName };
 }
 
 export function applyShape(roomId: string, shape: CanvasShape) {

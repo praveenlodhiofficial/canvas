@@ -36,7 +36,7 @@ export async function handleMessage(
       type: "cursor_move",
       payload: {
         userId: user.id,
-        userName: user.name ?? user.email,
+        userName: user.name ?? user.email ?? "Anonymous",
         x: msg.x,
         y: msg.y,
       },
@@ -50,7 +50,7 @@ export async function handleMessage(
       type: "selection_change",
       payload: {
         userId: user.id,
-        userName: user.name ?? user.email,
+        userName: user.name ?? user.email ?? "Anonymous",
         selectedShapeIds: msg.selectedShapeIds ?? [],
       },
     });
