@@ -21,6 +21,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { Separator } from "./ui/separator";
 
 interface RoomCardProps {
   id: string;
@@ -95,7 +96,7 @@ export function RoomCard({
         />
 
         <div className="relative flex min-h-0 flex-1 flex-col p-5">
-          <div className="mb-2 flex items-start justify-between gap-2">
+          <div className="mb-2 flex items-start justify-between">
             <div className="min-w-0 flex-1">
               <div className="mb-1 flex flex-wrap items-center gap-2">
                 <Badge
@@ -108,10 +109,10 @@ export function RoomCard({
                   {isOwner ? "Created" : "Joined"}
                 </Badge>
               </div>
-              <h3 className="text-foreground line-clamp-1 text-base font-semibold">
+              <h3 className="text-foreground mt-2 line-clamp-1 text-base font-semibold">
                 {name}
               </h3>
-              <p className="mt-0.5 line-clamp-2 text-sm text-neutral-400">
+              <p className="mt-1 line-clamp-2 text-sm text-neutral-400">
                 {description}
               </p>
             </div>
@@ -155,9 +156,9 @@ export function RoomCard({
             </DropdownMenu>
           </div>
 
-          <div className="flex min-h-0 flex-1" />
+          <Separator className="my-3" />
 
-          <div className="space-y-3 pt-3">
+          <div className="bg- space-y-3 pt-3">
             <div className="flex items-center justify-between gap-2">
               {membersPreview.length > 0 ? (
                 <div className="flex shrink-0 -space-x-2">

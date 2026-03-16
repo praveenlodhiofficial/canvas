@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-import { RoomMember } from "./roomMember.schema";
-
 /* -------------------------------- ENUM --------------------------------- */
 
 export const RoomVisibilitySchema = z.enum(["PUBLIC", "PRIVATE"]);

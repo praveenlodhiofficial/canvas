@@ -10,7 +10,7 @@ import {
   changePassword as changePasswordDal,
   fetchMe,
   updateProfile as updateProfileDal,
-} from "@/dal/account.dal";
+} from "@/domains/account/account.dal";
 
 export type AccountUser = UserType & {
   roomsCreatedCount?: number;

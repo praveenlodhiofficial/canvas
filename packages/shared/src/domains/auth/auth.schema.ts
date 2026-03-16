@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { UserSchema } from "./user.schema";
+import { UserSchema } from "../user/user.schema";
 
 export const SignUpSchema = UserSchema.pick({
   name: true,

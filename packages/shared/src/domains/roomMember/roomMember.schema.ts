@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-import { RoomSchema } from "./room.schema";
-import { UserSchema } from "./user.schema";
+import { RoomSchema } from "../room/room.schema";
+import { UserSchema } from "../user/user.schema";
 
 /* -------------------------------- ENUM --------------------------------- */
 
