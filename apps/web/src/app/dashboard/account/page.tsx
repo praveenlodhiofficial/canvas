@@ -1,92 +1,84 @@
 import { redirect } from "next/navigation";
 
 import { getAccountUserAction } from "@/actions/account.actions";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { timeAgo } from "@/lib/time";
+import { ActivityCard } from "@/components/account/ActivityCard";
+import { AppearanceForm } from "@/components/account/AppearanceForm";
+import { ProfileCard } from "@/components/account/ProfileCard";
 
-export default async function AccountProfilePage() {
+const cardClass =
+  "rounded-xl border border-neutral-200 bg-neutral-50/80 p-6 transition-colors hover:border-neutral-300 dark:border-neutral-800 dark:bg-neutral-900/40 dark:hover:border-neutral-700";
+
+export default async function AccountPage() {
   const result = await getAccountUserAction();
   if (!result.success || !result.user) redirect("/sign-in");
 
   const user = result.user;
-  const joinedDate = user.createdAt
-    ? new Date(user.createdAt).toLocaleDateString(undefined, {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })
-    : null;
-
-  const initials = user.name
-    .split(" ")
-    .map((p) => p.charAt(0).toUpperCase())
-    .join("")
-    .slice(0, 2);
 
   return (
-    <div className="space-y-8">
+    <>
       <div>
-        <h1 className="text-foreground text-2xl font-bold">Profile</h1>
-        <p className="text-muted-foreground mt-1 text-sm">
-          Your account information and workspace stats
+        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-200">
+          Account
+        </h1>
+        <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+          Profile, theme, and activity
         </p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Profile information</CardTitle>
-          <CardDescription>Name, email, and avatar</CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-8">
-          <Avatar className="size-20 shrink-0">
-            <AvatarImage src={user.avatarUrl ?? undefined} alt={user.name} />
-            <AvatarFallback className="text-lg">{initials}</AvatarFallback>
-          </Avatar>
-          <div className="min-w-0 space-y-1">
-            <p className="text-foreground font-semibold">{user.name}</p>
-            {user.username && (
-              <p className="text-muted-foreground text-sm">@{user.username}</p>
-            )}
-            <p className="text-muted-foreground text-sm">{user.email}</p>
-            {joinedDate && (
-              <p className="text-muted-foreground text-sm">
-                Joined {joinedDate}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        {/* Row 1: Profile (2 cols) | Workspace Stats (1 col) */}
+        <div className={`${cardClass} md:col-span-2`}>
+          <ProfileCard user={user} />
+        </div>
+        <div className={cardClass}>
+          <div className="space-y-4">
+            <div>
+              <h2 className="font-semibold text-neutral-900 dark:text-neutral-100">
+                Workspace stats
+              </h2>
+              <p className="mt-0.5 text-sm text-neutral-500 dark:text-neutral-400">
+                Rooms created and joined
               </p>
-            )}
-            {user.bio && (
-              <p className="text-muted-foreground mt-2 text-sm">{user.bio}</p>
-            )}
+            </div>
+            <div className="flex gap-8">
+              <div className="space-y-1">
+                <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                  Rooms created
+                </p>
+                <p className="text-3xl font-semibold text-neutral-900 dark:text-neutral-100">
+                  {user.roomsCreatedCount ?? 0}
+                </p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                  Rooms joined
+                </p>
+                <p className="text-3xl font-semibold text-neutral-900 dark:text-neutral-100">
+                  {user.roomsJoinedCount ?? 0}
+                </p>
+              </div>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Workspace stats</CardTitle>
-          <CardDescription>Rooms you created and joined</CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-wrap gap-6">
-          <div>
-            <p className="text-muted-foreground text-sm">Rooms created</p>
-            <p className="text-foreground text-2xl font-semibold">
-              {user.roomsCreatedCount ?? 0}
-            </p>
+        {/* Row 2: Theme (1 col) | Activity (2 cols) */}
+        <div className={cardClass}>
+          <div className="space-y-4">
+            <div>
+              <h2 className="font-semibold text-neutral-900 dark:text-neutral-100">
+                Theme
+              </h2>
+              <p className="mt-0.5 text-sm text-neutral-500 dark:text-neutral-400">
+                Light, dark, or system
+              </p>
+            </div>
+            <AppearanceForm />
           </div>
-          <div>
-            <p className="text-muted-foreground text-sm">Rooms joined</p>
-            <p className="text-foreground text-2xl font-semibold">
-              {user.roomsJoinedCount ?? 0}
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+        <div className={`${cardClass} md:col-span-2`}>
+          <ActivityCard user={user} />
+        </div>
+      </div>
+    </>
   );
 }

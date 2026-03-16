@@ -23,7 +23,7 @@ export default async function RoomsDashboard() {
   );
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8">
+    <div className="container mx-auto space-y-8">
       <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-foreground text-3xl font-bold md:text-4xl">

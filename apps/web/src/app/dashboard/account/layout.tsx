@@ -1,6 +1,5 @@
-import Link from "next/link";
-
-import { AccountNav } from "./AccountNav";
+import { AccountMobileNav } from "@/components/account/AccountMobileNav";
+import { AccountNav } from "@/components/account/AccountNav";
 
 export default function AccountLayout({
   children,
@@ -8,17 +7,18 @@ export default function AccountLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-8 md:flex-row">
-      <aside className="border-border shrink-0 border-b pb-6 md:w-52 md:border-r md:border-b-0 md:pr-6 md:pb-0">
-        <Link
-          href="/dashboard"
-          className="text-muted-foreground hover:text-foreground mb-4 block text-sm font-medium transition-colors"
-        >
-          ← Back to rooms
-        </Link>
+    <div className="absolute inset-0 top-20 z-10 flex max-h-[calc(100vh-100px)] min-h-0 flex-1 flex-col overflow-hidden md:flex-row">
+      <div className="mx-auto flex w-full">
+        <aside className="absolute top-5 right-5 z-30 md:hidden">
+          <AccountMobileNav />
+        </aside>
         <AccountNav />
-      </aside>
-      <main className="min-w-0 flex-1">{children}</main>
+        <main className="border-border hide-scrollbar min-h-0 min-w-0 flex-1 overflow-y-auto md:border-l">
+          <div className="max-w-5xl space-y-8 px-4 py-6 md:px-6 md:py-10">
+            {children}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

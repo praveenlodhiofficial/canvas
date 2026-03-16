@@ -49,7 +49,7 @@ export function AppearanceForm() {
       {options.map(({ value, label, icon: Icon }) => (
         <label
           key={value}
-          className="border-border hover:bg-muted/50 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5 flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-3 transition-colors"
+          className="border-border has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5 flex cursor-pointer items-center gap-3 rounded-md border p-4 transition-colors hover:bg-neutral-800 dark:hover:bg-neutral-800"
         >
           <RadioGroupItem value={value} id={`theme-${value}`} />
           <Icon className="text-muted-foreground size-4" />

@@ -25,7 +25,15 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-export function EditProfileForm({ user }: { user: AccountUser }) {
+export function EditProfileForm({
+  user,
+  onSuccess,
+  onCancel,
+}: {
+  user: AccountUser;
+  onSuccess?: () => void;
+  onCancel?: () => void;
+}) {
   const router = useRouter();
 
   const form = useForm<UpdateProfileInput>({
@@ -52,6 +60,7 @@ export function EditProfileForm({ user }: { user: AccountUser }) {
     }
     toast.success("Profile updated");
     router.refresh();
+    onSuccess?.();
   }
 
   return (
@@ -64,7 +73,11 @@ export function EditProfileForm({ user }: { user: AccountUser }) {
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input placeholder="Your name" {...field} />
+                <Input
+                  placeholder="Your name"
+                  className="border-border focus-visible:ring-ring/50 h-10 rounded-md focus-visible:ring-2"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -79,6 +92,7 @@ export function EditProfileForm({ user }: { user: AccountUser }) {
               <FormControl>
                 <Input
                   placeholder="username"
+                  className="border-border focus-visible:ring-ring/50 h-10 rounded-md focus-visible:ring-2"
                   {...field}
                   value={field.value ?? ""}
                 />
@@ -97,6 +111,7 @@ export function EditProfileForm({ user }: { user: AccountUser }) {
                 <Input
                   placeholder="https://..."
                   type="url"
+                  className="border-border focus-visible:ring-ring/50 h-10 rounded-md focus-visible:ring-2"
                   {...field}
                   value={field.value ?? ""}
                 />
@@ -114,6 +129,7 @@ export function EditProfileForm({ user }: { user: AccountUser }) {
               <FormControl>
                 <Input
                   placeholder="Short bio"
+                  className="border-border focus-visible:ring-ring/50 h-10 rounded-md focus-visible:ring-2"
                   {...field}
                   value={field.value ?? ""}
                 />
@@ -122,7 +138,14 @@ export function EditProfileForm({ user }: { user: AccountUser }) {
             </FormItem>
           )}
         />
-        <Button type="submit">Save changes</Button>
+        <div className="flex gap-2">
+          {onCancel && (
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Cancel
+            </Button>
+          )}
+          <Button type="submit">Save changes</Button>
+        </div>
       </form>
     </Form>
   );

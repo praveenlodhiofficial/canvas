@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
 
-import { Bell, Moon, Search, Sun, User } from "lucide-react";
+import { Bell, Moon, Pencil, Search, Sun, User } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,13 +22,17 @@ export function Header() {
 
   return (
     <header className="border-border bg-card/80 sticky top-0 z-50 border-b backdrop-blur-sm">
-      <div className="flex items-center justify-between px-6 py-4">
-        <div className="flex items-center gap-8">
+      <div className="container mx-auto flex items-center justify-between py-4">
+        <Link href="/dashboard" className="flex items-center gap-8">
           <div className="flex items-center gap-2">
-            <div className="bg-primary size-8 rounded-lg" />
-            <span className="text-foreground font-semibold">Canvas</span>
+            <div className="bg-primary text-primary-foreground flex h-9 w-9 items-center justify-center rounded-xl transition-transform group-hover:scale-105">
+              <Pencil className="h-4 w-4" />
+            </div>
+            <span className="text-foreground text-2xl font-semibold">
+              Canvas
+            </span>
           </div>
-        </div>
+        </Link>
 
         <div className="mx-8 max-w-md flex-1">
           <div className="relative">
